@@ -36,7 +36,7 @@ app.use((_req, res, next) => {
 })
 
 // Servir archivos estáticos del frontend en /barbweb2
-const frontendPath = path.join(__dirname, '../../dist')
+const frontendPath = path.join(__dirname, '../../../frontend/dist')
 app.use('/barbweb2', express.static(frontendPath))
 
 // Rutas de la API

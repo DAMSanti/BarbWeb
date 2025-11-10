@@ -16,7 +16,7 @@ export interface FilteredQuestion {
   complexity: 'simple' | 'medium' | 'complex'
 }
 
-const LEGAL_CATEGORIES = ['Civil', 'Penal', 'Laboral', 'Administrativo', 'Mercantil', 'Familia']
+const LEGAL_CATEGORIES = ['Civil', 'Penal', 'Laboral', 'Administrativo', 'Mercantil', 'Familia', 'Tributario']
 
 const LEGAL_AGENT_PROMPT = `Eres el asistente legal virtual del bufete "Bárbara & Abogados", especializado en derecho español.
 

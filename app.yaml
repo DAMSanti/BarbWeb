@@ -4,8 +4,8 @@ services:
   github:
     branch: master
     repo: DAMSanti/BarbWeb
-  build_command: npm install && npm run build && cd server && rm -rf node_modules && npm install && npm run build
-  run_command: cd /workspace/server && node dist/index.js
+  build_command: cd frontend && npm install && npm run build && cd ../backend && rm -rf node_modules && npm install && npm run build
+  run_command: cd /workspace/backend && node dist/index.js
   envs:
   - key: PORT
     value: "3000"

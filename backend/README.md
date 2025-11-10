@@ -1,77 +1,152 @@
-# 🚀 Backend - Bufete Jurídico
+# Backend - Barbara & Abogados# 🚀 Backend - Bufete Jurídico
 
-Backend de Node.js + Express que integra OpenAI GPT-4o Mini para análisis inteligente de preguntas legales.
 
-## 📋 Características
 
-- ✅ Integración con OpenAI GPT-4o Mini
-- ✅ Detección automática de categoría legal
-- ✅ Búsqueda en base de datos local de FAQs
-- ✅ Generación de respuestas detalladas
-- ✅ API REST con CORS
+Backend Node.js + Express + TypeScript para la API de consultas legales.Backend de Node.js + Express que integra OpenAI GPT-4o Mini para análisis inteligente de preguntas legales.
+
+
+
+## Stack Tecnológico## 📋 Características
+
+
+
+- **Node.js** - Runtime- ✅ Integración con OpenAI GPT-4o Mini
+
+- **Express** - Framework web- ✅ Detección automática de categoría legal
+
+- **TypeScript** - Tipado estático- ✅ Búsqueda en base de datos local de FAQs
+
+- **Google Gemini AI** - Inteligencia artificial- ✅ Generación de respuestas detalladas
+
+- **@google/generative-ai** - SDK de Gemini- ✅ API REST con CORS
+
 - ✅ TypeScript para seguridad de tipos
+
+## Comandos
 
 ## 📁 Estructura
 
-```
-server/
+```bash
+
+# Instalar dependencias```
+
+npm installserver/
+
 ├── src/
-│   ├── index.ts              # Servidor Express principal
-│   ├── routes/
+
+# Desarrollo│   ├── index.ts              # Servidor Express principal
+
+npm run dev│   ├── routes/
+
 │   │   └── api.ts            # Rutas de API
-│   ├── services/
-│   │   └── openaiService.ts  # Integración con OpenAI
+
+# Build para producción│   ├── services/
+
+npm run build│   │   └── openaiService.ts  # Integración con OpenAI
+
 │   └── utils/
-│       └── faqDatabase.ts    # Base de datos de FAQs
-├── package.json
-├── tsconfig.json
+
+# Iniciar en producción│       └── faqDatabase.ts    # Base de datos de FAQs
+
+npm start├── package.json
+
+```├── tsconfig.json
+
 └── .env.example
-```
 
-## 🔧 Instalación
+## Estructura```
 
-### 1. Instalar dependencias
 
-```bash
-cd server
-npm install
-```
 
-### 2. Configurar variables de entorno
+```## 🔧 Instalación
 
-```bash
+src/
+
+├── routes/         # Endpoints de la API### 1. Instalar dependencias
+
+│   └── api.ts
+
+├── services/       # Lógica de negocio```bash
+
+│   └── openaiService.ts (Gemini AI)cd server
+
+├── utils/          # Utilidadesnpm install
+
+│   └── faqDatabase.ts```
+
+└── index.ts        # Entry point
+
+```### 2. Configurar variables de entorno
+
+
+
+## Variables de Entorno```bash
+
 cp .env.example .env.local
-```
 
-Edita `.env.local` y añade:
+```env```
 
-```env
 PORT=3000
+
+NODE_ENV=productionEdita `.env.local` y añade:
+
+GEMINI_API_KEY=tu_api_key_aquí
+
+FRONTEND_URL=https://tu-dominio.com```env
+
+```PORT=3000
+
 NODE_ENV=development
-OPENAI_API_KEY=sk_test_tu_clave_aqui
+
+## API EndpointsOPENAI_API_KEY=sk_test_tu_clave_aqui
+
 FRONTEND_URL=http://localhost:5173
-```
 
-### 3. Obtener API Key de OpenAI
+### POST /api/filter-question```
 
-1. Ve a https://platform.openai.com/
-2. Inicia sesión o crea una cuenta
+Analiza una pregunta legal con IA y devuelve:
+
+- Categoría legal### 3. Obtener API Key de OpenAI
+
+- Respuesta breve orientativa
+
+- Recomendación de consulta profesional1. Ve a https://platform.openai.com/
+
+- Nivel de complejidad2. Inicia sesión o crea una cuenta
+
 3. Ve a "API keys" en settings
-4. Haz clic en "Create new secret key"
-5. Copia la clave (comienza con `sk_`)
+
+### POST /api/generate-response4. Haz clic en "Create new secret key"
+
+Genera una respuesta detallada para una categoría específica.5. Copia la clave (comienza con `sk_`)
+
 6. Pégala en `.env.local`
 
-> ⚠️ **Importante**: Nunca compartas tu API key. No la subas a GitHub.
+### GET /api/health
 
-## ▶️ Ejecutar el Servidor
+Health check del servidor.> ⚠️ **Importante**: Nunca compartas tu API key. No la subas a GitHub.
 
-### Desarrollo (con hot reload)
 
-```bash
-npm run dev
+
+## Modelo de IA## ▶️ Ejecutar el Servidor
+
+
+
+Usando **Gemini 2.5 Flash Lite**:### Desarrollo (con hot reload)
+
+- Rápido y económico
+
+- Especializado en derecho español```bash
+
+- Orientado a conversión (recomienda consulta profesional en ~80% de casos)npm run dev
+
 ```
 
+## Deploy
+
 El servidor estará disponible en `http://localhost:3000`
+
+Se despliega automáticamente en Digital Ocean desde GitHub (rama master).
 
 ### Producción
 

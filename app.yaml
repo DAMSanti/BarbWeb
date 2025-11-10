@@ -6,7 +6,7 @@ services:
     repo: DAMSanti/BarbWeb
   source_dir: server
   build_command: npm run build
-  run_command: node dist/index.js
+  run_command: npm run start
   envs:
   - key: PORT
     value: "3000"
@@ -23,7 +23,7 @@ services:
     branch: master
     repo: DAMSanti/BarbWeb
   build_command: tsc && vite build
-  run_command: npm run preview
+  run_command: npm run start
   envs:
   - key: VITE_API_URL
     value: ${BACKEND_URL}

@@ -109,7 +109,7 @@ export default function FAQPage() {
   const suggestedFaqs = selectedCategory ? (faqDatabase[selectedCategory] || []) : []
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12">
+    <div className="min-h-screen py-12" style={{ background: 'var(--body-bg)' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
@@ -122,7 +122,7 @@ export default function FAQPage() {
         </div>
 
         {/* Search Form */}
-        <form onSubmit={handleSearch} className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+        <form onSubmit={handleSearch} className="rounded-2xl shadow-lg p-8 mb-8" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', borderWidth: '1px' }}>
           <div className="space-y-6">
             {/* Question Input */}
             <div>

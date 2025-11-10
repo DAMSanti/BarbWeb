@@ -1,7 +1,6 @@
 import { useAppStore } from '../store/appStore'
 import ClassicLayout from '../layouts/ClassicLayout'
 import MinimalistLayout from '../layouts/MinimalistLayout'
-import StyleSwitcher from '../components/StyleSwitcher'
 
 export default function HomePage() {
   const { layout } = useAppStore()
@@ -16,10 +15,5 @@ export default function HomePage() {
     }
   }
 
-  return (
-    <>
-      <StyleSwitcher />
-      {renderLayout()}
-    </>
-  )
+  return renderLayout()
 }

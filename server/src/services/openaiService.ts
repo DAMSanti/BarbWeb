@@ -9,35 +9,48 @@ const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GE
 
 export interface FilteredQuestion {
   category: string
-  hasAutoResponse: boolean
-  autoResponse?: string
+  briefAnswer: string
+  needsProfessionalConsultation: boolean
   reasoning: string
   confidence: number
+  complexity: 'simple' | 'medium' | 'complex'
 }
 
 const LEGAL_CATEGORIES = ['Civil', 'Penal', 'Laboral', 'Administrativo', 'Mercantil', 'Familia']
 
-const SYSTEM_PROMPT = `Eres un experto en derecho español. Tu tarea es analizar preguntas legales y:
+const LEGAL_AGENT_PROMPT = `Eres el asistente legal virtual del bufete "Bárbara & Abogados", especializado en derecho español.
 
-1. Detectar la categoría legal correcta
-2. Determinar si hay una respuesta automática disponible en la base de datos
-3. Proporcionar razonamiento claro
+TU MISIÓN:
+- Proporcionar una orientación legal básica inicial
+- Identificar correctamente la categoría legal
+- Evaluar si el caso necesita consulta profesional personalizada
+- Motivar al cliente a contratar el servicio profesional del bufete
 
-Categorías disponibles: ${LEGAL_CATEGORIES.join(', ')}
+CATEGORÍAS DISPONIBLES: ${LEGAL_CATEGORIES.join(', ')}
 
-Responde SIEMPRE en formato JSON válido como este:
+CRITERIOS PARA RECOMENDAR CONSULTA PROFESIONAL:
+- ✅ Casos que involucren cantidades de dinero
+- ✅ Situaciones con plazos legales (prescripción, recursos, etc.)
+- ✅ Conflictos interpersonales (divorcios, herencias, despidos)
+- ✅ Trámites que requieran documentación legal
+- ✅ Cualquier caso donde haya riesgo legal o económico
+- ⚠️ Solo responder gratis: preguntas teóricas generales muy simples
+
+FORMATO DE RESPUESTA JSON (OBLIGATORIO):
 {
   "category": "Civil|Penal|Laboral|Administrativo|Mercantil|Familia",
-  "hasAutoResponse": true|false,
-  "autoResponse": "respuesta si existe, null si no",
-  "reasoning": "explicación breve de por qué",
-  "confidence": 0.0-1.0
+  "briefAnswer": "Respuesta orientativa breve (máx 150 palabras). Menciona que para su caso específico necesita consulta personalizada.",
+  "needsProfessionalConsultation": true,
+  "reasoning": "Por qué este caso requiere un abogado profesional",
+  "confidence": 0.0-1.0,
+  "complexity": "simple|medium|complex"
 }
 
-IMPORTANTE: 
-- Si no estás seguro de la categoría (confianza < 0.6), devuelve confidence bajo
-- Las respuestas automáticas deben ser solo para preguntas MUY comunes
-- Sé conservador: si hay duda, hasAutoResponse = false
+IMPORTANTE:
+- Sé CONSERVADOR: la mayoría de casos deben ir a consulta profesional
+- La respuesta breve es solo una orientación, NO asesoramiento legal completo
+- Menciona siempre la importancia de consultar con un abogado
+- needsProfessionalConsultation debe ser TRUE en el 80% de los casos
 `
 
 export async function filterQuestionWithAI(question: string): Promise<FilteredQuestion> {
@@ -52,7 +65,7 @@ export async function filterQuestionWithAI(question: string): Promise<FilteredQu
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' })
 
-    const prompt = `${SYSTEM_PROMPT}\n\nAnaliza esta pregunta legal: "${question}"`
+    const prompt = `${LEGAL_AGENT_PROMPT}\n\nPregunta del cliente: "${question}"\n\nAnaliza y responde en formato JSON:`
 
     const result = await model.generateContent(prompt)
     const response = await result.response
@@ -75,8 +88,10 @@ export async function filterQuestionWithAI(question: string): Promise<FilteredQu
       parsedResult.category = 'Civil' // Default
     }
 
-    if (parsedResult.confidence < 0.5) {
-      parsedResult.hasAutoResponse = false
+    // Asegurar que briefAnswer siempre exista
+    if (!parsedResult.briefAnswer || parsedResult.briefAnswer.trim().length === 0) {
+      parsedResult.briefAnswer = 'Para evaluar correctamente su situación, necesitamos analizar los detalles específicos de su caso en una consulta personalizada.'
+      parsedResult.needsProfessionalConsultation = true
     }
 
     return parsedResult

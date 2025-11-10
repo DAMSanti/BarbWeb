@@ -13,10 +13,11 @@ interface FilterQuestionResponse {
   data?: {
     question: string
     category: string
-    hasAutoResponse: boolean
-    autoResponse?: string
+    briefAnswer: string
+    needsProfessionalConsultation: boolean
     reasoning: string
     confidence: number
+    complexity: 'simple' | 'medium' | 'complex'
   }
   error?: string
 }
@@ -37,31 +38,25 @@ router.post('/filter-question', async (req: Request, res: Response) => {
       return
     }
 
-    // Paso 1: Usar OpenAI para analizar la pregunta
+    // Paso 1: Usar el agente IA para analizar y responder
     const aiResult = await filterQuestionWithAI(question)
 
-    // Paso 2: Buscar FAQ en base de datos local
+    // Paso 2: Buscar FAQ en base de datos local (opcional, como complemento)
     const localFAQ = findSimilarFAQ(question, aiResult.category as any)
 
-    // Paso 3: Si hay FAQ, usar esa respuesta; si no, OpenAI genera una
-    let autoResponse: string | undefined
-
-    if (localFAQ) {
-      autoResponse = localFAQ.answer
-    } else if (aiResult.hasAutoResponse) {
-      // Generar respuesta detallada con OpenAI
-      autoResponse = await generateDetailedResponse(question, aiResult.category)
-    }
+    // Paso 3: Priorizar respuesta local si existe, si no usar la del agente IA
+    const finalAnswer = localFAQ ? localFAQ.answer : aiResult.briefAnswer
 
     const response: FilterQuestionResponse = {
       success: true,
       data: {
         question,
         category: aiResult.category,
-        hasAutoResponse: !!autoResponse,
-        autoResponse,
+        briefAnswer: finalAnswer,
+        needsProfessionalConsultation: aiResult.needsProfessionalConsultation,
         reasoning: aiResult.reasoning,
         confidence: aiResult.confidence,
+        complexity: aiResult.complexity,
       },
     }
 

@@ -11,10 +11,11 @@ export interface FilteredQuestionResponse {
   data?: {
     question: string
     category: string
-    hasAutoResponse: boolean
-    autoResponse?: string
+    briefAnswer: string
+    needsProfessionalConsultation: boolean
     reasoning: string
     confidence: number
+    complexity: 'simple' | 'medium' | 'complex'
   }
   error?: string
 }

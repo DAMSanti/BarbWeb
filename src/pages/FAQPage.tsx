@@ -14,6 +14,8 @@ interface AutoResponse {
   answer: string
   confidence: number
   reasoning: string
+  needsProfessionalConsultation: boolean
+  complexity: 'simple' | 'medium' | 'complex'
 }
 
 export default function FAQPage() {
@@ -63,31 +65,19 @@ export default function FAQPage() {
           return
         }
 
-        // Si hay respuesta automática
-        if (result.data.hasAutoResponse && result.data.autoResponse) {
-          setShowAutoResponse(true)
-          setAutoResponse({
-            category: result.data.category,
-            answer: result.data.autoResponse,
-            confidence: result.data.confidence,
-            reasoning: result.data.reasoning,
-          })
-        } else {
-          // No hay respuesta automática, dirigir a checkout
-          const consultation: ConsultationRequest = {
-            id: `consult-${Date.now()}`,
-            clientName: '',
-            clientEmail: '',
-            question: question.trim(),
-            category: result.data.category as LegalCategory,
-            price: CONSULTATION_PRICE,
-            isPaid: false,
-            createdAt: new Date(),
-          }
+        // Siempre mostrar respuesta del agente IA
+        setShowAutoResponse(true)
+        setAutoResponse({
+          category: result.data.category,
+          answer: result.data.briefAnswer,
+          confidence: result.data.confidence,
+          reasoning: result.data.reasoning,
+          needsProfessionalConsultation: result.data.needsProfessionalConsultation,
+          complexity: result.data.complexity,
+        })
 
-          addConsultation(consultation)
-          navigate(`/checkout/${consultation.id}`)
-        }
+        // Guardar categoría para consulta futura
+        setSelectedCategory(result.data.category as LegalCategory)
       } else {
         setErrorMessage('El servidor no está disponible. Por favor, intenta más tarde.')
       }

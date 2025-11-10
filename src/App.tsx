@@ -7,7 +7,7 @@ import CheckoutPage from './pages/CheckoutPage'
 
 function App() {
   return (
-    <Router>
+    <Router basename="/barbweb2">
       <div className="flex flex-col min-h-screen bg-white">
         <Header />
         <main className="flex-grow">

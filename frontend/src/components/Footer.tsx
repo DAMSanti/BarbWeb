@@ -35,17 +35,17 @@ export default function Footer() {
           <div>
             <h4 className="footer-heading text-lg font-bold mb-4">Contacto</h4>
             <ul className="space-y-3 text-sm">
-              <li className="flex items-start space-x-2 footer-text">
-                <MapPin size={16} className="footer-icon mt-1 flex-shrink-0" />
-                <span>C/ Castrillo de la Reina, 7<br />Torre Levante 3ºA<br />34672 Zarzosa (Palencia)</span>
+              <li className="flex items-center space-x-2 footer-text">
+                <MapPin size={16} className="footer-icon" />
+                <span>Blv. Demetrio Herrero 1, Entlo A<br />Torrelabega, Cantabria<br />España</span>
               </li>
               <li className="flex items-center space-x-2 footer-text">
                 <Phone size={16} className="footer-icon" />
-                <a href="tel:+34672122452" className="footer-link">+34 672 122 452</a>
+                <a href="tel:+34672722452" className="footer-link">+34 672 722 452</a>
               </li>
               <li className="flex items-center space-x-2 footer-text">
                 <Mail size={16} className="footer-icon" />
-                <a href="mailto:legalbar@legalbar.es" className="footer-link">legalbar@legalbar.es</a>
+                <a href="mailto:bgarcia@icacantabria.es" className="footer-link">bgarcia@icacantabria.es</a>
               </li>
             </ul>
           </div>

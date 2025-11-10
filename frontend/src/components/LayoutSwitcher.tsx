@@ -7,7 +7,6 @@ export default function LayoutSwitcher() {
   const layouts: { value: LayoutType; label: string }[] = [
     { value: 'classic', label: 'Clásico' },
     { value: 'minimalist', label: 'Minimalista' },
-    { value: 'premium', label: 'Premium' },
   ]
 
   return (

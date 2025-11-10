@@ -32,13 +32,13 @@ export default function Header() {
 
           {/* Contact Info */}
           <div className="header-contact hidden lg:flex items-center space-x-6">
-            <a href="tel:+34672122452" className="header-contact-link flex items-center space-x-2">
+            <a href="tel:+34672722452" className="header-contact-link flex items-center space-x-2">
               <Phone size={18} />
-              <span className="text-sm">+34 672 122 452</span>
+              <span className="text-sm">+34 672 722 452</span>
             </a>
-            <a href="mailto:legalbar@legalbar.es" className="header-contact-link flex items-center space-x-2">
+            <a href="mailto:bgarcia@icacantabria.es" className="header-contact-link flex items-center space-x-2">
               <Mail size={18} />
-              <span className="text-sm">legalbar@legalbar.es</span>
+              <span className="text-sm">bgarcia@icacantabria.es</span>
             </a>
           </div>
 

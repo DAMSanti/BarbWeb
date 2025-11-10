@@ -12,12 +12,16 @@ const PORT = process.env.PORT || 3000
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-// Add custom CORS headers manually
+// Add custom CORS headers manually - Override any Railway proxy headers
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*')
+  const origin = req.headers.origin || '*'
+  
+  // Always respond with the requesting origin, never railway.com
+  res.header('Access-Control-Allow-Origin', origin === 'https://railway.com' ? '*' : origin)
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.header('Access-Control-Allow-Credentials', 'false')
+  res.header('Vary', 'Origin')
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200)

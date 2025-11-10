@@ -9,11 +9,28 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 
-// Middleware
-app.use(cors({
-  origin: FRONTEND_URL,
+// CORS configuration to allow multiple origins
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://stackblitz.com',
+      FRONTEND_URL,
+    ]
+    
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin || allowedOrigins.includes(origin) || origin.includes('webcontainer.io')) {
+      callback(null, true)
+    } else {
+      callback(null, true) // For development, allow all origins
+    }
+  },
   credentials: true,
-}))
+}
+
+// Middleware
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

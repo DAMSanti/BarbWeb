@@ -18,13 +18,14 @@ export default function CheckoutPage() {
 
   if (!consultation) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--body-bg)' }}>
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Consulta no encontrada</h1>
+          <AlertCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#dc2626' }} />
+          <h1 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Consulta no encontrada</h1>
           <button
             onClick={() => navigate('/faq')}
-            className="text-primary-600 hover:text-primary-700 font-semibold"
+            className="font-semibold hover:opacity-80 transition-opacity"
+            style={{ color: 'var(--accent-color)' }}
           >
             ← Volver a Consultas
           </button>
@@ -70,33 +71,34 @@ export default function CheckoutPage() {
 
   if (paymentSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 text-center">
-          <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">¡Pago Completado!</h1>
-          <p className="text-gray-600 mb-6">
+      <div className="min-h-screen flex items-center justify-center py-12 px-4" style={{ background: 'var(--body-bg)' }}>
+        <div className="max-w-md w-full rounded-2xl shadow-lg p-8 text-center" style={{ backgroundColor: 'var(--card-bg)' }}>
+          <CheckCircle className="w-16 h-16 mx-auto mb-6" style={{ color: '#22c55e' }} />
+          <h1 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>¡Pago Completado!</h1>
+          <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
             Tu consulta ha sido registrada exitosamente. Nos pondremos en contacto pronto en:
           </p>
-          <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-            <p className="text-sm text-gray-600">
+          <div className="rounded-lg p-4 mb-6 text-left" style={{ backgroundColor: 'var(--surface-muted)', borderColor: 'var(--border-color)', borderWidth: '1px' }}>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               <strong>Nombre:</strong> {clientName}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               <strong>Email:</strong> {clientEmail}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               <strong>Categoría:</strong> {consultation.category}
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               <strong>Monto pagado:</strong> ${consultation.price}
             </p>
           </div>
-          <p className="text-gray-600 mb-8 text-sm">
+          <p className="mb-8 text-sm" style={{ color: 'var(--text-secondary)' }}>
             Recibirás un email de confirmación y la respuesta de nuestros abogados en máximo 48 horas.
           </p>
           <button
             onClick={() => navigate('/')}
-            className="w-full bg-primary-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors"
+            className="w-full text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: 'var(--accent-color)' }}
           >
             Volver al Inicio
           </button>
@@ -106,12 +108,13 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen py-12" style={{ background: 'var(--body-bg)' }}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <button
           onClick={() => navigate('/faq')}
-          className="flex items-center text-primary-600 hover:text-primary-700 font-semibold mb-8"
+          className="flex items-center font-semibold mb-8 hover:opacity-80 transition-opacity"
+          style={{ color: 'var(--accent-color)' }}
         >
           <ArrowLeft size={20} className="mr-2" />
           Volver a Consultas
@@ -120,35 +123,35 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl shadow-lg p-6 sticky top-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Resumen</h2>
+            <div className="rounded-2xl shadow-lg p-6 sticky top-6" style={{ backgroundColor: 'var(--card-bg)' }}>
+              <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Resumen</h2>
 
               <div className="space-y-4 mb-6">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Categoría Legal</p>
-                  <p className="font-semibold text-gray-900">{consultation.category}</p>
+                  <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Categoría Legal</p>
+                  <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{consultation.category}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Tu Pregunta</p>
-                  <p className="font-semibold text-gray-900 line-clamp-3">{consultation.question}</p>
+                  <p className="text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Tu Pregunta</p>
+                  <p className="font-semibold line-clamp-3" style={{ color: 'var(--text-primary)' }}>{consultation.question}</p>
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 mb-6">
+              <div className="pt-4 mb-6" style={{ borderColor: 'var(--border-color)', borderTopWidth: '1px' }}>
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-gray-600">Consulta Profesional</span>
-                  <span className="font-semibold text-gray-900">${consultation.price}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>Consulta Profesional</span>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>${consultation.price}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Impuestos (IVA)</span>
-                  <span className="font-semibold text-gray-900">${(consultation.price * 0.21).toFixed(2)}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>Impuestos (IVA)</span>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>${(consultation.price * 0.21).toFixed(2)}</span>
                 </div>
               </div>
 
-              <div className="border-t-2 border-gray-200 pt-4">
+              <div className="pt-4" style={{ borderColor: 'var(--border-color)', borderTopWidth: '2px' }}>
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-primary-600">
+                  <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Total</span>
+                  <span className="text-2xl font-bold" style={{ color: 'var(--accent-color)' }}>
                     ${(consultation.price * 1.21).toFixed(2)}
                   </span>
                 </div>

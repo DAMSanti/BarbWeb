@@ -35,13 +35,6 @@ app.use((_req, res, next) => {
   next()
 })
 
-// Servir archivos estáticos del frontend en /barbweb2
-const frontendPath = path.join(__dirname, '../../../frontend/dist')
-app.use('/barbweb2', express.static(frontendPath))
-
-// Rutas de la API
-app.use('/api', apiRoutes)
-
 // Health check
 app.get('/', (req, res) => {
   res.json({
@@ -51,13 +44,37 @@ app.get('/', (req, res) => {
   })
 })
 
-// Catch-all para SPA - Cualquier ruta bajo /barbweb2 que no sea un archivo
+// Rutas de la API - ANTES que las rutas estáticas
+app.use('/api', apiRoutes)
+
+// Servir archivos estáticos del frontend en /barbweb2
+const frontendPath = path.join(__dirname, '../../../frontend/dist')
+
+// Servir archivos estáticos (CSS, JS, imágenes)
+app.use('/barbweb2', express.static(frontendPath, {
+  index: false, // No servir index.html automáticamente
+  setHeaders: (res) => {
+    res.set('Cache-Control', 'public, max-age=3600')
+  }
+}))
+
+// Catch-all para SPA - Cualquier ruta bajo /barbweb2 que no sea un archivo estático
 // debe redirigir al index.html para que React Router funcione
 app.get('/barbweb2/*', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'))
+  const indexPath = path.join(frontendPath, 'index.html')
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error serving index.html:', err)
+      res.status(404).json({
+        success: false,
+        error: 'Frontend not found. Ensure frontend/dist is built.',
+      })
+    }
+  })
 })
 
-// Error handling
+// Error handling - Al final
 app.use((_err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Unhandled error:', _err)
   res.status(500).json({

@@ -7,16 +7,20 @@ import FAQPage from './pages/FAQPage'
 import CheckoutPage from './pages/CheckoutPage'
 import { useAppStore } from './store/appStore'
 import { THEME_CLASSNAMES, DEFAULT_THEME_ID } from './theme/themes'
+import { applyThemeVariables } from './theme/themeVariables'
 
 function App() {
   const theme = useAppStore((state) => state.theme)
 
   useEffect(() => {
-    // Aplicar tema al body
+    // Aplicar variables CSS del tema
+    applyThemeVariables(theme)
+    
+    // Aplicar clase al body
     document.body.classList.remove(...THEME_CLASSNAMES)
     document.body.classList.add(`theme-${theme}`)
     
-    // También guardar en localStorage para persistencia
+    // Guardar en localStorage
     localStorage.setItem('theme', theme)
   }, [theme])
 
@@ -29,6 +33,7 @@ function App() {
     }
     
     // Aplicar inmediatamente
+    applyThemeVariables(savedTheme as any)
     document.body.classList.remove(...THEME_CLASSNAMES)
     document.body.classList.add(`theme-${savedTheme}`)
   }, [])

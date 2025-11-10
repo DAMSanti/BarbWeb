@@ -1,13 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { CreditCard, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
+import Header from '../components/Header'
+import StyleSwitcher from '../components/StyleSwitcher'
 import { useAppStore } from '../store/appStore'
 
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
   const navigate = useNavigate()
-  const consultations = useAppStore((state) => state.consultations)
-  const updateConsultation = useAppStore((state) => state.updateConsultation)
+  const { layout, consultations, updateConsultation } = useAppStore()
 
   const consultation = consultations.find((c) => c.id === consultationId)
   const [clientName, setClientName] = useState(consultation?.clientName || '')
@@ -107,9 +108,14 @@ export default function CheckoutPage() {
     )
   }
 
+  // Estilos según diseño
+  const containerMaxWidth = layout === 'minimalist' ? 'max-w-3xl' : 'max-w-2xl'
+  const gridLayout = layout === 'minimalist' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'
+
   return (
     <div className="min-h-screen py-12" style={{ background: 'var(--body-bg)' }}>
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <StyleSwitcher />
+      <div className={`${containerMaxWidth} mx-auto px-4 sm:px-6 lg:px-8`}>
         {/* Back Button */}
         <button
           onClick={() => navigate('/faq')}
@@ -120,7 +126,7 @@ export default function CheckoutPage() {
           Volver a Consultas
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className={`grid ${gridLayout} gap-8`}>
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="rounded-2xl shadow-lg p-6 sticky top-6" style={{ backgroundColor: 'var(--card-bg)' }}>

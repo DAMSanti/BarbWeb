@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Filter, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react'
+import StyleSwitcher from '../components/StyleSwitcher'
 import { LegalCategory, ConsultationRequest } from '../types'
 import { faqDatabase } from '../utils/faqMatcher'
 import { useAppStore } from '../store/appStore'
@@ -20,6 +21,7 @@ interface AutoResponse {
 
 export default function FAQPage() {
   const navigate = useNavigate()
+  const { layout, addConsultation } = useAppStore()
   const [question, setQuestion] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<LegalCategory | null>(null)
   const [showFilters, setShowFilters] = useState(false)
@@ -28,8 +30,6 @@ export default function FAQPage() {
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [backendConnected, setBackendConnected] = useState(false)
-
-  const addConsultation = useAppStore((state) => state.addConsultation)
 
   // Verificar conexión con backend al montar
   useEffect(() => {
@@ -108,15 +108,21 @@ export default function FAQPage() {
   // Mostrar FAQs sugeridas basadas en categoría seleccionada
   const suggestedFaqs = selectedCategory ? (faqDatabase[selectedCategory] || []) : []
 
+  // Estilos según diseño
+  const containerMaxWidth = layout === 'minimalist' ? 'max-w-5xl' : 'max-w-4xl'
+  const headerSize = layout === 'minimalist' ? 'text-5xl sm:text-6xl' : 'text-4xl sm:text-5xl'
+  const headerSpacing = layout === 'minimalist' ? 'mb-16' : 'mb-12'
+
   return (
     <div className="min-h-screen py-12" style={{ background: 'var(--body-bg)' }}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <StyleSwitcher />
+      <div className={`${containerMaxWidth} mx-auto px-4 sm:px-6 lg:px-8`}>
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+        <div className={`text-center ${headerSpacing}`}>
+          <h1 className={`${headerSize} font-bold mb-4`} style={{ color: 'var(--text-primary)' }}>
             Centro de Consultas
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
             Describe tu dudas legales y nuestro sistema inteligente buscará una solución para ti.
           </p>
         </div>

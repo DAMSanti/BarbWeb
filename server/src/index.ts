@@ -2,6 +2,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import apiRoutes from './routes/api.js'
 
+// Force Railway rebuild - Manual CORS headers v2
 dotenv.config()
 
 const app = express()

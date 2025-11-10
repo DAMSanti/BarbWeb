@@ -9,24 +9,10 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 
-// CORS configuration to allow multiple origins
+// CORS configuration - Allow all origins for development
 const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'http://localhost:3000',
-      'https://stackblitz.com',
-      FRONTEND_URL,
-    ]
-    
-    // Allow requests with no origin (like mobile apps, curl requests)
-    if (!origin || allowedOrigins.includes(origin) || origin.includes('webcontainer.io')) {
-      callback(null, true)
-    } else {
-      callback(null, true) // For development, allow all origins
-    }
-  },
-  credentials: true,
+  origin: '*',
+  credentials: false,
 }
 
 // Middleware
@@ -58,7 +44,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Start server
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`)
-  console.log(`🔗 Frontend CORS enabled for: ${FRONTEND_URL}`)
+  console.log(`🔗 Frontend CORS enabled for StackBlitz and localhost`)
   console.log(`🤖 OpenAI integration: ${process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
 })
 

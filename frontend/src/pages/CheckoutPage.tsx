@@ -1,7 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { CreditCard, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
-import Header from '../components/Header'
 import StyleSwitcher from '../components/StyleSwitcher'
 import { useAppStore } from '../store/appStore'
 

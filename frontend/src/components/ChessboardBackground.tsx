@@ -54,7 +54,7 @@ export default function ChessboardBackground({
 
         {/* Capa de overlay para mejorar contraste */}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-primary-950/30 via-transparent to-accent-950/20"
+          className="absolute inset-0 bg-gradient-to-br from-primary-950/10 via-transparent to-accent-950/5"
           style={{
             pointerEvents: 'none',
           }}
@@ -63,7 +63,7 @@ export default function ChessboardBackground({
 
       {/* Gradiente adicional para asegurar legibilidad */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20"
+        className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"
         style={{
           pointerEvents: 'none',
         }}

@@ -14,11 +14,7 @@ export default function StyleSwitcher() {
   ]
 
   const themes: { value: ThemeId; label: string }[] = [
-    { value: 'classic', label: 'Clásico' },
-    { value: 'minimal', label: 'Oscuro Elegante' },
-    { value: 'royal', label: 'Royal' },
     { value: 'nocturne', label: 'Carbón Sofisticado' },
-    { value: 'avantgarde', label: 'Nocturno Premium' },
   ]
 
   return (

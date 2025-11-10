@@ -115,7 +115,12 @@ export default function FAQPage() {
   const headerSpacing = layout === 'minimalist' ? 'mb-16' : 'mb-12'
 
   return (
-    <div className="min-h-screen py-12" style={{ background: 'var(--body-bg)' }}>
+    <div 
+      className="min-h-screen py-12" 
+      style={{ 
+        background: layout === 'minimalist' ? 'transparent' : 'var(--body-bg)'
+      }}
+    >
       {layout === 'minimalist' && (
         <ChessboardBackground
           imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"

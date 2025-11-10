@@ -11,8 +11,8 @@ services:
     value: "3000"
   - key: NODE_ENV
     value: production
-  - key: OPENAI_API_KEY
-    value: ${OPENAI_API_KEY}
+  - key: GEMINI_API_KEY
+    value: ${GEMINI_API_KEY}
   - key: FRONTEND_URL
     value: ${FRONTEND_URL}
   - key: VITE_API_URL

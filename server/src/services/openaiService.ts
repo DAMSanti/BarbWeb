@@ -1,13 +1,11 @@
-import OpenAI from 'openai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 // Validar que la API key esté configurada
-if (!process.env.OPENAI_API_KEY) {
-  console.warn('⚠️  WARNING: OPENAI_API_KEY not configured. AI features will be disabled.')
+if (!process.env.GEMINI_API_KEY) {
+  console.warn('⚠️  WARNING: GEMINI_API_KEY not configured. AI features will be disabled.')
 }
 
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-}) : null
+const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null
 
 export interface FilteredQuestion {
   category: string
@@ -44,34 +42,24 @@ IMPORTANTE:
 
 export async function filterQuestionWithAI(question: string): Promise<FilteredQuestion> {
   try {
-    if (!openai) {
-      throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY environment variable.')
+    if (!genAI) {
+      throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
     }
 
     if (!question || question.trim().length === 0) {
       throw new Error('Question cannot be empty')
     }
 
-    const message = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: 'user',
-          content: `Analiza esta pregunta legal: "${question}"`,
-        },
-      ],
-      temperature: 0.3,
-      max_tokens: 500,
-    })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
-    const content = message.choices[0].message.content
+    const prompt = `${SYSTEM_PROMPT}\n\nAnaliza esta pregunta legal: "${question}"`
+
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    const content = response.text()
 
     if (!content) {
-      throw new Error('No response from OpenAI')
+      throw new Error('No response from Gemini AI')
     }
 
     // Extraer JSON de la respuesta
@@ -80,18 +68,18 @@ export async function filterQuestionWithAI(question: string): Promise<FilteredQu
       throw new Error('No JSON found in response')
     }
 
-    const result = JSON.parse(jsonMatch[0]) as FilteredQuestion
+    const parsedResult = JSON.parse(jsonMatch[0]) as FilteredQuestion
 
     // Validar respuesta
-    if (!LEGAL_CATEGORIES.includes(result.category)) {
-      result.category = 'Civil' // Default
+    if (!LEGAL_CATEGORIES.includes(parsedResult.category)) {
+      parsedResult.category = 'Civil' // Default
     }
 
-    if (result.confidence < 0.5) {
-      result.hasAutoResponse = false
+    if (parsedResult.confidence < 0.5) {
+      parsedResult.hasAutoResponse = false
     }
 
-    return result
+    return parsedResult
   } catch (error) {
     console.error('Error filtering question with AI:', error)
     throw new Error('Failed to process question with AI')
@@ -103,29 +91,22 @@ export async function generateDetailedResponse(
   category: string,
 ): Promise<string> {
   try {
-    if (!openai) {
-      throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY environment variable.')
+    if (!genAI) {
+      throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
     }
 
-    const message = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: `Eres un abogado experto en derecho ${category}. 
-Proporciona una respuesta clara, concisa y útil (máximo 300 palabras) a la siguiente pregunta legal.
-Sé profesional pero accesible para el público general.`,
-        },
-        {
-          role: 'user',
-          content: question,
-        },
-      ],
-      temperature: 0.5,
-      max_tokens: 800,
-    })
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
-    return message.choices[0].message.content || 'No response generated'
+    const prompt = `Eres un abogado experto en derecho ${category}. 
+Proporciona una respuesta clara, concisa y útil (máximo 300 palabras) a la siguiente pregunta legal.
+Sé profesional pero accesible para el público general.
+
+Pregunta: ${question}`
+
+    const result = await model.generateContent(prompt)
+    const response = await result.response
+    
+    return response.text() || 'No response generated'
   } catch (error) {
     console.error('Error generating detailed response:', error)
     throw new Error('Failed to generate response')

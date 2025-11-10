@@ -48,7 +48,11 @@ app.get('/', (req, res) => {
 app.use('/api', apiRoutes)
 
 // Servir archivos estáticos del frontend en /barbweb2
-const frontendPath = path.join(__dirname, '../../../frontend/dist')
+// En producción, el backend/dist está en /workspace/backend/dist, así que ../../../ nos lleva a /workspace/frontend/dist
+// En desarrollo local, la ruta relativa también funciona
+const frontendPath = process.env.NODE_ENV === 'production' 
+  ? path.resolve('/workspace/frontend/dist')
+  : path.join(__dirname, '../../../frontend/dist')
 
 // Servir archivos estáticos (CSS, JS, imágenes)
 app.use('/barbweb2', express.static(frontendPath, {

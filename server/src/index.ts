@@ -6,7 +6,7 @@ import apiRoutes from './routes/api.js'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3000
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
 
 // CORS configuration - Allow all origins for development

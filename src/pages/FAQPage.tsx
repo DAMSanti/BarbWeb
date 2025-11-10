@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, Lightbulb, AlertCircle, CheckCircle, Loader } from 'lucide-react'
-import { LegalCategory, ConsultationRequest, FAQ } from '../types'
+import { Search, Filter, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react'
+import { LegalCategory, ConsultationRequest } from '../types'
 import { faqDatabase } from '../utils/faqMatcher'
 import { useAppStore } from '../store/appStore'
 import { filterQuestionWithBackend, checkBackendHealth } from '../services/backendApi'
@@ -105,7 +105,7 @@ export default function FAQPage() {
       clientName: '',
       clientEmail: '',
       question: question.trim(),
-      category: selectedCategory || detectCategory(question) || 'Civil',
+      category: selectedCategory || 'Civil',
       price: CONSULTATION_PRICE,
       isPaid: false,
       createdAt: new Date(),
@@ -116,10 +116,7 @@ export default function FAQPage() {
   }
 
   // Mostrar FAQs sugeridas basadas en categoría seleccionada
-  const suggestedFaqs = useMemo(() => {
-    if (!selectedCategory) return []
-    return faqDatabase[selectedCategory] || []
-  }, [selectedCategory])
+  const suggestedFaqs = selectedCategory ? (faqDatabase[selectedCategory] || []) : []
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12">

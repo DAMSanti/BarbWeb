@@ -25,9 +25,20 @@ coverage
 .settings/
 *.sublime-workspace
 
-# vite
+# Environment variables - IMPORTANT: Never commit .env.local files
+.env
 .env.local
 .env.*.local
+.env.production.local
+*.env
+
+# Sensitive files
+key.md
+*.key
+*.pem
+*.p8
 
 # Build output
 .turbo
+build/
+out/

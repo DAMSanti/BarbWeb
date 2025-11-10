@@ -122,6 +122,7 @@ export default function FAQPage() {
           opacity={0.1}
           blurAmount={15}
           parallaxIntensity={0.4}
+          cleanMode={true}
         />
       )}
       <StyleSwitcher />

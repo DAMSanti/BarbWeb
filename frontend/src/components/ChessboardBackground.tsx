@@ -5,6 +5,7 @@ interface ChessboardBackgroundProps {
   opacity?: number
   blurAmount?: number
   parallaxIntensity?: number
+  cleanMode?: boolean // Sin overlays adicionales
 }
 
 export default function ChessboardBackground({
@@ -12,6 +13,7 @@ export default function ChessboardBackground({
   opacity = 0.15,
   blurAmount = 8,
   parallaxIntensity = 0.5,
+  cleanMode = false,
 }: ChessboardBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [scrollY, setScrollY] = useState(0)
@@ -52,22 +54,28 @@ export default function ChessboardBackground({
           }}
         />
 
-        {/* Capa de overlay para mejorar contraste */}
+        {!cleanMode && (
+          <>
+            {/* Capa de overlay para mejorar contraste */}
+            <div
+              className="absolute inset-0 bg-gradient-to-br from-primary-950/10 via-transparent to-accent-950/5"
+              style={{
+                pointerEvents: 'none',
+              }}
+            />
+          </>
+        )}
+      </div>
+
+      {!cleanMode && (
+        /* Gradiente adicional para asegurar legibilidad */
         <div
-          className="absolute inset-0 bg-gradient-to-br from-primary-950/10 via-transparent to-accent-950/5"
+          className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"
           style={{
             pointerEvents: 'none',
           }}
         />
-      </div>
-
-      {/* Gradiente adicional para asegurar legibilidad */}
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"
-        style={{
-          pointerEvents: 'none',
-        }}
-      />
+      )}
     </div>
   )
 }

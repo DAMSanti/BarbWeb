@@ -7,4 +7,9 @@ export default defineConfig({
     port: 5173,
     open: true,
   },
+  preview: {
+    port: 5173,
+    host: '0.0.0.0',
+    allowedHosts: ['localhost', '0.0.0.0', 'back-jqdv9.ondigitalocean.app'],
+  },
 })

@@ -50,7 +50,7 @@ export async function filterQuestionWithAI(question: string): Promise<FilteredQu
       throw new Error('Question cannot be empty')
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' })
 
     const prompt = `${SYSTEM_PROMPT}\n\nAnaliza esta pregunta legal: "${question}"`
 
@@ -95,7 +95,7 @@ export async function generateDetailedResponse(
       throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' })
 
     const prompt = `Eres un abogado experto en derecho ${category}.
 Proporciona una respuesta clara, concisa y útil (máximo 300 palabras) a la siguiente pregunta legal.

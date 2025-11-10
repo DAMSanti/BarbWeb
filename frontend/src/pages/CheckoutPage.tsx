@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                         value={clientName}
                         onChange={(e) => setClientName(e.target.value)}
                         placeholder="Juan García"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-gray-900 placeholder-gray-400"
                       />
                     </div>
                     <div>
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
                         value={clientEmail}
                         onChange={(e) => setClientEmail(e.target.value)}
                         placeholder="juan@example.com"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-gray-900 placeholder-gray-400"
                       />
                     </div>
                   </div>
@@ -240,7 +240,7 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         placeholder="4111 1111 1111 1111"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-gray-900 placeholder-gray-400"
                       />
                     </div>
 
@@ -252,7 +252,7 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="MM/YY"
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-gray-900 placeholder-gray-400"
                         />
                       </div>
                       <div>
@@ -262,7 +262,7 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="123"
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-gray-900 placeholder-gray-400"
                         />
                       </div>
                     </div>

@@ -157,7 +157,7 @@ export default function FAQPage() {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="Ej: ¿Cuándo puedo reclamar daños y perjuicios?"
-                  className="w-full px-4 py-3 pl-12 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 transition-colors"
+                  className="w-full px-4 py-3 pl-12 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 transition-colors text-gray-900 placeholder-gray-400"
                 />
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               </div>

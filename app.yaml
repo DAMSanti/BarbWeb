@@ -1,0 +1,50 @@
+name: barbweb
+services:
+  # Backend Service
+  - name: backend
+    github:
+      repo: DAMSanti/BarbWeb
+      branch: master
+    source_dir: server
+    build_command: npm install && npm run build
+    run_command: npm start
+    envs:
+      - key: PORT
+        value: "3000"
+      - key: NODE_ENV
+        value: production
+      - key: OPENAI_API_KEY
+        scope: RUN_AND_BUILD_TIME
+        value: ${OPENAI_API_KEY}
+      - key: FRONTEND_URL
+        value: ${FRONTEND_URL}
+    http_port: 3000
+    health_check:
+      http_path: /
+
+  # Frontend Service
+  - name: frontend
+    github:
+      repo: DAMSanti/BarbWeb
+      branch: master
+    build_command: npm install && npm run build
+    run_command: npm run preview
+    envs:
+      - key: VITE_API_URL
+        value: ${BACKEND_URL}
+      - key: VITE_STRIPE_PUBLISHABLE_KEY
+        scope: RUN_AND_BUILD_TIME
+        value: ${VITE_STRIPE_PUBLISHABLE_KEY}
+    http_port: 5173
+
+static_sites:
+  - name: frontend-static
+    source_dir: dist
+    routes:
+      - path: /
+
+databases:
+  # Optional: Uncomment if you need a database
+  # - name: db
+  #   engine: PG
+  #   production: false

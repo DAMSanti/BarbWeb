@@ -4,7 +4,7 @@ services:
   github:
     branch: master
     repo: DAMSanti/BarbWeb
-  build_command: cd server && npm install && npm run build
+  build_command: npm install && npm run build && cd server && npm install && npm run build
   run_command: cd /workspace/server && node dist/index.js
   envs:
   - key: PORT
@@ -15,17 +15,8 @@ services:
     value: ${OPENAI_API_KEY}
   - key: FRONTEND_URL
     value: ${FRONTEND_URL}
-  http_port: 3000
-
-- name: frontend
-  github:
-    branch: master
-    repo: DAMSanti/BarbWeb
-  build_command: npm install && npm run build
-  run_command: npm run preview -- --host 0.0.0.0 --port 5173
-  envs:
   - key: VITE_API_URL
     value: ${BACKEND_URL}
   - key: VITE_STRIPE_PUBLISHABLE_KEY
     value: ${VITE_STRIPE_PUBLISHABLE_KEY}
-  http_port: 5173
+  http_port: 3000

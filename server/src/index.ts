@@ -1,9 +1,14 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import apiRoutes from './routes/api.js'
 
 // Force Railway rebuild - Manual CORS headers v2
 dotenv.config()
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const app = express()
 const PORT = Number(process.env.PORT || 3000)
@@ -30,7 +35,11 @@ app.use((_req, res, next) => {
   next()
 })
 
-// Rutas
+// Servir archivos estáticos del frontend en /barbweb2
+const frontendPath = path.join(__dirname, '../../dist')
+app.use('/barbweb2', express.static(frontendPath))
+
+// Rutas de la API
 app.use('/api', apiRoutes)
 
 // Health check
@@ -40,6 +49,12 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     status: 'running',
   })
+})
+
+// Catch-all para SPA - Cualquier ruta bajo /barbweb2 que no sea un archivo
+// debe redirigir al index.html para que React Router funcione
+app.get('/barbweb2/*', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'))
 })
 
 // Error handling
@@ -56,6 +71,7 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on http://0.0.0.0:${PORT}`)
   console.log(`🔗 CORS enabled for all origins`)
   console.log(`🤖 OpenAI integration: ${process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
+  console.log(`📁 Serving frontend from: ${frontendPath}`)
 })
 
 export default app

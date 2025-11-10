@@ -33,3 +33,5 @@ export interface Service {
   price: number
   icon: string
 }
+
+export type LayoutType = 'classic' | 'minimalist' | 'premium'

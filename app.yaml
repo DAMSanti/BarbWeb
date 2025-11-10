@@ -22,7 +22,7 @@ services:
   github:
     branch: master
     repo: DAMSanti/BarbWeb
-  build_command: npm run build
+  build_command: tsc && vite build
   run_command: npm run preview
   envs:
   - key: VITE_API_URL

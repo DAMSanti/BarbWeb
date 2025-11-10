@@ -1,6 +1,7 @@
 import { ArrowRight, Shield, Zap, Lock, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ThemeSwitcher from '../components/ThemeSwitcher'
+import ChessboardBackground from '../components/ChessboardBackground'
 
 export default function ClassicLayout() {
   const features = [
@@ -36,7 +37,14 @@ export default function ClassicLayout() {
   ]
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      <ChessboardBackground
+        imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+        opacity={0.12}
+        blurAmount={12}
+        parallaxIntensity={0.5}
+      />
+      
       <section className="hero-section relative overflow-hidden py-20 lg:py-32 transition-colors duration-500">
         <div className="hero-accent hero-accent-a" aria-hidden="true" />
         <div className="hero-accent hero-accent-b" style={{ animationDelay: '2s' }} aria-hidden="true" />

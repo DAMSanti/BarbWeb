@@ -1,10 +1,18 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import ThemeSwitcher from '../components/ThemeSwitcher'
+import ChessboardBackground from '../components/ChessboardBackground'
 
 export default function MinimalistLayout() {
   return (
-    <div className="w-full overflow-hidden">
+    <div className="w-full overflow-hidden relative">
+      <ChessboardBackground
+        imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+        opacity={0.1}
+        blurAmount={15}
+        parallaxIntensity={0.4}
+      />
+
       <style>{`
         @keyframes fadeInUp {
           from {

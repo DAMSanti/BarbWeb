@@ -2,6 +2,7 @@ import { ArrowRight, Zap, Lock, Shield, Users, TrendingUp, Award } from 'lucide-
 import { Link } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import ThemeSwitcher from '../components/ThemeSwitcher'
+import ChessboardBackground from '../components/ChessboardBackground'
 
 export default function PremiumLayout() {
   const [scrollY, setScrollY] = useState(0)
@@ -17,7 +18,14 @@ export default function PremiumLayout() {
   }, [])
 
   return (
-    <div className="w-full overflow-hidden bg-black">
+    <div className="w-full overflow-hidden bg-black relative">
+      <ChessboardBackground
+        imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+        opacity={0.08}
+        blurAmount={20}
+        parallaxIntensity={0.6}
+      />
+
       <style>{`
         @keyframes glowPulse {
           0%, 100% {

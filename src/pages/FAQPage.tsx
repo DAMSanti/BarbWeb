@@ -1,64 +1,101 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react'
+import { Search, Filter, Lightbulb, AlertCircle, CheckCircle, Loader } from 'lucide-react'
 import { LegalCategory, ConsultationRequest, FAQ } from '../types'
-import { detectCategory, findAutoResponse, faqDatabase } from '../utils/faqMatcher'
+import { faqDatabase } from '../utils/faqMatcher'
 import { useAppStore } from '../store/appStore'
+import { filterQuestionWithBackend, checkBackendHealth } from '../services/backendApi'
 
 const CATEGORIES: LegalCategory[] = ['Civil', 'Penal', 'Laboral', 'Administrativo', 'Mercantil', 'Familia']
 const CONSULTATION_PRICE = 29.99
+
+interface AutoResponse {
+  category: string
+  answer: string
+  confidence: number
+  reasoning: string
+}
 
 export default function FAQPage() {
   const navigate = useNavigate()
   const [question, setQuestion] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<LegalCategory | null>(null)
   const [showFilters, setShowFilters] = useState(false)
-  const [autoResponse, setAutoResponse] = useState<FAQ | null>(null)
+  const [autoResponse, setAutoResponse] = useState<AutoResponse | null>(null)
   const [showAutoResponse, setShowAutoResponse] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [backendConnected, setBackendConnected] = useState(false)
 
   const addConsultation = useAppStore((state) => state.addConsultation)
 
-  const handleSearch = (e: React.FormEvent) => {
+  // Verificar conexión con backend al montar
+  useEffect(() => {
+    const checkBackend = async () => {
+      const isConnected = await checkBackendHealth()
+      setBackendConnected(isConnected)
+      if (!isConnected) {
+        console.warn('Backend not connected - using local fallback')
+      }
+    }
+    checkBackend()
+  }, [])
+
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage('')
     setShowAutoResponse(false)
     setAutoResponse(null)
+    setIsLoading(true)
 
-    if (!question.trim()) {
-      setErrorMessage('Por favor, ingresa una pregunta.')
-      return
-    }
-
-    // Detectar categoría automáticamente si no está seleccionada
-    const detectedCategory = selectedCategory || detectCategory(question)
-
-    if (!detectedCategory) {
-      setErrorMessage('No pudimos identificar la categoría de tu pregunta. Por favor, selecciona una.')
-      return
-    }
-
-    // Buscar respuesta automática
-    const response = findAutoResponse(question, detectedCategory)
-
-    if (response) {
-      setShowAutoResponse(true)
-      setAutoResponse(response)
-    } else {
-      // No hay respuesta automática, dirigir a checkout
-      const consultation: ConsultationRequest = {
-        id: `consult-${Date.now()}`,
-        clientName: '',
-        clientEmail: '',
-        question: question.trim(),
-        category: detectedCategory,
-        price: CONSULTATION_PRICE,
-        isPaid: false,
-        createdAt: new Date(),
+    try {
+      if (!question.trim()) {
+        setErrorMessage('Por favor, ingresa una pregunta.')
+        return
       }
 
-      addConsultation(consultation)
-      navigate(`/checkout/${consultation.id}`)
+      // Usar backend si está disponible
+      if (backendConnected) {
+        const result = await filterQuestionWithBackend(question)
+
+        if (!result.success || !result.data) {
+          setErrorMessage(result.error || 'Error al procesar tu pregunta')
+          return
+        }
+
+        // Si hay respuesta automática
+        if (result.data.hasAutoResponse && result.data.autoResponse) {
+          setShowAutoResponse(true)
+          setAutoResponse({
+            category: result.data.category,
+            answer: result.data.autoResponse,
+            confidence: result.data.confidence,
+            reasoning: result.data.reasoning,
+          })
+        } else {
+          // No hay respuesta automática, dirigir a checkout
+          const consultation: ConsultationRequest = {
+            id: `consult-${Date.now()}`,
+            clientName: '',
+            clientEmail: '',
+            question: question.trim(),
+            category: result.data.category as LegalCategory,
+            price: CONSULTATION_PRICE,
+            isPaid: false,
+            createdAt: new Date(),
+          }
+
+          addConsultation(consultation)
+          navigate(`/checkout/${consultation.id}`)
+        }
+      } else {
+        setErrorMessage('El servidor no está disponible. Por favor, intenta más tarde.')
+      }
+    } catch (error) {
+      console.error('Error during search:', error)
+      setErrorMessage('Error inesperado. Por favor, intenta de nuevo.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -165,9 +202,21 @@ export default function FAQPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-primary-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors shadow-lg"
+              disabled={isLoading}
+              className="w-full bg-primary-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
-              Buscar Respuesta
+              {isLoading ? (
+                <>
+                  <div className="animate-spin">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <span>Analizando pregunta...</span>
+                </>
+              ) : (
+                <span>Buscar Respuesta</span>
+              )}
             </button>
           </div>
         </form>
@@ -179,14 +228,20 @@ export default function FAQPage() {
               <CheckCircle className="text-green-600 flex-shrink-0 mt-1" size={24} />
               <div className="flex-grow">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  {autoResponse.question}
+                  Respuesta Inteligente
                 </h2>
                 <p className="text-gray-700 text-lg leading-relaxed mb-6">
                   {autoResponse.answer}
                 </p>
-                <div className="bg-white rounded-lg p-4 mb-6 border border-green-200">
+                <div className="bg-white rounded-lg p-4 mb-6 border border-green-200 space-y-2">
                   <p className="text-sm text-gray-600">
-                    <strong>💡 Categoría:</strong> {autoResponse.category}
+                    <strong>� Categoría:</strong> {autoResponse.category}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <strong>🔍 Confianza:</strong> {(autoResponse.confidence * 100).toFixed(0)}%
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <strong>💡 Análisis:</strong> {autoResponse.reasoning}
                   </p>
                 </div>
                 <div className="space-y-3">

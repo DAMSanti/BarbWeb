@@ -183,28 +183,28 @@ export default function PremiumLayout() {
         }
 
         .premium-button.primary {
-          background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
-          color: white;
+          background: linear-gradient(135deg, #d4af37 0%, #f0e68c 100%);
+          color: #1a1a1a;
           border: 2px solid transparent;
-          box-shadow: 0 8px 32px rgba(2, 132, 199, 0.4);
+          box-shadow: 0 8px 32px rgba(212, 175, 55, 0.4);
         }
 
         .premium-button.primary:hover {
           transform: translateY(-4px) scale(1.02);
-          box-shadow: 0 16px 48px rgba(2, 132, 199, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          box-shadow: 0 16px 48px rgba(212, 175, 55, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .premium-button.secondary {
-          background: rgba(255, 255, 255, 0.05);
-          color: #06b6d4;
-          border: 2px solid #06b6d4;
+          background: rgba(212, 175, 55, 0.1);
+          color: #d4af37;
+          border: 2px solid #d4af37;
           backdrop-filter: blur(10px);
         }
 
         .premium-button.secondary:hover {
-          background: rgba(6, 182, 212, 0.1);
-          border-color: #0284c7;
-          box-shadow: 0 8px 32px rgba(2, 132, 199, 0.3);
+          background: rgba(212, 175, 55, 0.2);
+          border-color: #f0e68c;
+          box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3);
           transform: translateY(-4px);
         }
 
@@ -428,7 +428,7 @@ export default function PremiumLayout() {
           <p className="premium-subtitle" style={{ transform: `translateY(${scrollY * 0.2}px)` }}>
             Tecnología avanzada combinada con expertos legales para resolver tus dudas al instante o ofrecerte asesoramiento profesional personalizado.
           </p>
-          <div className="premium-cta-group">
+          <div className="premium-cta-group" style={{ transform: `translateY(${scrollY * 0.25}px)` }}>
             <Link to="/faq" className="premium-button primary">
               Consulta Gratis <ArrowRight size={20} />
             </Link>

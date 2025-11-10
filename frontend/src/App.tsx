@@ -6,15 +6,32 @@ import HomePage from './pages/HomePage'
 import FAQPage from './pages/FAQPage'
 import CheckoutPage from './pages/CheckoutPage'
 import { useAppStore } from './store/appStore'
-import { THEME_CLASSNAMES } from './theme/themes'
+import { THEME_CLASSNAMES, DEFAULT_THEME_ID } from './theme/themes'
 
 function App() {
   const theme = useAppStore((state) => state.theme)
 
   useEffect(() => {
+    // Aplicar tema al body
     document.body.classList.remove(...THEME_CLASSNAMES)
     document.body.classList.add(`theme-${theme}`)
+    
+    // También guardar en localStorage para persistencia
+    localStorage.setItem('theme', theme)
   }, [theme])
+
+  // Aplicar tema almacenado al cargar
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || DEFAULT_THEME_ID
+    const store = useAppStore.getState()
+    if (store.theme !== savedTheme) {
+      store.setTheme(savedTheme as any)
+    }
+    
+    // Aplicar inmediatamente
+    document.body.classList.remove(...THEME_CLASSNAMES)
+    document.body.classList.add(`theme-${savedTheme}`)
+  }, [])
 
   return (
     <Router basename="/barbweb2">

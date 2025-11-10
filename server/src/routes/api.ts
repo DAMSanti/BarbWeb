@@ -153,4 +153,39 @@ router.get('/health', (req: Request, res: Response) => {
   })
 })
 
+/**
+ * GET /api/list-models
+ * List available Gemini models
+ */
+router.get('/list-models', async (req: Request, res: Response) => {
+  try {
+    const { GoogleGenerativeAI } = await import('@google/generative-ai')
+    
+    if (!process.env.GEMINI_API_KEY) {
+      res.status(400).json({
+        success: false,
+        error: 'GEMINI_API_KEY not configured',
+      })
+      return
+    }
+
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+    
+    // Intentar listar modelos
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + process.env.GEMINI_API_KEY)
+    const data = await response.json()
+    
+    res.json({
+      success: true,
+      models: data.models || data,
+    })
+  } catch (error) {
+    console.error('Error listing models:', error)
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to list models',
+    })
+  }
+})
+
 export default router

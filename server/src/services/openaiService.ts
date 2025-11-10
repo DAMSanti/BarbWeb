@@ -95,7 +95,7 @@ export async function generateDetailedResponse(
       throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     const prompt = `Eres un abogado experto en derecho ${category}.
 Proporciona una respuesta clara, concisa y útil (máximo 300 palabras) a la siguiente pregunta legal.

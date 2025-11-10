@@ -4,7 +4,7 @@ services:
   github:
     branch: master
     repo: DAMSanti/BarbWeb
-  build_command: npm install && npm run build
+  build_command: npm install --legacy-peer-deps && npm run build:frontend && npm run build:backend
   run_command: cd /workspace/backend && node dist/index.js
   envs:
   - key: PORT

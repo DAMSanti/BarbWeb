@@ -7,7 +7,12 @@ const __dirname = path.dirname(__filename)
 
 const distDir = path.join(__dirname, '..', 'dist')
 const targetFile = path.join(distDir, 'index.js')
-const relativeImportPath = '../backend/dist/index.js'
+const backendEntry = path.join(__dirname, '../../backend/dist/index.js')
+let relativeImportPath = path.relative(distDir, backendEntry).replace(/\\/g, '/')
+
+if (!relativeImportPath.startsWith('.')) {
+	relativeImportPath = `./${relativeImportPath}`
+}
 
 fs.mkdirSync(distDir, { recursive: true })
 

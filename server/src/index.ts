@@ -6,15 +6,15 @@ import apiRoutes from './routes/api.js'
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT || 3000
+const PORT = Number(process.env.PORT || 3000)
 
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // Add custom CORS headers manually - Override any Railway proxy headers
-app.use((req, res, next) => {
-  const origin = req.headers.origin || '*'
+app.use((_req, res, next) => {
+  const origin = _req.headers.origin || '*'
   
   // Always respond with the requesting origin, never railway.com
   res.header('Access-Control-Allow-Origin', origin === 'https://railway.com' ? '*' : origin)
@@ -23,8 +23,9 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'false')
   res.header('Vary', 'Origin')
   
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+  if (_req.method === 'OPTIONS') {
+    res.sendStatus(200)
+    return
   }
   next()
 })
@@ -42,8 +43,8 @@ app.get('/', (req, res) => {
 })
 
 // Error handling
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Unhandled error:', err)
+app.use((_err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', _err)
   res.status(500).json({
     success: false,
     error: 'Internal server error',

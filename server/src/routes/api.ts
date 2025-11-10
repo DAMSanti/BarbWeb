@@ -30,10 +30,11 @@ router.post('/filter-question', async (req: Request, res: Response) => {
     const { question } = req.body as FilterQuestionRequest
 
     if (!question || typeof question !== 'string') {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'Question is required and must be a string',
       } as FilterQuestionResponse)
+      return
     }
 
     // Paso 1: Usar OpenAI para analizar la pregunta
@@ -83,10 +84,11 @@ router.post('/generate-response', async (req: Request, res: Response) => {
     const { question, category } = req.body as { question: string; category: string }
 
     if (!question || !category) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'Question and category are required',
       })
+      return
     }
 
     const response = await generateDetailedResponse(question, category)

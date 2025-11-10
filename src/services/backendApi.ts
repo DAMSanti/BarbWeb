@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// En producción, el frontend se sirve desde /barbweb2/ en el mismo dominio que la API
+// Usar una URL relativa (sin dominio) para que funcione tanto en local como en producción
+const API_URL = import.meta.env.VITE_API_URL || (
+  typeof window !== 'undefined' && window.location.origin.includes('ondigitalocean.app')
+    ? window.location.origin
+    : 'http://localhost:3000'
+)
 
 export interface FilteredQuestionResponse {
   success: boolean

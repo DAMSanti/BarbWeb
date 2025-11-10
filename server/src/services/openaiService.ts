@@ -1,8 +1,13 @@
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
+// Validar que la API key esté configurada
+if (!process.env.OPENAI_API_KEY) {
+  console.warn('⚠️  WARNING: OPENAI_API_KEY not configured. AI features will be disabled.')
+}
+
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-})
+}) : null
 
 export interface FilteredQuestion {
   category: string
@@ -39,6 +44,10 @@ IMPORTANTE:
 
 export async function filterQuestionWithAI(question: string): Promise<FilteredQuestion> {
   try {
+    if (!openai) {
+      throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY environment variable.')
+    }
+
     if (!question || question.trim().length === 0) {
       throw new Error('Question cannot be empty')
     }
@@ -94,6 +103,10 @@ export async function generateDetailedResponse(
   category: string,
 ): Promise<string> {
   try {
+    if (!openai) {
+      throw new Error('OpenAI is not configured. Please set OPENAI_API_KEY environment variable.')
+    }
+
     const message = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [

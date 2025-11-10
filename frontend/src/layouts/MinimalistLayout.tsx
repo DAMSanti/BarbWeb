@@ -1,6 +1,5 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import ThemeSwitcher from '../components/ThemeSwitcher'
 import ChessboardBackground from '../components/ChessboardBackground'
 
 export default function MinimalistLayout() {
@@ -246,9 +245,6 @@ export default function MinimalistLayout() {
 
       {/* Hero Section */}
       <section className="minimalist-hero">
-        <div className="absolute top-4 right-6 z-20">
-          <ThemeSwitcher />
-        </div>
         <div className="minimalist-content text-center px-4">
           <h1 className="minimalist-title">
             Consultas Legales <br />

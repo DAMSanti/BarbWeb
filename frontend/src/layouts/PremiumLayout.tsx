@@ -1,7 +1,6 @@
 import { ArrowRight, Zap, Lock, Shield, Users, TrendingUp, Award } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
-import ThemeSwitcher from '../components/ThemeSwitcher'
 import ChessboardBackground from '../components/ChessboardBackground'
 
 export default function PremiumLayout() {
@@ -412,10 +411,6 @@ export default function PremiumLayout() {
 
       {/* Hero Section with Parallax */}
       <section className="premium-hero" ref={parallaxRef}>
-        <div className="absolute top-4 right-6 z-20">
-          <ThemeSwitcher />
-        </div>
-
         <div className="absolute inset-0 overflow-hidden">
           <div className="premium-gradient-orb premium-gradient-orb-1" />
           <div className="premium-gradient-orb premium-gradient-orb-2" />

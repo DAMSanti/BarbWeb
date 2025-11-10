@@ -1,6 +1,5 @@
 import { ArrowRight, Shield, Zap, Lock, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import ThemeSwitcher from '../components/ThemeSwitcher'
 import ChessboardBackground from '../components/ChessboardBackground'
 
 export default function ClassicLayout() {
@@ -50,8 +49,6 @@ export default function ClassicLayout() {
         <div className="hero-accent hero-accent-b" style={{ animationDelay: '2s' }} aria-hidden="true" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ThemeSwitcher />
-
           <div className="hero-content text-center mt-10 lg:mt-16">
             <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold mb-6">
               Consultas Legales <span className="hero-highlight">Profesionales</span>

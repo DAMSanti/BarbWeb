@@ -16,9 +16,9 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'minimal',
-    name: 'Minimal Luminoso',
-    description: 'Diseño claro con abundante espacio en blanco y acentos oro.',
-    previewClass: 'bg-gradient-to-br from-white via-primary-50 to-white'
+    name: 'Oscuro Elegante',
+    description: 'Negro profundo con dorado sutil y líneas limpias minimalistas.',
+    previewClass: 'bg-gradient-to-br from-black via-slate-900 to-gray-950'
   },
   {
     id: 'royal',
@@ -28,15 +28,15 @@ export const THEMES: ThemeDefinition[] = [
   },
   {
     id: 'nocturne',
-    name: 'Nocturno Urbano',
-    description: 'Ambientación nocturna con luces suaves y contraste moderno.',
-    previewClass: 'bg-gradient-to-br from-dark-900 via-dark-700 to-gray-800'
+    name: 'Carbón Sofisticado',
+    description: 'Tonos grises oscuros con detalles dorados y acabado profesional.',
+    previewClass: 'bg-gradient-to-br from-gray-950 via-slate-800 to-black'
   },
   {
     id: 'avantgarde',
-    name: 'Avant-Garde',
-    description: 'Diseño geométrico con bloques dorados y tipografía contemporánea.',
-    previewClass: 'bg-gradient-to-br from-primary-500 via-primary-700 to-dark-500'
+    name: 'Nocturno Premium',
+    description: 'Degradado negro a gris oscuro con acentos dorados estratégicos.',
+    previewClass: 'bg-gradient-to-br from-slate-950 via-gray-900 to-black'
   }
 ]
 

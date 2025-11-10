@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { CreditCard, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
 import StyleSwitcher from '../components/StyleSwitcher'
+import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 
 export default function CheckoutPage() {
@@ -113,6 +114,14 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen py-12" style={{ background: 'var(--body-bg)' }}>
+      {layout === 'minimalist' && (
+        <ChessboardBackground
+          imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+          opacity={0.1}
+          blurAmount={15}
+          parallaxIntensity={0.4}
+        />
+      )}
       <StyleSwitcher />
       <div className={`${containerMaxWidth} mx-auto px-4 sm:px-6 lg:px-8`}>
         {/* Back Button */}

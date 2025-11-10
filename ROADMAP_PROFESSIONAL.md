@@ -79,20 +79,22 @@ Preparar la aplicación para ser escalable y segura.
   // User (Usuarios)
   id, email, password_hash, name, role, created_at, updated_at
   
-  // Consultation (Consultas)
-  id, user_id, question, category, response, paid, price, 
-  status (pending/completed/archived), created_at, updated_at
+  // Payment (Pagos - solo esto se persiste, consultas vienen de IA)
+  id, user_id, stripe_session_id, amount, status, 
+  receipt_url, consultation_summary, created_at, updated_at
   
-  // FAQ (Base de preguntas frecuentes)
+  // FAQ (Base de preguntas frecuentes - para búsqueda local)
   id, category, question, answer, keywords, created_at, updated_at
   
-  // Payment (Pagos)
-  id, consultation_id, stripe_session_id, amount, status, 
-  receipt_url, created_at, updated_at
+  // CustomAgent (Futuro - agente personalizado del usuario)
+  id, user_id, name, system_prompt, knowledge_base, 
+  created_at, updated_at
   ```
 - [ ] Crear migrations
 - [ ] Seed base de FAQs
 - [ ] Configurar backups automáticos
+
+⚠️ **NOTA**: Las consultas legales se generan siempre por IA (sin persistencia). Solo se guarda metadatos en pagos.
 
 #### Archivos a Crear
 ```
@@ -181,7 +183,7 @@ export const verifyToken = (req, res, next) => {
 #### Frontend
 - [ ] Try-catch en todas las API calls
 - [ ] User-friendly error messages
-- [ ] Retry logic
+- [ ] Retry logic para consultas de IA
 
 ---
 
@@ -316,7 +318,7 @@ function CheckoutForm() {
 ## 📧 FASE 3: COMUNICACIÓN (Semanas 5-6) | 16-20 horas
 
 ### Objetivo
-Sistema de notificaciones por email.
+Sistema de notificaciones por email (SMS NO incluido).
 
 ### 3.1 Email Service
 **Tiempo**: 8-10 horas | **Prioridad**: IMPORTANTE
@@ -327,9 +329,9 @@ Sistema de notificaciones por email.
 - [ ] Email types:
   - Bienvenida (post-registro)
   - Confirmación de pago
-  - Recordatorio de consulta pendiente
-  - Respuesta de abogado
-  - Confirmación de entrega
+  - Resumen de consulta realizada (incluyendo respuesta de IA)
+  - Factura/recibo
+  - Reset de contraseña
 
 #### Código Base
 ```typescript
@@ -344,22 +346,19 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-export async function sendConfirmationEmail(email: string, consultationId: string) {
+export async function sendPaymentConfirmation(
+  email: string, 
+  paymentId: string,
+  consultationSummary: string
+) {
   return transporter.sendMail({
     from: 'noreply@barbaraabogados.es',
     to: email,
-    subject: 'Consulta Legal Confirmada',
-    html: getConfirmationEmailTemplate(consultationId),
+    subject: 'Consulta Legal Completada',
+    html: getPaymentEmailTemplate(paymentId, consultationSummary),
   })
 }
 ```
-
-### 3.2 SMS Notifications (Opcional)
-**Tiempo**: 4-6 horas | **Prioridad**: DESEABLE
-
-- [ ] Integrar Twilio o similar
-- [ ] SMS de confirmación de pago
-- [ ] SMS de recordatorio
 
 ---
 
@@ -421,19 +420,28 @@ app.use('/api/', limiter)
 ## 🎨 FASE 5: PANEL ADMINISTRATIVO (Semanas 8-10) | 24-32 horas
 
 ### Objetivo
-Interfaz para que abogados gestionen consultas.
+Interfaz para que administradores gestionen usuarios, pagos y FAQs.
 
 ### 5.1 Backend Admin Endpoints
 **Tiempo**: 8-10 horas
 
 #### Endpoints
 ```
-GET    /api/admin/consultations - Listar consultas
-GET    /api/admin/consultations/:id - Detalle
-PATCH  /api/admin/consultations/:id - Actualizar estado
-POST   /api/admin/consultations/:id/response - Responder
 GET    /api/admin/users - Listar usuarios
-GET    /api/admin/analytics - Estadísticas
+GET    /api/admin/users/:id - Detalle usuario
+PATCH  /api/admin/users/:id - Editar usuario
+DELETE /api/admin/users/:id - Eliminar usuario
+
+GET    /api/admin/payments - Listar pagos
+GET    /api/admin/payments/:id - Detalle pago
+PATCH  /api/admin/payments/:id/refund - Reembolso
+
+GET    /api/admin/faqs - Listar FAQs
+POST   /api/admin/faqs - Crear FAQ
+PATCH  /api/admin/faqs/:id - Editar FAQ
+DELETE /api/admin/faqs/:id - Eliminar FAQ
+
+GET    /api/admin/analytics - Estadísticas generales
 ```
 
 #### Autenticación
@@ -457,17 +465,17 @@ export const requireRole = (...roles: string[]) => {
 **Tiempo**: 14-18 horas
 
 #### Páginas Necesarias
-- `AdminDashboard.tsx` - Vista general (stats, gráficos)
-- `ConsultationsManager.tsx` - Listar y gestionar consultas
-- `ConsultationDetail.tsx` - Ver detalles y responder
-- `UserManagement.tsx` - Gestionar usuarios (admin)
-- `AnalyticsPage.tsx` - Estadísticas
+- `AdminDashboard.tsx` - Vista general (stats, gráficos de pagos)
+- `UsersManager.tsx` - Gestionar usuarios
+- `PaymentsManager.tsx` - Historial de pagos y reembolsos
+- `FAQManager.tsx` - Gestionar base de preguntas frecuentes
+- `AnalyticsPage.tsx` - Estadísticas de la plataforma
 
 #### Componentes
-- Dashboard cards (Stats)
+- Dashboard cards (Stats de usuarios, ingresos, etc.)
 - Data tables (react-table)
 - Charts (Chart.js o Recharts)
-- Forms para responder
+- Forms para CRUD de FAQs
 - Filters y búsqueda
 
 #### Ejemplo Estructura
@@ -475,18 +483,21 @@ export const requireRole = (...roles: string[]) => {
 frontend/src/
 ├── pages/admin/
 │   ├── AdminDashboard.tsx
-│   ├── ConsultationsManager.tsx
-│   ├── ConsultationDetail.tsx
-│   ├── UserManagement.tsx
+│   ├── UsersManager.tsx
+│   ├── PaymentsManager.tsx
+│   ├── FAQManager.tsx
 │   └── AnalyticsPage.tsx
 ├── components/admin/
 │   ├── StatsCard.tsx
-│   ├── ConsultationTable.tsx
-│   ├── ResponseForm.tsx
+│   ├── UsersTable.tsx
+│   ├── PaymentsTable.tsx
+│   ├── FAQForm.tsx
 │   └── AnalyticsChart.tsx
 └── hooks/
     ├── useAdmin.ts
-    └── useConsultations.ts
+    ├── useUsers.ts
+    ├── usePayments.ts
+    └── useFAQs.ts
 ```
 
 ### 5.3 Rutas Protegidas

@@ -22,50 +22,38 @@
 └─────────────────┘      │
         ▲                │
         │                │
-        │          ┌─────────────────────────┐
-        │          │   Consultations         │
-        │          ├─────────────────────────┤
-        │          │ id (PK)                 │
-        │          │ user_id (FK) ──────────┼──> Users
-        │          │ question                │
-        │          │ category                │
-        │          │ response                │
-        │          │ status                  │
-        │          │ estimated_response_time │
-        │          │ created_at              │
-        │          │ updated_at              │
-        │          └──────┬──────────────────┘
-        │                 │
-        │                 └──────┐
-        │                        │
-        │                 ┌──────────────────┐
-        │                 │    Payments      │
-        │                 ├──────────────────┤
-        │                 │ id (PK)          │
-        │                 │ consultation_id  │
-        │                 │ (FK)  ──────┘
-        │                 │ user_id (FK)────┼──> Users
-        │                 │ stripe_session_id
-        │                 │ amount           │
-        │                 │ status           │
-        │                 │ receipt_url      │
-        │                 │ created_at       │
-        │                 └──────────────────┘
+        │          ┌──────────────────────────┐
+        │          │      Payments            │
+        │          ├──────────────────────────┤
+        │          │ id (PK)                  │
+        │          │ user_id (FK) ───────────┼──> Users
+        │          │ stripe_session_id        │
+        │          │ amount                   │
+        │          │ status                   │
+        │          │ consultation_summary     │
+        │          │ (resumen de respuesta IA)│
+        │          │ receipt_url              │
+        │          │ created_at               │
+        │          │ updated_at               │
+        │          └──────────────────────────┘
         │
-        └─────────────────┐
-                          │
-                   ┌──────────────────┐
-                   │    Responses     │ (Opcional)
-                   ├──────────────────┤
-                   │ id (PK)          │
-                   │ consultation_id  │
-                   │ (FK)  ──────┘
-                   │ lawyer_id (FK)───┼──> Users
-                   │ response_text    │
-                   │ attachments      │
-                   │ created_at       │
-                   └──────────────────┘
+        └──────────────────┐
+                           │
+                    ┌──────────────────────────┐
+                    │    CustomAgent           │
+                    │   (Futuro - Opcional)    │
+                    ├──────────────────────────┤
+                    │ id (PK)                  │
+                    │ user_id (FK) ───────────┼──> Users
+                    │ name                     │
+                    │ system_prompt            │
+                    │ knowledge_base           │
+                    │ created_at               │
+                    │ updated_at               │
+                    └──────────────────────────┘
 ```
+
+⚠️ **NOTA IMPORTANTE**: NO hay tabla de Consultations. Las consultas se generan siempre por IA sin ser persistidas. Solo se guarda un resumen en el campo `consultation_summary` de la tabla Payment.
 
 ### Schema Prisma Completo
 
@@ -85,7 +73,7 @@ model User {
   email             String            @unique
   passwordHash      String
   name              String
-  role              Role              @default(USER) // USER | LAWYER | ADMIN
+  role              Role              @default(USER) // USER | ADMIN
   profileImage      String?
   isEmailVerified   Boolean           @default(false)
   emailVerificationToken String?
@@ -95,9 +83,8 @@ model User {
   updatedAt         DateTime          @updatedAt
 
   // Relations
-  consultations     Consultation[]
   payments          Payment[]
-  responses         Response[]
+  customAgents      CustomAgent[]
 
   @@index([email])
   @@map("users")
@@ -105,53 +92,7 @@ model User {
 
 enum Role {
   USER
-  LAWYER
   ADMIN
-}
-
-enum ConsultationStatus {
-  PENDING      // En espera de respuesta
-  IN_PROGRESS  // Un abogado está trabajando
-  COMPLETED    // Respondida
-  ARCHIVED     // Archivada por usuario
-}
-
-model Consultation {
-  id                    String            @id @default(cuid())
-  userId                String
-  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  question              String            @db.Text
-  category              String
-  briefAnswer           String?           @db.Text
-  detailedResponse      String?           @db.Text
-  
-  status                ConsultationStatus @default(PENDING)
-  isPaid                Boolean           @default(false)
-  price                 Float             @default(29.99)
-  
-  confidence            Float?            // 0-1 de la IA
-  complexity            String?           // simple | medium | complex
-  needsProfessional     Boolean           @default(true)
-  
-  lawyerId              String?           // ID del abogado asignado
-  assignedAt            DateTime?
-  completedAt           DateTime?
-  
-  metadata              Json?             // Datos adicionales
-  
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
-  
-  // Relations
-  payments              Payment[]
-  responses             Response[]
-
-  @@index([userId])
-  @@index([status])
-  @@index([category])
-  @@index([createdAt])
-  @@map("consultations")
 }
 
 enum PaymentStatus {
@@ -167,15 +108,16 @@ model Payment {
   userId                String
   user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  consultationId        String
-  consultation          Consultation      @relation(fields: [consultationId], references: [id], onDelete: Cascade)
-  
   stripeSessionId       String            @unique
   stripePaymentIntentId String?           @unique
   
   amount                Float
   currency              String            @default("USD")
   status                PaymentStatus     @default(PENDING)
+  
+  // Resumen de la consulta (respuesta de IA)
+  consultationSummary   String?           @db.Text
+  consultationCategory  String?
   
   receiptUrl            String?
   refundedAt            DateTime?
@@ -190,25 +132,6 @@ model Payment {
   @@index([stripeSessionId])
   @@index([status])
   @@map("payments")
-}
-
-model Response {
-  id                    String            @id @default(cuid())
-  consultationId        String
-  consultation          Consultation      @relation(fields: [consultationId], references: [id], onDelete: Cascade)
-  
-  lawyerId              String
-  lawyer                User              @relation(fields: [lawyerId], references: [id])
-  
-  responseText          String            @db.Text
-  attachments           String[]          // URLs o file paths
-  
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
-
-  @@index([consultationId])
-  @@index([lawyerId])
-  @@map("responses")
 }
 
 model FAQ {
@@ -228,6 +151,25 @@ model FAQ {
   @@index([category])
   @@fulltext([question, answer])
   @@map("faqs")
+}
+
+// FUTURO: Agente personalizado del usuario
+model CustomAgent {
+  id                    String            @id @default(cuid())
+  userId                String
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name                  String
+  systemPrompt          String            @db.Text
+  knowledgeBase         String?           @db.Text // Documentos, FAQs personalizados
+  
+  isActive              Boolean           @default(true)
+  
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  @@index([userId])
+  @@map("custom_agents")
 }
 ```
 

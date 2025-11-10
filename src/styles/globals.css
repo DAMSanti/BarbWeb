@@ -6,7 +6,7 @@
   @apply transition-colors duration-200;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Colores corporativos oro */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -34,13 +34,17 @@ body {
   @apply bg-white text-gray-900 font-sans;
 }
 
-/* Gradient backgrounds */
+/* Gradient backgrounds - Colores corporativos Barbara & Abogados */
 .gradient-primary {
-  @apply bg-gradient-to-br from-primary-500 to-primary-700;
+  @apply bg-gradient-to-br from-primary-600 to-primary-700;
 }
 
 .gradient-accent {
-  @apply bg-gradient-to-br from-accent-500 to-accent-600;
+  @apply bg-gradient-to-br from-primary-500 to-primary-600;
+}
+
+.gradient-dark {
+  @apply bg-gradient-to-br from-dark-500 to-dark-700;
 }
 
 /* Animations */

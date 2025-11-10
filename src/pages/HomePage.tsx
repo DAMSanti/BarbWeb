@@ -37,31 +37,31 @@ export default function HomePage() {
   return (
     <div className="w-full">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-50 to-primary-100 py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl animate-float"></div>
-          <div className="absolute -bottom-8 right-10 w-72 h-72 bg-accent-500 rounded-full mix-blend-multiply filter blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+      <section className="relative bg-gradient-to-br from-dark-500 via-dark-600 to-dark-700 py-20 lg:py-32 overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500 rounded-full mix-blend-lighten filter blur-3xl animate-float"></div>
+          <div className="absolute -bottom-8 right-10 w-72 h-72 bg-primary-600 rounded-full mix-blend-lighten filter blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-              Consultas Legales <span className="text-primary-600">Inteligentes</span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+              Consultas Legales <span className="text-primary-500">Profesionales</span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto mb-8">
-              Obtén respuestas legales inmediatas o solicita asesoramiento profesional. Nuestro sistema inteligente filtra tus dudas y las resuelve automáticamente cuando es posible.
+            <p className="text-lg sm:text-xl text-gray-200 max-w-3xl mx-auto mb-8">
+              Barbara & Abogados te ofrece respuestas legales inmediatas o asesoramiento profesional personalizado. Nuestro sistema inteligente filtra tus dudas y las resuelve automáticamente cuando es posible.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/faq"
-                className="inline-flex items-center justify-center px-8 py-3 rounded-lg bg-primary-600 text-white font-semibold hover:bg-primary-700 transition-colors group"
+                className="inline-flex items-center justify-center px-8 py-3 rounded-lg bg-primary-500 text-dark-500 font-semibold hover:bg-primary-600 transition-all shadow-lg hover:shadow-primary-500/50 group"
               >
                 Hacer Consulta
                 <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
               </Link>
               <a
                 href="#features"
-                className="inline-flex items-center justify-center px-8 py-3 rounded-lg border-2 border-primary-600 text-primary-600 font-semibold hover:bg-primary-50 transition-colors"
+                className="inline-flex items-center justify-center px-8 py-3 rounded-lg border-2 border-primary-500 text-primary-500 font-semibold hover:bg-primary-500 hover:text-dark-500 transition-all"
               >
                 Conocer Más
               </a>
@@ -138,15 +138,15 @@ export default function HomePage() {
       {/* CTA Section */}
       <section className="py-20 lg:py-28 bg-gradient-to-r from-primary-600 to-primary-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-dark-500 mb-6">
             ¿Tienes una pregunta legal?
           </h2>
-          <p className="text-lg text-primary-100 mb-8">
+          <p className="text-lg text-dark-600 mb-8">
             Comienza ahora a filtrar tus dudas y obtén respuestas inmediatas o solicita una consulta profesional.
           </p>
           <Link
             to="/faq"
-            className="inline-flex items-center px-8 py-4 rounded-lg bg-white text-primary-600 font-bold hover:bg-primary-50 transition-colors group"
+            className="inline-flex items-center px-8 py-4 rounded-lg bg-dark-500 text-primary-500 font-bold hover:bg-dark-600 transition-all shadow-lg group"
           >
             Empezar Consulta Gratuita
             <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
@@ -160,13 +160,13 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-                Sobre Nuestro Bufete
+                Sobre Barbara & Abogados
               </h2>
               <p className="text-lg text-gray-600 mb-4">
-                Somos un equipo de abogados especializados comprometidos con hacer la justicia más accesible. Con más de 15 años de experiencia, combinamos nuestro conocimiento legal con tecnología innovadora.
+                Dña. Bárbara Rueda García lidera un equipo de abogados especializados comprometidos con hacer la justicia más accesible. Con amplia experiencia en diversas áreas del derecho, combinamos nuestro conocimiento legal con tecnología innovadora.
               </p>
               <p className="text-lg text-gray-600 mb-6">
-                Nuestro sistema inteligente de filtrado de preguntas permite que muchas consultas se resuelvan de forma automática, lo que nos permite ofrecer servicios más rápidos y económicos.
+                Nuestro sistema inteligente de filtrado de preguntas permite que muchas consultas se resuelvan de forma automática, lo que nos permite ofrecer servicios más rápidos y personalizados.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start space-x-4">
@@ -198,23 +198,23 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl p-8 text-white">
-              <h3 className="text-2xl font-bold mb-6">Estadísticas</h3>
+            <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-8 text-white shadow-2xl">
+              <h3 className="text-2xl font-bold mb-6">Nuestro Compromiso</h3>
               <div className="space-y-6">
                 <div>
-                  <div className="text-4xl font-bold mb-2">500+</div>
+                  <div className="text-4xl font-bold mb-2 text-dark-500">500+</div>
                   <p className="text-primary-100">Consultas resueltas mensualmente</p>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold mb-2">95%</div>
+                  <div className="text-4xl font-bold mb-2 text-dark-500">95%</div>
                   <p className="text-primary-100">Satisfacción de clientes</p>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold mb-2">15+</div>
-                  <p className="text-primary-100">Años de experiencia</p>
+                  <div className="text-4xl font-bold mb-2 text-dark-500">Profesional</div>
+                  <p className="text-primary-100">Atención personalizada y experta</p>
                 </div>
                 <div>
-                  <div className="text-4xl font-bold mb-2">6</div>
+                  <div className="text-4xl font-bold mb-2 text-dark-500">6</div>
                   <p className="text-primary-100">Áreas de especialización</p>
                 </div>
               </div>

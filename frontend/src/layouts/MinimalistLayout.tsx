@@ -134,26 +134,29 @@ export default function MinimalistLayout() {
         }
 
         .minimalist-button.primary {
-          background: var(--primary-500, #0284c7);
-          color: white;
+          background: #d4af37;
+          color: #1a1a1a;
           border: none;
+          font-weight: 700;
         }
 
         .minimalist-button.primary:hover {
           transform: translateY(-4px);
-          box-shadow: 0 12px 24px rgba(2, 132, 199, 0.4);
+          box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
+          background: #f0e68c;
         }
 
         .minimalist-button.secondary {
           background: transparent;
-          color: var(--primary-500, #0284c7);
-          border: 2px solid var(--primary-500, #0284c7);
+          color: #d4af37;
+          border: 2px solid #d4af37;
         }
 
         .minimalist-button.secondary:hover {
-          background: var(--primary-500, #0284c7);
-          color: white;
+          background: #d4af37;
+          color: #1a1a1a;
           transform: translateY(-4px);
+          box-shadow: 0 12px 24px rgba(212, 175, 55, 0.4);
         }
 
         .minimalist-section {

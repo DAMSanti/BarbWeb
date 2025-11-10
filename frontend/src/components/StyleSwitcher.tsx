@@ -11,7 +11,6 @@ export default function StyleSwitcher() {
   const layouts: { value: LayoutType; label: string }[] = [
     { value: 'classic', label: 'Clásico' },
     { value: 'minimalist', label: 'Minimalista' },
-    { value: 'premium', label: 'Premium' },
   ]
 
   const themes: { value: ThemeId; label: string }[] = [

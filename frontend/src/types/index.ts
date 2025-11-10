@@ -34,4 +34,4 @@ export interface Service {
   icon: string
 }
 
-export type LayoutType = 'classic' | 'minimalist' | 'premium'
+export type LayoutType = 'classic' | 'minimalist'

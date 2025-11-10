@@ -163,7 +163,7 @@ export default function HomePage() {
                 Sobre Barbara & Abogados
               </h2>
               <p className="text-lg text-gray-600 mb-4">
-                Dña. Bárbara Rueda García lidera un equipo de abogados especializados comprometidos con hacer la justicia más accesible. Con amplia experiencia en diversas áreas del derecho, combinamos nuestro conocimiento legal con tecnología innovadora.
+                Dña. Bárbara Blasco García lidera un equipo de abogados especializados comprometidos con hacer la justicia más accesible. Con amplia experiencia en diversas áreas del derecho, combinamos nuestro conocimiento legal con tecnología innovadora.
               </p>
               <p className="text-lg text-gray-600 mb-6">
                 Nuestro sistema inteligente de filtrado de preguntas permite que muchas consultas se resuelvan de forma automática, lo que nos permite ofrecer servicios más rápidos y personalizados.

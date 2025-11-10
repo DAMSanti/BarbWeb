@@ -11,7 +11,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4 text-primary-500">BARBARA & ABOGADOS</h3>
             <p className="text-gray-300 text-sm leading-relaxed mb-3">
-              Dña. Bárbara Rueda García
+              Dña. Bárbara Blasco García
             </p>
             <p className="text-gray-400 text-sm leading-relaxed">
               Ofrecemos consultas legales rápidas, seguras y profesionales. Accede a respuestas inmediatas o solicita asesoramiento especializado.

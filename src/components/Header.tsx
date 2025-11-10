@@ -13,7 +13,7 @@ export default function Header() {
             </div>
             <div className="hidden sm:block">
               <h1 className="text-xl font-bold text-dark-500">BARBARA & ABOGADOS</h1>
-              <p className="text-xs text-gray-600">Dña. Bárbara Rueda García</p>
+              <p className="text-xs text-gray-600">Dña. Bárbara Blasco García</p>
             </div>
           </Link>
 

@@ -68,9 +68,27 @@ router.post('/filter-question', async (req: Request, res: Response) => {
     res.json(response)
   } catch (error) {
     console.error('Error in filter-question endpoint:', error)
+    
+    // Capturar errores específicos de Gemini
+    let errorMessage = 'Error al procesar la consulta. Por favor, intenta de nuevo.'
+    
+    if (error instanceof Error) {
+      if (error.message.includes('overloaded') || error.message.includes('503')) {
+        errorMessage = 'El servicio de IA está temporalmente sobrecargado. Por favor, intenta de nuevo en unos segundos.'
+      } else if (error.message.includes('not configured') || error.message.includes('API key')) {
+        errorMessage = 'El servicio de IA no está disponible en este momento. Por favor, contacta al administrador.'
+      } else if (error.message.includes('404')) {
+        errorMessage = 'El modelo de IA no está disponible. Por favor, contacta al administrador.'
+      } else if (error.message.includes('quota') || error.message.includes('limit')) {
+        errorMessage = 'Se ha alcanzado el límite de consultas. Por favor, intenta más tarde.'
+      } else {
+        errorMessage = `Error: ${error.message}`
+      }
+    }
+    
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
+      error: errorMessage,
     } as FilterQuestionResponse)
   }
 })
@@ -103,9 +121,23 @@ router.post('/generate-response', async (req: Request, res: Response) => {
     })
   } catch (error) {
     console.error('Error in generate-response endpoint:', error)
+    
+    // Capturar errores específicos de Gemini
+    let errorMessage = 'Error al generar la respuesta. Por favor, intenta de nuevo.'
+    
+    if (error instanceof Error) {
+      if (error.message.includes('overloaded') || error.message.includes('503')) {
+        errorMessage = 'El servicio de IA está temporalmente sobrecargado. Por favor, intenta de nuevo en unos segundos.'
+      } else if (error.message.includes('not configured') || error.message.includes('API key')) {
+        errorMessage = 'El servicio de IA no está disponible en este momento.'
+      } else if (error.message.includes('quota') || error.message.includes('limit')) {
+        errorMessage = 'Se ha alcanzado el límite de consultas. Por favor, intenta más tarde.'
+      }
+    }
+    
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
+      error: errorMessage,
     })
   }
 })

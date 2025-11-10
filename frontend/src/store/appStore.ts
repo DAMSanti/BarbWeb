@@ -1,15 +1,18 @@
 import { create } from 'zustand'
 import { ConsultationRequest, LegalCategory } from '../types'
+import { ThemeId, DEFAULT_THEME_ID } from '../theme/themes'
 
 interface AppState {
   consultations: ConsultationRequest[]
   selectedCategory: LegalCategory | null
   stripePublishableKey: string
+  theme: ThemeId
   
   // Acciones
   addConsultation: (consultation: ConsultationRequest) => void
   setSelectedCategory: (category: LegalCategory | null) => void
   updateConsultation: (id: string, consultation: Partial<ConsultationRequest>) => void
+  setTheme: (theme: ThemeId) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -17,6 +20,7 @@ export const useAppStore = create<AppState>((set) => ({
   selectedCategory: null,
   // Reemplaza esto con tu clave pública real de Stripe
   stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_default',
+  theme: DEFAULT_THEME_ID,
 
   addConsultation: (consultation) =>
     set((state) => ({
@@ -32,4 +36,6 @@ export const useAppStore = create<AppState>((set) => ({
         c.id === id ? { ...c, ...updates } : c
       ),
     })),
+
+  setTheme: (theme) => set({ theme }),
 }))

@@ -795,6 +795,16 @@
     color: var(--header-link-hover);
   }
 
+  .header-contact-link.bg-accent-color {
+    background: var(--accent-color);
+    color: var(--accent-contrast);
+  }
+
+  .header-contact-link.bg-accent-color:hover {
+    background: var(--accent-color);
+    opacity: 0.9;
+  }
+
   .header-mobile-btn {
     background: transparent;
     border: 1px solid transparent;

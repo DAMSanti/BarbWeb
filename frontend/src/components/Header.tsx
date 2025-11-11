@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Scale, Phone, Mail } from 'lucide-react'
+import { Scale, Phone, Mail, LogIn } from 'lucide-react'
 
 export default function Header() {
   return (
@@ -30,7 +30,7 @@ export default function Header() {
             </a>
           </nav>
 
-          {/* Contact Info */}
+          {/* Contact Info & Login Button */}
           <div className="header-contact hidden lg:flex items-center space-x-6">
             <a href="tel:+34672722452" className="header-contact-link flex items-center space-x-2">
               <Phone size={18} />
@@ -40,6 +40,10 @@ export default function Header() {
               <Mail size={18} />
               <span className="text-sm">bgarcia@icacantabria.es</span>
             </a>
+            <Link to="/login" className="header-contact-link flex items-center space-x-2 bg-accent-color text-accent-contrast hover:opacity-90">
+              <LogIn size={18} />
+              <span className="text-sm font-semibold">Login</span>
+            </Link>
           </div>
 
           {/* Mobile menu button */}

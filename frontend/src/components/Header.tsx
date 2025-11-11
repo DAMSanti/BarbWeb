@@ -7,6 +7,9 @@ export default function Header() {
   const navigate = useNavigate()
   const { isAuthenticated, user, logout } = useAppStore()
   const [showUserMenu, setShowUserMenu] = useState(false)
+  
+  // Debug
+  console.log('Header - isAuthenticated:', isAuthenticated, 'user:', user)
 
   const handleLogout = () => {
     logout()

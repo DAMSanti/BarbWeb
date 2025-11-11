@@ -5,37 +5,13 @@ import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
 import FAQPage from './pages/FAQPage'
 import CheckoutPage from './pages/CheckoutPage'
-import { useAppStore } from './store/appStore'
-import { THEME_CLASSNAMES, DEFAULT_THEME_ID } from './theme/themes'
 import { applyThemeVariables } from './theme/themeVariables'
 
 function App() {
-  const theme = useAppStore((state) => state.theme)
-
+  // Aplicar tema fijo al cargar
   useEffect(() => {
-    // Aplicar variables CSS del tema
-    applyThemeVariables(theme)
-    
-    // Aplicar clase al body
-    document.body.classList.remove(...THEME_CLASSNAMES)
-    document.body.classList.add(`theme-${theme}`)
-    
-    // Guardar en localStorage
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  // Aplicar tema almacenado al cargar
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || DEFAULT_THEME_ID
-    const store = useAppStore.getState()
-    if (store.theme !== savedTheme) {
-      store.setTheme(savedTheme as any)
-    }
-    
-    // Aplicar inmediatamente
-    applyThemeVariables(savedTheme as any)
-    document.body.classList.remove(...THEME_CLASSNAMES)
-    document.body.classList.add(`theme-${savedTheme}`)
+    applyThemeVariables('nocturne')
+    document.body.classList.add('theme-nocturne')
   }, [])
 
   return (

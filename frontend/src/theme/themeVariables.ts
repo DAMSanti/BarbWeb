@@ -1,5 +1,15 @@
 import { ThemeId } from './themes'
 
+/**
+ * NOTA: El sistema está actualmente configurado con un ÚNICO TEMA: 'nocturne'
+ * Si en el futuro necesitas agregar más temas, simplemente:
+ * 1. Añade el nuevo tema aquí
+ * 2. Restaura la lógica de tema en App.tsx y appStore.ts
+ * 3. Reactiva StyleSwitcher o crea ThemeSwitcher
+ * 
+ * Por ahora, estas variables se aplican globalmente sin necesidad de switching.
+ */
+
 export interface ThemeVariables {
   bodyBg: string
   textPrimary: string

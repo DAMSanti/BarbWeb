@@ -3,6 +3,12 @@ import Stripe from 'stripe'
 import { getPrismaClient } from '../db/init.js'
 import { logger } from '../utils/logger.js'
 import { ValidationError } from '../utils/errors.js'
+import {
+  sendPaymentConfirmationEmail,
+  sendLawyerNotificationEmail,
+  sendPaymentFailedEmail,
+  sendRefundConfirmationEmail,
+} from '../services/emailService.js'
 
 const router = Router()
 const prisma = getPrismaClient()
@@ -122,8 +128,54 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       amount: paymentIntent.amount / 100,
     })
 
-    // TODO: Enviar email de confirmación
-    // TODO: Notificar al abogado sobre la nueva consulta pagada
+    // Get user data and payment metadata
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    })
+
+    const clientEmail = paymentIntent.receipt_email || user?.email
+    const clientName = paymentIntent.metadata?.clientName || user?.name || 'Cliente'
+    const consultationSummary = paymentIntent.metadata?.consultationSummary || 'Consulta legal general'
+    const category = paymentIntent.metadata?.category || 'General'
+
+    // Send confirmation email to client
+    if (clientEmail) {
+      try {
+        await sendPaymentConfirmationEmail(clientEmail, {
+          clientName,
+          amount: paymentIntent.amount / 100,
+          currency: paymentIntent.currency,
+          category,
+          consultationSummary,
+          paymentId: paymentIntent.id,
+        })
+        logger.info('Email de confirmación enviado al cliente', { email: clientEmail })
+      } catch (emailError) {
+        logger.error('Error enviando email de confirmación', {
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+          email: clientEmail,
+        })
+      }
+    }
+
+    // Send notification to lawyer
+    if (clientEmail) {
+      try {
+        await sendLawyerNotificationEmail({
+          clientName,
+          clientEmail,
+          amount: paymentIntent.amount / 100,
+          category,
+          consultationSummary,
+          paymentId: paymentIntent.id,
+        })
+        logger.info('Notificación enviada al abogado')
+      } catch (emailError) {
+        logger.error('Error enviando notificación al abogado', {
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+        })
+      }
+    }
   } catch (error) {
     logger.error('Error registrando pago completado', {
       error: error instanceof Error ? error.message : String(error),
@@ -142,7 +194,30 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
     lastPaymentError: paymentIntent.last_payment_error?.message,
   })
 
-  // TODO: Enviar email notificando fallo del pago
+  // Get user data
+  const user = userId
+    ? await prisma.user.findUnique({ where: { id: userId } })
+    : null
+
+  const clientEmail = paymentIntent.receipt_email || user?.email
+  const clientName = paymentIntent.metadata?.clientName || user?.name || 'Cliente'
+
+  // Send payment failed email
+  if (clientEmail) {
+    try {
+      await sendPaymentFailedEmail(clientEmail, {
+        clientName,
+        amount: paymentIntent.amount / 100,
+        errorMessage: paymentIntent.last_payment_error?.message,
+      })
+      logger.info('Email de pago fallido enviado', { email: clientEmail })
+    } catch (emailError) {
+      logger.error('Error enviando email de pago fallido', {
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+        email: clientEmail,
+      })
+    }
+  }
 }
 
 // Handle charge.refunded
@@ -167,7 +242,30 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
           refundedAmount: charge.amount_refunded / 100,
         })
 
-        // TODO: Enviar email de reembolso confirmado
+        // Get user and payment data
+        const user = await prisma.user.findUnique({
+          where: { id: payment.userId },
+        })
+
+        const clientEmail = charge.receipt_email || user?.email
+        const clientName = user?.name || 'Cliente'
+
+        // Send refund confirmation email
+        if (clientEmail) {
+          try {
+            await sendRefundConfirmationEmail(clientEmail, {
+              clientName,
+              amount: charge.amount_refunded / 100,
+              currency: charge.currency,
+            })
+            logger.info('Email de reembolso enviado', { email: clientEmail })
+          } catch (emailError) {
+            logger.error('Error enviando email de reembolso', {
+              error: emailError instanceof Error ? emailError.message : String(emailError),
+              email: clientEmail,
+            })
+          }
+        }
       }
     }
   } catch (error) {

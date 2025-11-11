@@ -1,23 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { Scale, Phone, Mail, LogOut, Settings, User as UserIcon } from 'lucide-react'
-import { useAppStore } from '../store/appStore'
-import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Scale, Phone, Mail } from 'lucide-react'
 
 export default function Header() {
-  const navigate = useNavigate()
-  const { isAuthenticated, user, logout } = useAppStore()
-  const [showUserMenu, setShowUserMenu] = useState(false)
-
-  const handleLogout = () => {
-    logout()
-    setShowUserMenu(false)
-    navigate('/')
-  }
-
-  const handleLoginClick = () => {
-    navigate('/login')
-  }
-
   return (
     <header className="site-header">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,61 +30,16 @@ export default function Header() {
             </a>
           </nav>
 
-          {/* Contact Info & Auth */}
-          <div className="header-contact flex items-center space-x-4 lg:space-x-6">
-            <a href="tel:+34672722452" className="header-contact-link hidden lg:flex items-center space-x-2">
+          {/* Contact Info */}
+          <div className="header-contact hidden lg:flex items-center space-x-6">
+            <a href="tel:+34672722452" className="header-contact-link flex items-center space-x-2">
               <Phone size={18} />
               <span className="text-sm">+34 672 722 452</span>
             </a>
-            <a href="mailto:bgarcia@icacantabria.es" className="header-contact-link hidden lg:flex items-center space-x-2">
+            <a href="mailto:bgarcia@icacantabria.es" className="header-contact-link flex items-center space-x-2">
               <Mail size={18} />
               <span className="text-sm">bgarcia@icacantabria.es</span>
             </a>
-
-            {/* Auth Buttons or User Menu */}
-            {isAuthenticated && user ? (
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"
-                >
-                  <UserIcon size={16} />
-                  <span className="font-medium truncate max-w-xs">{user.name || user.email}</span>
-                </button>
-
-                {/* User Dropdown Menu */}
-                {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg z-50">
-                    <div className="p-3 border-b border-slate-700">
-                      <p className="text-sm font-semibold">{user.name}</p>
-                      <p className="text-xs text-slate-400">{user.email}</p>
-                    </div>
-                    <a href="#profile" className="flex items-center space-x-2 px-4 py-2 text-sm hover:bg-slate-700 transition">
-                      <UserIcon size={16} />
-                      <span>Mi Perfil</span>
-                    </a>
-                    <a href="#settings" className="flex items-center space-x-2 px-4 py-2 text-sm hover:bg-slate-700 transition">
-                      <Settings size={16} />
-                      <span>Configuración</span>
-                    </a>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left flex items-center space-x-2 px-4 py-2 text-sm hover:bg-slate-700 transition text-red-400 border-t border-slate-700"
-                    >
-                      <LogOut size={16} />
-                      <span>Cerrar Sesión</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={handleLoginClick}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm"
-              >
-                Iniciar Sesión
-              </button>
-            )}
           </div>
 
           {/* Mobile menu button */}

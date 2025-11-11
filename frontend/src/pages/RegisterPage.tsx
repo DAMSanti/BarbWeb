@@ -158,7 +158,7 @@ export default function RegisterPage() {
           font-size: 2rem;
           font-weight: 700;
           margin-bottom: 0.5rem;
-          background: linear-gradient(135deg, var(--primary-500, #0284c7), var(--accent-500, #d946ef));
+          background: linear-gradient(135deg, var(--primary-500, #d4af37), var(--accent-500, #d946ef));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -212,7 +212,7 @@ export default function RegisterPage() {
 
         .register-input:focus {
           outline: none;
-          border-color: var(--primary-500, #0284c7);
+          border-color: var(--primary-500, #d4af37);
           background: rgba(30, 41, 59, 1);
           box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
         }
@@ -275,7 +275,7 @@ export default function RegisterPage() {
         }
 
         .register-checkbox a {
-          color: var(--primary-500, #0284c7);
+          color: var(--primary-500, #d4af37);
           text-decoration: none;
           font-weight: 600;
           transition: color 0.3s ease;
@@ -338,7 +338,7 @@ export default function RegisterPage() {
         }
 
         .register-footer a {
-          color: var(--primary-500, #0284c7);
+          color: var(--primary-500, #d4af37);
           text-decoration: none;
           font-weight: 600;
           transition: color 0.3s ease;

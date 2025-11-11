@@ -60,7 +60,7 @@ export default function MinimalistLayout() {
           right: -10%;
           width: 500px;
           height: 500px;
-          background: radial-gradient(circle, var(--primary-500, #0284c7) 0%, transparent 70%);
+          background: radial-gradient(circle, var(--primary-500, #d4af37) 0%, transparent 70%);
           opacity: 0.1;
           border-radius: 50%;
           animation: float 6s ease-in-out infinite;
@@ -186,7 +186,7 @@ export default function MinimalistLayout() {
         .minimalist-card-number {
           font-size: 3.5rem;
           font-weight: 800;
-          background: linear-gradient(135deg, var(--primary-500, #0284c7), var(--accent-500, #d946ef));
+          background: linear-gradient(135deg, var(--primary-500, #d4af37), var(--accent-500, #d946ef));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -224,13 +224,13 @@ export default function MinimalistLayout() {
         .minimalist-feature:hover {
           background: var(--bg-secondary, rgba(255, 255, 255, 0.1));
           transform: translateY(-4px);
-          border-color: var(--primary-500, #0284c7);
+          border-color: var(--primary-500, #d4af37);
         }
 
         .minimalist-feature-icon {
           width: 60px;
           height: 60px;
-          background: linear-gradient(135deg, var(--primary-500, #0284c7), var(--accent-500, #d946ef));
+          background: linear-gradient(135deg, var(--primary-500, #d4af37), var(--accent-500, #d946ef));
           border-radius: 12px;
           display: flex;
           align-items: center;

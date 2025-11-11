@@ -177,8 +177,8 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-700">
+              <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <p className="text-sm text-yellow-700">
                   ✓ Garantía de privacidad <br />
                   ✓ Consulta segura <br />
                   ✓ Respuesta en 48 horas

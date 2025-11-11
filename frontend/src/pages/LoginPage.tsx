@@ -3,41 +3,42 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, LogIn, AlertCircle, Loader } from 'lucide-react'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
-import { backendApi } from '../services/backendApi'
+import { backendApi } from '../services/backendApi.js'
+import { useErrorHandler } from '../hooks/useErrorHandler.js'
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const { login, setError, setIsLoading, isLoading } = useAppStore()
+  const { error, handleError, clearError, errorMessage } = useErrorHandler()
   
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   })
-  const [localError, setLocalError] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     })
-    setLocalError('')
+    clearError()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLocalError('')
+    clearError()
     setIsLoading(true)
 
     try {
       // Validation
       if (!formData.email || !formData.password) {
-        setLocalError('Por favor completa todos los campos')
+        handleError(new Error('Por favor completa todos los campos'), 'LoginPage.handleSubmit')
         setIsLoading(false)
         return
       }
 
       if (!formData.email.includes('@')) {
-        setLocalError('Email inválido')
+        handleError(new Error('Email inválido'), 'LoginPage.handleSubmit')
         setIsLoading(false)
         return
       }
@@ -51,8 +52,8 @@ export default function LoginPage() {
       // Redirect to home
       navigate('/')
     } catch (err: any) {
-      const errorMessage = err.message || 'Error al iniciar sesión'
-      setLocalError(errorMessage)
+      // Use parseBackendError through handleError hook
+      handleError(err, 'LoginPage.handleSubmit')
       setError(errorMessage)
     } finally {
       setIsLoading(false)
@@ -66,7 +67,7 @@ export default function LoginPage() {
     const redirectUri = `${window.location.origin}/auth/google/callback`
     
     if (!clientId) {
-      setLocalError('Google OAuth no está configurado')
+      handleError(new Error('Google OAuth no está configurado'), 'LoginPage.handleGoogleLogin')
       return
     }
 
@@ -80,7 +81,7 @@ export default function LoginPage() {
     const redirectUri = `${window.location.origin}/auth/microsoft/callback`
     
     if (!clientId) {
-      setLocalError('Microsoft OAuth no está configurado')
+      handleError(new Error('Microsoft OAuth no está configurado'), 'LoginPage.handleMicrosoftLogin')
       return
     }
 
@@ -306,10 +307,10 @@ export default function LoginPage() {
           <h1 className="login-title">Bienvenido</h1>
           <p className="login-subtitle">Inicia sesión en tu cuenta</p>
 
-          {localError && (
+          {error && (
             <div className="error-message">
               <AlertCircle className="error-icon" size={20} />
-              <span>{localError}</span>
+              <span>{errorMessage}</span>
             </div>
           )}
 

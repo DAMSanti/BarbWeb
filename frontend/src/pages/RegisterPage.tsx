@@ -3,11 +3,13 @@ import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, User, AlertCircle, Loader, CheckCircle } from 'lucide-react'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
-import { backendApi } from '../services/backendApi'
+import { backendApi } from '../services/backendApi.js'
+import { useErrorHandler } from '../hooks/useErrorHandler.js'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
   const { register, setError, setIsLoading, isLoading } = useAppStore()
+  const { error, handleError, clearError, errorMessage } = useErrorHandler()
   
   const [formData, setFormData] = useState({
     name: '',
@@ -16,7 +18,6 @@ export default function RegisterPage() {
     confirmPassword: '',
     agreeTerms: false,
   })
-  const [localError, setLocalError] = useState('')
   const [passwordStrength, setPasswordStrength] = useState(0)
 
   const calculatePasswordStrength = (password: string) => {
@@ -35,7 +36,7 @@ export default function RegisterPage() {
       ...formData,
       [name]: type === 'checkbox' ? checked : value,
     })
-    setLocalError('')
+    clearError()
 
     if (name === 'password') {
       calculatePasswordStrength(value)
@@ -44,37 +45,37 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLocalError('')
+    clearError()
     setIsLoading(true)
 
     try {
       // Validation
       if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-        setLocalError('Por favor completa todos los campos')
+        handleError(new Error('Por favor completa todos los campos'), 'RegisterPage.handleSubmit')
         setIsLoading(false)
         return
       }
 
       if (!formData.email.includes('@')) {
-        setLocalError('Email inválido')
+        handleError(new Error('Email inválido'), 'RegisterPage.handleSubmit')
         setIsLoading(false)
         return
       }
 
       if (formData.password.length < 8) {
-        setLocalError('La contraseña debe tener al menos 8 caracteres')
+        handleError(new Error('La contraseña debe tener al menos 8 caracteres'), 'RegisterPage.handleSubmit')
         setIsLoading(false)
         return
       }
 
       if (formData.password !== formData.confirmPassword) {
-        setLocalError('Las contraseñas no coinciden')
+        handleError(new Error('Las contraseñas no coinciden'), 'RegisterPage.handleSubmit')
         setIsLoading(false)
         return
       }
 
       if (!formData.agreeTerms) {
-        setLocalError('Debes aceptar los términos y condiciones')
+        handleError(new Error('Debes aceptar los términos y condiciones'), 'RegisterPage.handleSubmit')
         setIsLoading(false)
         return
       }
@@ -88,8 +89,8 @@ export default function RegisterPage() {
       // Redirect to home
       navigate('/')
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Error al registrarse'
-      setLocalError(errorMessage)
+      // Use parseBackendError through handleError hook
+      handleError(err, 'RegisterPage.handleSubmit')
       setError(errorMessage)
     } finally {
       setIsLoading(false)
@@ -354,10 +355,10 @@ export default function RegisterPage() {
           <h1 className="register-title">Crear Cuenta</h1>
           <p className="register-subtitle">Únete a nuestra plataforma legal</p>
 
-          {localError && (
+          {error && (
             <div className="error-message">
               <AlertCircle className="error-icon" size={20} />
-              <span>{localError}</span>
+              <span>{errorMessage}</span>
             </div>
           )}
 

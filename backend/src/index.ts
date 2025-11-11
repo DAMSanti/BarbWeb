@@ -4,6 +4,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import apiRoutes from './routes/api.js'
 import authRoutes from './routes/auth.js'
+import paymentRoutes from './routes/payments.js'
+import webhookRoutes from './routes/webhooks.js'
 import { initializeDatabase } from './db/init.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 import { logger } from './utils/logger.js'
@@ -53,6 +55,12 @@ app.use('/api', apiRoutes)
 
 // Auth routes
 app.use('/auth', authRoutes)
+
+// Payment routes
+app.use('/api/payments', paymentRoutes)
+
+// Webhook routes
+app.use('/webhooks', webhookRoutes)
 
 // Servir archivos estáticos del frontend en /barbweb2
 // En producción, el backend/dist está en /workspace/backend/dist, así que ../../../ nos lleva a /workspace/frontend/dist

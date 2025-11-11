@@ -36,9 +36,9 @@ export default function Header() {
               <Phone size={18} />
               <span className="text-sm">+34 672 722 452</span>
             </a>
-            <a href="mailto:bgarcia@icacantabria.es" className="header-contact-link flex items-center space-x-2">
+            <a href="mailto:abogados.bgarcia@gmail.com" className="header-contact-link flex items-center space-x-2">
               <Mail size={18} />
-              <span className="text-sm">bgarcia@icacantabria.es</span>
+              <span className="text-sm">abogados.bgarcia@gmail.com</span>
             </a>
             <Link to="/login" className="header-contact-link flex items-center space-x-2 bg-accent-color text-accent-contrast hover:opacity-90">
               <LogIn size={18} />

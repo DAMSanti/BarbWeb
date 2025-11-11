@@ -45,7 +45,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-2 footer-text">
                 <Mail size={16} className="footer-icon" />
-                <a href="mailto:bgarcia@icacantabria.es" className="footer-link">bgarcia@icacantabria.es</a>
+                <a href="mailto:abogados.bgarcia@gmail.com" className="footer-link">abogados.bgarcia@gmail.com</a>
               </li>
             </ul>
           </div>

@@ -5,6 +5,9 @@ import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
 import FAQPage from './pages/FAQPage'
 import CheckoutPage from './pages/CheckoutPage'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import PrivateRoute from './components/PrivateRoute'
 import { applyThemeVariables } from './theme/themeVariables'
 
 function App() {
@@ -20,9 +23,21 @@ function App() {
         <Header />
         <main className="flex-grow">
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/faq" element={<FAQPage />} />
-            <Route path="/checkout/:consultationId" element={<CheckoutPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            
+            {/* Protected routes */}
+            <Route
+              path="/checkout/:consultationId"
+              element={
+                <PrivateRoute>
+                  <CheckoutPage />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </main>
         <Footer />

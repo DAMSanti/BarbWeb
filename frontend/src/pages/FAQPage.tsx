@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Filter, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react'
-import StyleSwitcher from '../components/StyleSwitcher'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { LegalCategory, ConsultationRequest } from '../types'
 import { useAppStore } from '../store/appStore'
@@ -21,7 +20,7 @@ interface AutoResponse {
 
 export default function FAQPage() {
   const navigate = useNavigate()
-  const { layout, addConsultation } = useAppStore()
+  const { addConsultation } = useAppStore()
   const [question, setQuestion] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<LegalCategory | null>(null)
   const [showFilters, setShowFilters] = useState(false)
@@ -107,32 +106,19 @@ export default function FAQPage() {
 
   const suggestedFaqs: any[] = [] // FAQs now come from backend API
 
-  // Estilos según diseño
-  const containerMaxWidth = layout === 'minimalist' ? 'max-w-5xl' : 'max-w-4xl'
-  const headerSize = layout === 'minimalist' ? 'text-5xl sm:text-6xl' : 'text-4xl sm:text-5xl'
-  const headerSpacing = layout === 'minimalist' ? 'mb-16' : 'mb-12'
-
   return (
-    <div 
-      className="min-h-screen py-12" 
-      style={{ 
-        background: layout === 'minimalist' ? 'transparent' : 'var(--body-bg)'
-      }}
-    >
-      {layout === 'minimalist' && (
-        <ChessboardBackground
-          imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
-          opacity={0.1}
-          blurAmount={15}
-          parallaxIntensity={0.4}
-          cleanMode={true}
-        />
-      )}
-      <StyleSwitcher />
-      <div className={`${containerMaxWidth} mx-auto px-4 sm:px-6 lg:px-8`}>
+    <div className="min-h-screen py-12">
+      <ChessboardBackground
+        imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+        opacity={0.1}
+        blurAmount={15}
+        parallaxIntensity={0.4}
+        cleanMode={true}
+      />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className={`text-center ${headerSpacing}`}>
-          <h1 className={`${headerSize} font-bold mb-4`} style={{ color: 'var(--text-primary)' }}>
+        <div className="text-center mb-16">
+          <h1 className="text-5xl sm:text-6xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
             Centro de Consultas
           </h1>
           <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>

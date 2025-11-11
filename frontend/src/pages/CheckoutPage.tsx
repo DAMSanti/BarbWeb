@@ -1,14 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { CreditCard, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
-import StyleSwitcher from '../components/StyleSwitcher'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
   const navigate = useNavigate()
-  const { layout, consultations, updateConsultation } = useAppStore()
+  const { consultations, updateConsultation } = useAppStore()
 
   const consultation = consultations.find((c) => c.id === consultationId)
   const [clientName, setClientName] = useState(consultation?.clientName || '')
@@ -109,26 +108,17 @@ export default function CheckoutPage() {
   }
 
   // Estilos según diseño
-  const containerMaxWidth = layout === 'minimalist' ? 'max-w-3xl' : 'max-w-2xl'
-  const gridLayout = layout === 'minimalist' ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'
+  const containerMaxWidth = 'max-w-3xl'
 
   return (
-    <div 
-      className="min-h-screen py-12" 
-      style={{ 
-        background: layout === 'minimalist' ? 'transparent' : 'var(--body-bg)'
-      }}
-    >
-      {layout === 'minimalist' && (
-        <ChessboardBackground
-          imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
-          opacity={0.1}
-          blurAmount={15}
-          parallaxIntensity={0.4}
-          cleanMode={true}
-        />
-      )}
-      <StyleSwitcher />
+    <div className="min-h-screen py-12">
+      <ChessboardBackground
+        imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+        opacity={0.1}
+        blurAmount={15}
+        parallaxIntensity={0.4}
+        cleanMode={true}
+      />
       <div className={`${containerMaxWidth} mx-auto px-4 sm:px-6 lg:px-8`}>
         {/* Back Button */}
         <button
@@ -140,7 +130,7 @@ export default function CheckoutPage() {
           Volver a Consultas
         </button>
 
-        <div className={`grid ${gridLayout} gap-8`}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="rounded-2xl shadow-lg p-6 sticky top-6" style={{ backgroundColor: 'var(--card-bg)' }}>

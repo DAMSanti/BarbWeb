@@ -68,6 +68,7 @@ export default function ClassicLayout() {
 
             {/* OAuth Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+              {import.meta.env.VITE_GOOGLE_CLIENT_ID && (
               <button
                 onClick={() => {
                   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID

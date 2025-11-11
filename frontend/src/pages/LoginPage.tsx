@@ -53,7 +53,9 @@ export default function LoginPage() {
       navigate('/')
     } catch (err: any) {
       // Use parseBackendError through handleError hook
+      console.log('[LoginPage] Capturando error en handleSubmit:', err)
       handleError(err, 'LoginPage.handleSubmit')
+      console.log('[LoginPage] Error manejado, error state debería estar seteado')
     } finally {
       setIsLoading(false)
     }

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { ConsultationRequest, LegalCategory, LayoutType } from '../types'
+import { ConsultationRequest, LegalCategory } from '../types'
 
 // Auth Types
 export interface User {
@@ -20,7 +20,6 @@ interface AppState {
   consultations: ConsultationRequest[]
   selectedCategory: LegalCategory | null
   stripePublishableKey: string
-  layout: LayoutType
   
   // Auth state
   user: User | null
@@ -33,7 +32,6 @@ interface AppState {
   addConsultation: (consultation: ConsultationRequest) => void
   setSelectedCategory: (category: LegalCategory | null) => void
   updateConsultation: (id: string, consultation: Partial<ConsultationRequest>) => void
-  setLayout: (layout: LayoutType) => void
   
   // Auth actions
   setUser: (user: User | null) => void
@@ -54,7 +52,6 @@ export const useAppStore = create<AppState>()(
       consultations: [],
       selectedCategory: null,
       stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_default',
-      layout: 'classic' as LayoutType,
       
       // Initial auth state
       user: null,
@@ -78,8 +75,6 @@ export const useAppStore = create<AppState>()(
             c.id === id ? { ...c, ...updates } : c
           ),
         })),
-      
-      setLayout: (layout: LayoutType) => set({ layout }),
       
       // Auth actions
       setUser: (user: User | null) => set({ user }),
@@ -124,7 +119,6 @@ export const useAppStore = create<AppState>()(
     {
       name: 'barbweb-store', // localStorage key
       partialize: (state: AppState) => ({
-        layout: state.layout,
         consultations: state.consultations,
         selectedCategory: state.selectedCategory,
         user: state.user,

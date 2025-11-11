@@ -8,6 +8,7 @@ import CheckoutPage from './pages/CheckoutPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import PrivateRoute from './components/PrivateRoute'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { applyThemeVariables } from './theme/themeVariables'
 import { useAppStore } from './store/appStore'
 
@@ -105,9 +106,11 @@ function AppContent() {
 
 function App() {
   return (
-    <Router basename="/barbweb2">
-      <AppContent />
-    </Router>
+    <ErrorBoundary>
+      <Router basename="/barbweb2">
+        <AppContent />
+      </Router>
+    </ErrorBoundary>
   )
 }
 

@@ -4,6 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import apiRoutes from './routes/api.js'
 import authRoutes from './routes/auth.js'
+import { initializeDatabase } from './db/init.js'
 
 // Force Railway rebuild - Manual CORS headers v2
 dotenv.config()
@@ -92,12 +93,20 @@ app.use((_err: any, _req: express.Request, res: express.Response, _next: express
 })
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`✅ Server running on http://0.0.0.0:${PORT}`)
   console.log(`🔗 CORS enabled for all origins`)
   console.log(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
-  console.log(`� JWT Authentication: ✅ Configured (JWT + OAuth2)`)
-  console.log(`�💾 Database: ${process.env.DATABASE_URL ? '✅ Connected' : '❌ Not configured'}`)
+  console.log(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
+  
+  // Initialize database
+  const dbReady = await initializeDatabase()
+  if (!dbReady) {
+    console.error('❌ Failed to initialize database')
+    process.exit(1)
+  }
+  
+  console.log(`💾 Database: ✅ Connected`)
   console.log(`📁 Serving frontend from: ${frontendPath}`)
 })
 

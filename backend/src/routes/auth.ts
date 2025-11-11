@@ -145,14 +145,14 @@ router.get('/microsoft/callback', async (req: Request, res: Response): Promise<v
     const result = await oauthLogin('microsoft', userInfo.sub, userInfo.email, userInfo.name, userInfo.picture)
 
     // Create response with tokens - send to frontend
-    const frontendUrl = (globalThis as any).process?.env?.FRONTEND_URL || 'http://localhost:5173'
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
     const accessToken = result.tokens.accessToken
     const refreshToken = result.tokens.refreshToken
 
-    // Redirect to frontend with tokens in URL
+    // Redirect to frontend with tokens in URL fragment (safer than query)
     res.redirect(`${frontendUrl}?token=${accessToken}&refresh=${refreshToken}`)
   } catch (error: any) {
-    const frontendUrl = (globalThis as any).process?.env?.FRONTEND_URL || 'http://localhost:5173'
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
     res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(error.message)}`)
   }
 })

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { UUIDSchema } from './common.schemas'
+import { UUIDSchema } from './common.schemas.js'
 
 export const CreatePaymentIntentSchema = z.object({
   body: z.object({

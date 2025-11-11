@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { ZodSchema, ZodError } from 'zod'
-import { ValidationError } from '../utils/errors'
-import { formatZodErrors } from '../schemas/common.schemas'
+import { ValidationError } from '../utils/errors.js'
+import { formatZodErrors } from '../schemas/common.schemas.js'
 
 /**
  * Middleware para validar request con schemas de Zod

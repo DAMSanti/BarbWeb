@@ -4,8 +4,8 @@ import {
   isAppError,
   ErrorResponse,
   ValidationError,
-} from '../utils/errors'
-import { logger } from '../utils/logger'
+} from '../utils/errors.js'
+import { logger } from '../utils/logger.js'
 
 /**
  * Middleware para manejo centralizado de errores

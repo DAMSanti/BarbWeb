@@ -7,6 +7,13 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Email del remitente (debe estar verificado en Resend)
 const FROM_EMAIL = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
+// Log de inicialización
+logger.info('Email service initialized', {
+  hasApiKey: !!process.env.RESEND_API_KEY,
+  apiKeyLength: process.env.RESEND_API_KEY?.length || 0,
+  fromEmail: FROM_EMAIL,
+});
+
 /**
  * Enviar email de confirmación de pago al cliente
  */

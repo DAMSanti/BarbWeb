@@ -140,6 +140,13 @@ router.post(
   asyncHandler(async (req: Request, res: Response) => {
     const { to, clientName } = req.body
 
+    // Log environment variables (sin mostrar la key completa)
+    logger.info('Environment check', {
+      hasResendKey: !!process.env.RESEND_API_KEY,
+      resendKeyPrefix: process.env.RESEND_API_KEY?.substring(0, 8) || 'NOT_SET',
+      emailFrom: process.env.EMAIL_FROM || 'NOT_SET',
+    })
+
     if (!to || !clientName) {
       return res.status(400).json({
         success: false,
@@ -159,6 +166,8 @@ router.post(
         paymentId: 'pi_test_' + Date.now(),
       })
 
+      logger.info('Email sent successfully', { emailId: result?.id })
+
       res.json({
         success: true,
         message: 'Test email sent successfully',
@@ -167,10 +176,12 @@ router.post(
     } catch (error) {
       logger.error('Error sending test email', {
         error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
       })
       res.status(500).json({
         success: false,
         error: error instanceof Error ? error.message : 'Failed to send email',
+        details: error instanceof Error ? error.stack : String(error),
       })
     }
   }),

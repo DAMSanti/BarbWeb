@@ -88,7 +88,7 @@ Value: v=DMARC1; p=none; rua=mailto:dmarc@tudominio.com
 curl -X POST http://localhost:3000/api/test-email \
   -H "Content-Type: application/json" \
   -d '{
-    "to": "tu-email@gmail.com",
+    "to": "oOoRathmaoOo@gmail.com",
     "clientName": "Juan Pérez"
   }'
 ```

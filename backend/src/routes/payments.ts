@@ -192,13 +192,15 @@ router.get(
         })),
       })
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
       logger.error('Error obteniendo historial de pagos', {
-        error: error instanceof Error ? error.message : String(error),
-        userId: (req as any).user?.id,
+        error: errorMsg,
+        stack: error instanceof Error ? error.stack : undefined,
+        userId: (req as any).user?.userId,
       })
       throw error instanceof ValidationError
         ? error
-        : new PaymentError('No se pudo obtener el historial de pagos')
+        : new PaymentError(`No se pudo obtener el historial de pagos: ${errorMsg}`)
     }
   })
 )

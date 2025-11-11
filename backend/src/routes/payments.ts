@@ -161,24 +161,45 @@ router.get(
   '/history',
   verifyToken,
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user.id
+    try {
+      const userId = (req as any).user.id
 
-    const payments = await prisma.payment.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-    })
+      if (!userId) {
+        throw new ValidationError('Usuario no identificado')
+      }
 
-    res.json({
-      success: true,
-      payments: payments.map((p) => ({
-        id: p.id,
-        amount: p.amount,
-        status: p.status,
-        consultationDetails: p.consultationDetails,
-        createdAt: p.createdAt,
-      })),
-    })
+      logger.info('Obteniendo historial de pagos', { userId })
+
+      const payments = await prisma.payment.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      })
+
+      logger.info('Historial de pagos obtenido', {
+        userId,
+        paymentCount: payments.length,
+      })
+
+      res.json({
+        success: true,
+        payments: payments.map((p) => ({
+          id: p.id,
+          amount: p.amount,
+          status: p.status,
+          consultationDetails: p.consultationDetails,
+          createdAt: p.createdAt,
+        })),
+      })
+    } catch (error) {
+      logger.error('Error obteniendo historial de pagos', {
+        error: error instanceof Error ? error.message : String(error),
+        userId: (req as any).user?.id,
+      })
+      throw error instanceof ValidationError
+        ? error
+        : new PaymentError('No se pudo obtener el historial de pagos')
+    }
   })
 )
 

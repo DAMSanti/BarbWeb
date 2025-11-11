@@ -41,12 +41,17 @@ CREATE INDEX "oauth_accounts_userId_idx" ON "oauth_accounts"("userId");
 CREATE TABLE IF NOT EXISTS "payments" (
   "id" TEXT NOT NULL,
   "userId" TEXT NOT NULL,
-  "amount" DOUBLE PRECISION NOT NULL,
-  "currency" TEXT NOT NULL DEFAULT 'EUR',
+  "amount" DECIMAL(10,2) NOT NULL,
+  "currency" TEXT NOT NULL DEFAULT 'usd',
   "status" TEXT NOT NULL,
-  "stripePaymentId" TEXT,
+  "stripeSessionId" TEXT UNIQUE,
   "question" TEXT,
-  "consultationDetails" TEXT,
+  "category" TEXT,
+  "consultationSummary" TEXT,
+  "reasoning" TEXT,
+  "confidence" DOUBLE PRECISION,
+  "receiptUrl" TEXT,
+  "refundedAmount" DECIMAL(10,2),
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "payments_pkey" PRIMARY KEY ("id")
@@ -54,6 +59,12 @@ CREATE TABLE IF NOT EXISTS "payments" (
 
 -- CreateIndex payments_userId_idx
 CREATE INDEX "payments_userId_idx" ON "payments"("userId");
+
+-- CreateIndex payments_status_idx
+CREATE INDEX "payments_status_idx" ON "payments"("status");
+
+-- CreateIndex payments_stripeSessionId_idx
+CREATE INDEX "payments_stripeSessionId_idx" ON "payments"("stripeSessionId");
 
 -- CreateTable faqs
 CREATE TABLE IF NOT EXISTS "faqs" (

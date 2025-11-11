@@ -330,4 +330,32 @@ router.get('/verify-token', verifyToken, (req: Request, res: Response): void => 
   })
 })
 
+/**
+ * GET /auth/debug/config
+ * Debug endpoint - check OAuth configuration
+ * REMOVE IN PRODUCTION
+ */
+router.get('/debug/config', (_req: Request, res: Response): void => {
+  const config = {
+    google: {
+      has_client_id: !!process.env.GOOGLE_CLIENT_ID,
+      has_client_secret: !!process.env.GOOGLE_CLIENT_SECRET,
+      has_redirect_uri: !!process.env.GOOGLE_REDIRECT_URI,
+      client_id_preview: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.substring(0, 10) + '...' : 'MISSING',
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    },
+    microsoft: {
+      has_client_id: !!process.env.MICROSOFT_CLIENT_ID,
+      has_client_secret: !!process.env.MICROSOFT_CLIENT_SECRET,
+      has_redirect_uri: !!process.env.MICROSOFT_REDIRECT_URI,
+      client_id_preview: process.env.MICROSOFT_CLIENT_ID ? process.env.MICROSOFT_CLIENT_ID.substring(0, 10) + '...' : 'MISSING',
+      redirect_uri: process.env.MICROSOFT_REDIRECT_URI,
+    },
+    frontend_url: process.env.FRONTEND_URL,
+    port: process.env.PORT,
+    node_env: process.env.NODE_ENV,
+  }
+  res.json(config)
+})
+
 export default router

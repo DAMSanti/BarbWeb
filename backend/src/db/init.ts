@@ -8,6 +8,8 @@ const prisma = new PrismaClient()
 export async function initializeDatabase() {
   try {
     console.log('🔄 Initializing database tables...')
+    console.log(`📍 Attempting to connect to Prisma with DATABASE_URL`)
+    console.log(`📍 Prisma connection test starting...`)
 
     // Crear tabla users
     await prisma.$executeRaw`

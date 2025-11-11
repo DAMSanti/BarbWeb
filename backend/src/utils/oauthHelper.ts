@@ -12,10 +12,21 @@ interface OAuthUserInfo {
  */
 export async function exchangeGoogleCode(code: string): Promise<OAuthUserInfo> {
   try {
-    // Exchange code for tokens using environment variables
-    const googleClientId = (globalThis as any).process?.env?.GOOGLE_CLIENT_ID
-    const googleClientSecret = (globalThis as any).process?.env?.GOOGLE_CLIENT_SECRET
-    const googleRedirectUri = (globalThis as any).process?.env?.GOOGLE_REDIRECT_URI || 'http://localhost:3000/auth/google/callback'
+    // Get environment variables - support both Node.js and browser environments
+    const getEnv = (key: string) => {
+      if (typeof process !== 'undefined' && process.env) {
+        return process.env[key]
+      }
+      return (globalThis as any)[key]
+    }
+
+    const googleClientId = getEnv('GOOGLE_CLIENT_ID')
+    const googleClientSecret = getEnv('GOOGLE_CLIENT_SECRET')
+    const googleRedirectUri = getEnv('GOOGLE_REDIRECT_URI') || 'http://localhost:3000/auth/google/callback'
+
+    if (!googleClientId || !googleClientSecret) {
+      throw new Error('Missing Google OAuth credentials (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)')
+    }
 
     const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
       code,
@@ -48,10 +59,21 @@ export async function exchangeGoogleCode(code: string): Promise<OAuthUserInfo> {
  */
 export async function exchangeMicrosoftCode(code: string): Promise<OAuthUserInfo> {
   try {
-    // Exchange code for tokens using environment variables
-    const microsoftClientId = (globalThis as any).process?.env?.MICROSOFT_CLIENT_ID
-    const microsoftClientSecret = (globalThis as any).process?.env?.MICROSOFT_CLIENT_SECRET
-    const microsoftRedirectUri = (globalThis as any).process?.env?.MICROSOFT_REDIRECT_URI || 'http://localhost:3000/auth/microsoft/callback'
+    // Get environment variables - support both Node.js and browser environments
+    const getEnv = (key: string) => {
+      if (typeof process !== 'undefined' && process.env) {
+        return process.env[key]
+      }
+      return (globalThis as any)[key]
+    }
+
+    const microsoftClientId = getEnv('MICROSOFT_CLIENT_ID')
+    const microsoftClientSecret = getEnv('MICROSOFT_CLIENT_SECRET')
+    const microsoftRedirectUri = getEnv('MICROSOFT_REDIRECT_URI') || 'http://localhost:3000/auth/microsoft/callback'
+
+    if (!microsoftClientId || !microsoftClientSecret) {
+      throw new Error('Missing Microsoft OAuth credentials (MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET)')
+    }
 
     const tokenResponse = await axios.post('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
       code,

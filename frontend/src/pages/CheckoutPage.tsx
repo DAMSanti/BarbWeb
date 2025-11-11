@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { CreditCard, ArrowLeft, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { CreditCard, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import ChessboardBackground from '../components/ChessboardBackground'
@@ -112,7 +112,7 @@ export default function CheckoutPage() {
   // Success Screen
   if (paymentSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 relative" style={{ background: 'var(--body-bg)' }}>
+      <div className="relative min-h-screen flex items-center justify-center py-12 px-4" style={{ background: 'var(--body-bg)' }}>
         <ChessboardBackground
           imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
           opacity={0.1}
@@ -120,7 +120,7 @@ export default function CheckoutPage() {
           parallaxIntensity={0.4}
           cleanMode={true}
         />
-        <div className="max-w-md w-full rounded-2xl shadow-lg p-8 text-center relative z-10" style={{ backgroundColor: 'var(--card-bg)' }}>
+        <div className="relative z-10 max-w-md w-full rounded-2xl shadow-lg p-8 text-center" style={{ backgroundColor: 'var(--card-bg)' }}>
           <CheckCircle className="w-20 h-20 mx-auto mb-6 text-green-500" />
           <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>¡Pago Completado!</h2>
           <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
@@ -507,7 +507,7 @@ function CheckoutForm({
       >
         {isProcessing ? (
           <>
-            <Loader2 className="animate-spin" size={20} />
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             <span>Procesando pago...</span>
           </>
         ) : (

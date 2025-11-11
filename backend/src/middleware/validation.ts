@@ -8,9 +8,9 @@ import { formatZodErrors } from '../schemas/common.schemas.js'
  * Soporta validación de body, query y params
  */
 export const validate = (schema: ZodSchema) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     try {
-      const validated = await schema.parseAsync({
+      const validated = schema.parse({
         body: req.body,
         query: req.query,
         params: req.params,
@@ -39,10 +39,10 @@ export const validate = (schema: ZodSchema) => {
           .map((e) => e.message)
           .join('; ')
 
-        throw new ValidationError(message, fields)
+        next(new ValidationError(message, fields))
+      } else {
+        next(error)
       }
-
-      throw error
     }
   }
 }

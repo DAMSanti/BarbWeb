@@ -88,8 +88,10 @@ app.get('/barbweb2/*', (req, res) => {
 // 404 handler
 app.use(notFoundHandler)
 
-// Error handler
-app.use(errorHandler)
+// Error handler (MUST be last, and MUST have 4 parameters)
+app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  errorHandler(error, req, res, next)
+})
 
 // Start server
 app.listen(PORT, '0.0.0.0', async () => {

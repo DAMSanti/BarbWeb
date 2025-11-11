@@ -1,22 +1,43 @@
 name: barbweb
 services:
-- name: backend
-  github:
-    branch: master
-    repo: DAMSanti/BarbWeb
-  build_command: cd /workspace && cd frontend && npm install && npm run build && cd /workspace && cd backend && rm -rf node_modules && npm install && npm run build
-  run_command: cd /workspace/backend && node dist/index.js
-  envs:
-  - key: PORT
-    value: "3000"
-  - key: NODE_ENV
-    value: production
-  - key: GEMINI_API_KEY
-    value: ${GEMINI_API_KEY}
-  - key: FRONTEND_URL
-    value: ${FRONTEND_URL}
-  - key: VITE_API_URL
-    value: ${BACKEND_URL}
-  - key: VITE_STRIPE_PUBLISHABLE_KEY
-    value: ${VITE_STRIPE_PUBLISHABLE_KEY}
-  http_port: 3000
+  - name: backend
+    github:
+      branch: master
+      repo: DAMSanti/BarbWeb
+    build_command: cd /workspace && cd backend && npm install && npx prisma db push --skip-generate && npm run build
+    run_command: cd /workspace/backend && node dist/index.js
+    envs:
+      - key: PORT
+        value: "3000"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: ${DATABASE_URL}
+      - key: GEMINI_API_KEY
+        value: ${GEMINI_API_KEY}
+      - key: FRONTEND_URL
+        value: ${FRONTEND_URL}
+      - key: VITE_API_URL
+        value: ${BACKEND_URL}
+      - key: VITE_STRIPE_PUBLISHABLE_KEY
+        value: ${VITE_STRIPE_PUBLISHABLE_KEY}
+    http_port: 3000
+
+  - name: frontend
+    github:
+      branch: master
+      repo: DAMSanti/BarbWeb
+    build_command: cd /workspace && cd frontend && npm install && npm run build
+    run_command: cd /workspace/frontend && npm run preview -- --host 0.0.0.0 --port 5173
+    envs:
+      - key: VITE_API_URL
+        value: ${BACKEND_URL}
+      - key: VITE_STRIPE_PUBLISHABLE_KEY
+        value: ${VITE_STRIPE_PUBLISHABLE_KEY}
+    http_port: 5173
+
+databases:
+  - name: postgres-db
+    engine: PG
+    version: "15"
+    production: true

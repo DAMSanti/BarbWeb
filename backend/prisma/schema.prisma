@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - Usuarios del sistema
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  role      String     @default("user") // user, lawyer, admin
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relaciones
+  payments  Payment[]
+}
+
+// Payment model - Registro de pagos (solo esto se persiste)
+model Payment {
+  id                    String   @id @default(cuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Información de pago
+  stripeSessionId       String   @unique
+  amount                Decimal  @db.Decimal(10, 2) // Importante: decimales exactos para dinero
+  currency              String   @default("usd")
+  status                String   // pending, succeeded, failed, refunded
+  
+  // Información de la consulta
+  question              String   @db.Text
+  category              String
+  consultationSummary   String?  @db.Text // La respuesta de IA (opcional)
+  reasoning             String?  @db.Text
+  confidence            Float?
+  
+  // Stripe metadata
+  receiptUrl            String?
+  refundedAmount        Decimal? @db.Decimal(10, 2)
+  
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([stripeSessionId])
+}
+
+// FAQ model - Base de preguntas frecuentes
+model FAQ {
+  id        String   @id @default(cuid())
+  category  String   // Civil, Penal, Laboral, Administrativo, Mercantil, Familia
+  question  String   @db.Text
+  answer    String   @db.Text
+  keywords  String[] // Para búsqueda por coincidencia
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@fulltext([question, answer]) // Búsqueda full-text en PostgreSQL
+}
+
+// CustomAgent model - Para futuro: agente personalizado del usuario
+model CustomAgent {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String
+  systemPrompt  String   @db.Text
+  knowledgeBase String?  @db.Text
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

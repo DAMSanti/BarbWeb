@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, LogIn, AlertCircle, Loader } from 'lucide-react'
+import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 import { backendApi } from '../services/backendApi'
 
@@ -88,72 +89,264 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Bienvenido</h1>
-          <p className="text-slate-400">Inicia sesión en tu cuenta para continuar</p>
-        </div>
+    <div className="w-full overflow-hidden relative min-h-screen">
+      <ChessboardBackground
+        imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+        opacity={0.1}
+        blurAmount={15}
+        parallaxIntensity={0.4}
+      />
 
-        {/* Card */}
-        <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-8 mb-6">
-          {/* Error Message */}
+      <style>{`
+        .login-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          z-index: 10;
+        }
+
+        .login-card {
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(148, 163, 184, 0.1);
+          border-radius: 20px;
+          padding: 3rem;
+          max-width: 420px;
+          width: 100%;
+          animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .login-title {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+          background: linear-gradient(135deg, var(--primary-500, #0284c7), var(--accent-500, #d946ef));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .login-subtitle {
+          font-size: 0.95rem;
+          opacity: 0.7;
+          margin-bottom: 2rem;
+        }
+
+        .login-input-group {
+          margin-bottom: 1.5rem;
+        }
+
+        .login-label {
+          display: block;
+          font-size: 0.9rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          opacity: 0.9;
+        }
+
+        .login-input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .login-input-icon {
+          position: absolute;
+          left: 12px;
+          opacity: 0.5;
+          pointer-events: none;
+        }
+
+        .login-input {
+          width: 100%;
+          background: rgba(30, 41, 59, 0.8);
+          border: 1px solid rgba(148, 163, 184, 0.2);
+          border-radius: 10px;
+          padding: 0.75rem 1rem 0.75rem 2.5rem;
+          color: white;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+        }
+
+        .login-input::placeholder {
+          color: rgba(148, 163, 184, 0.5);
+        }
+
+        .login-input:focus {
+          outline: none;
+          border-color: var(--primary-500, #0284c7);
+          background: rgba(30, 41, 59, 1);
+          box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .login-button {
+          width: 100%;
+          background: linear-gradient(135deg, #d4af37, #f0e68c);
+          color: #1a1a1a;
+          border: none;
+          border-radius: 10px;
+          padding: 0.875rem 1rem;
+          font-size: 0.95rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          margin-top: 1rem;
+        }
+
+        .login-button:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .login-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .oauth-divider {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin: 2rem 0;
+          opacity: 0.5;
+        }
+
+        .oauth-divider::before,
+        .oauth-divider::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: currentColor;
+        }
+
+        .oauth-divider-text {
+          font-size: 0.85rem;
+          opacity: 0.7;
+        }
+
+        .oauth-button {
+          width: 100%;
+          background: rgba(30, 41, 59, 0.8);
+          border: 1px solid rgba(148, 163, 184, 0.2);
+          border-radius: 10px;
+          padding: 0.75rem 1rem;
+          color: white;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .oauth-button:hover {
+          background: rgba(30, 41, 59, 1);
+          border-color: rgba(148, 163, 184, 0.4);
+          transform: translateY(-2px);
+        }
+
+        .error-message {
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: 10px;
+          padding: 1rem;
+          display: flex;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+          font-size: 0.9rem;
+          color: rgba(239, 68, 68, 0.9);
+        }
+
+        .error-icon {
+          flex-shrink: 0;
+          color: rgb(239, 68, 68);
+        }
+
+        .login-footer {
+          text-align: center;
+          font-size: 0.9rem;
+          opacity: 0.7;
+          margin-top: 2rem;
+        }
+
+        .login-footer a {
+          color: var(--primary-500, #0284c7);
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.3s ease;
+        }
+
+        .login-footer a:hover {
+          color: var(--accent-500, #d946ef);
+        }
+      `}</style>
+
+      <div className="login-container px-4">
+        <div className="login-card">
+          <h1 className="login-title">Bienvenido</h1>
+          <p className="login-subtitle">Inicia sesión en tu cuenta</p>
+
           {localError && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex gap-3">
-              <AlertCircle className="text-red-500 flex-shrink-0" size={20} />
-              <p className="text-red-400 text-sm">{localError}</p>
+            <div className="error-message">
+              <AlertCircle className="error-icon" size={20} />
+              <span>{localError}</span>
             </div>
           )}
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-            {/* Email Input */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 text-slate-500" size={18} />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="login-input-group">
+              <label className="login-label">Email</label>
+              <div className="login-input-wrapper">
+                <Mail className="login-input-icon" size={18} />
                 <input
                   type="email"
-                  id="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="tu@email.com"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg py-2 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  className="login-input"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
-            {/* Password Input */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-                Contraseña
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 text-slate-500" size={18} />
+            <div className="login-input-group">
+              <label className="login-label">Contraseña</label>
+              <div className="login-input-wrapper">
+                <Lock className="login-input-icon" size={18} />
                 <input
                   type="password"
-                  id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg py-2 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  className="login-input"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
-            >
+            <button type="submit" disabled={isLoading} className="login-button">
               {isLoading ? (
                 <>
                   <Loader size={18} className="animate-spin" />
@@ -168,35 +361,22 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-600"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-slate-800 text-slate-500">O continúa con</span>
-            </div>
+          <div className="oauth-divider">
+            <span className="oauth-divider-text">O continúa con</span>
           </div>
 
-          {/* OAuth Buttons */}
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="w-full bg-white hover:bg-slate-100 text-slate-900 font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 mb-3"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <image href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%234285F4' d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'/%3E%3Cpath fill='%2334A853' d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'/%3E%3Cpath fill='%23FBBC05' d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z'/%3E%3Cpath fill='%23EA4335' d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'/%3E%3C/svg%3E" />
+          <button onClick={handleGoogleLogin} className="oauth-button" disabled={isLoading}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
             Google
           </button>
 
-          {/* Microsoft Button */}
-          <button
-            type="button"
-            onClick={handleMicrosoftLogin}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
-          >
-            <svg width="20" height="20" viewBox="0 0 21 21" fill="currentColor">
+          <button onClick={handleMicrosoftLogin} className="oauth-button" disabled={isLoading}>
+            <svg width="18" height="18" viewBox="0 0 21 21" fill="currentColor">
               <path d="M0 0h10v10H0z" fill="#F1511B" />
               <path d="M11 0h10v10H11z" fill="#80CC28" />
               <path d="M0 11h10v10H0z" fill="#00A4EF" />
@@ -204,15 +384,12 @@ export default function LoginPage() {
             </svg>
             Microsoft
           </button>
-        </div>
 
-        {/* Footer */}
-        <p className="text-center text-slate-400">
-          ¿No tienes cuenta?{' '}
-          <Link to="/register" className="text-blue-500 hover:text-blue-400 font-semibold transition">
-            Crea una aquí
-          </Link>
-        </p>
+          <div className="login-footer">
+            ¿No tienes cuenta?{' '}
+            <Link to="/register">Crea una aquí</Link>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Mail, Lock, User, AlertCircle, Loader, CheckCircle } from 'lucide-react'
+import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 import { backendApi } from '../services/backendApi'
 
@@ -112,152 +113,354 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Crear Cuenta</h1>
-          <p className="text-slate-400">Únete a nuestra plataforma de consultas legales</p>
-        </div>
+    <div className="w-full overflow-hidden relative min-h-screen">
+      <ChessboardBackground
+        imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+        opacity={0.1}
+        blurAmount={15}
+        parallaxIntensity={0.4}
+      />
 
-        {/* Card */}
-        <div className="bg-slate-800 border border-slate-700 rounded-lg shadow-2xl p-8 mb-6">
-          {/* Error Message */}
+      <style>{`
+        .register-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          z-index: 10;
+          padding: 2rem 1rem;
+        }
+
+        .register-card {
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(148, 163, 184, 0.1);
+          border-radius: 20px;
+          padding: 3rem;
+          max-width: 480px;
+          width: 100%;
+          animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .register-title {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 0.5rem;
+          background: linear-gradient(135deg, var(--primary-500, #0284c7), var(--accent-500, #d946ef));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .register-subtitle {
+          font-size: 0.95rem;
+          opacity: 0.7;
+          margin-bottom: 2rem;
+        }
+
+        .register-input-group {
+          margin-bottom: 1.5rem;
+        }
+
+        .register-label {
+          display: block;
+          font-size: 0.9rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          opacity: 0.9;
+        }
+
+        .register-input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+
+        .register-input-icon {
+          position: absolute;
+          left: 12px;
+          opacity: 0.5;
+          pointer-events: none;
+        }
+
+        .register-input {
+          width: 100%;
+          background: rgba(30, 41, 59, 0.8);
+          border: 1px solid rgba(148, 163, 184, 0.2);
+          border-radius: 10px;
+          padding: 0.75rem 1rem 0.75rem 2.5rem;
+          color: white;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+        }
+
+        .register-input::placeholder {
+          color: rgba(148, 163, 184, 0.5);
+        }
+
+        .register-input:focus {
+          outline: none;
+          border-color: var(--primary-500, #0284c7);
+          background: rgba(30, 41, 59, 1);
+          box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+        }
+
+        .password-strength {
+          margin-top: 0.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .strength-bar {
+          flex: 1;
+          height: 4px;
+          background: rgba(148, 163, 184, 0.2);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+
+        .strength-bar-fill {
+          height: 100%;
+          transition: all 0.3s ease;
+        }
+
+        .strength-label {
+          font-size: 0.8rem;
+          opacity: 0.7;
+          white-space: nowrap;
+        }
+
+        .password-match {
+          margin-top: 0.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: rgb(34, 197, 94);
+          font-size: 0.9rem;
+        }
+
+        .register-checkbox {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          margin: 1.5rem 0;
+        }
+
+        .register-checkbox input {
+          margin-top: 0.25rem;
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+          accent-color: #d4af37;
+        }
+
+        .register-checkbox label {
+          font-size: 0.9rem;
+          opacity: 0.8;
+          line-height: 1.5;
+          cursor: pointer;
+        }
+
+        .register-checkbox a {
+          color: var(--primary-500, #0284c7);
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.3s ease;
+        }
+
+        .register-checkbox a:hover {
+          color: var(--accent-500, #d946ef);
+        }
+
+        .register-button {
+          width: 100%;
+          background: linear-gradient(135deg, #d4af37, #f0e68c);
+          color: #1a1a1a;
+          border: none;
+          border-radius: 10px;
+          padding: 0.875rem 1rem;
+          font-size: 0.95rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          margin-top: 1rem;
+        }
+
+        .register-button:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .register-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .error-message {
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: 10px;
+          padding: 1rem;
+          display: flex;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+          font-size: 0.9rem;
+          color: rgba(239, 68, 68, 0.9);
+        }
+
+        .error-icon {
+          flex-shrink: 0;
+          color: rgb(239, 68, 68);
+        }
+
+        .register-footer {
+          text-align: center;
+          font-size: 0.9rem;
+          opacity: 0.7;
+          margin-top: 2rem;
+        }
+
+        .register-footer a {
+          color: var(--primary-500, #0284c7);
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 0.3s ease;
+        }
+
+        .register-footer a:hover {
+          color: var(--accent-500, #d946ef);
+        }
+      `}</style>
+
+      <div className="register-container">
+        <div className="register-card">
+          <h1 className="register-title">Crear Cuenta</h1>
+          <p className="register-subtitle">Únete a nuestra plataforma legal</p>
+
           {localError && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex gap-3">
-              <AlertCircle className="text-red-500 flex-shrink-0" size={20} />
-              <p className="text-red-400 text-sm">{localError}</p>
+            <div className="error-message">
+              <AlertCircle className="error-icon" size={20} />
+              <span>{localError}</span>
             </div>
           )}
 
-          {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-            {/* Name Input */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
-                Nombre Completo
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 text-slate-500" size={18} />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="register-input-group">
+              <label className="register-label">Nombre Completo</label>
+              <div className="register-input-wrapper">
+                <User className="register-input-icon" size={18} />
                 <input
                   type="text"
-                  id="name"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Juan Pérez"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg py-2 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  className="register-input"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
-            {/* Email Input */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 text-slate-500" size={18} />
+            <div className="register-input-group">
+              <label className="register-label">Email</label>
+              <div className="register-input-wrapper">
+                <Mail className="register-input-icon" size={18} />
                 <input
                   type="email"
-                  id="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="tu@email.com"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg py-2 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  className="register-input"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
-            {/* Password Input */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-                Contraseña
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 text-slate-500" size={18} />
+            <div className="register-input-group">
+              <label className="register-label">Contraseña</label>
+              <div className="register-input-wrapper">
+                <Lock className="register-input-icon" size={18} />
                 <input
                   type="password"
-                  id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg py-2 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  className="register-input"
                   disabled={isLoading}
                 />
               </div>
               {formData.password && (
-                <div className="mt-2 flex items-center gap-2">
-                  <div className="flex-1 bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div className="password-strength">
+                  <div className="strength-bar">
                     <div
-                      className={`h-full transition-all ${getPasswordStrengthColor()}`}
+                      className={`strength-bar-fill ${getPasswordStrengthColor()}`}
                       style={{ width: `${(passwordStrength / 5) * 100}%` }}
-                    ></div>
+                    />
                   </div>
-                  <span className="text-xs text-slate-400">{getPasswordStrengthLabel()}</span>
+                  <span className="strength-label">{getPasswordStrengthLabel()}</span>
                 </div>
               )}
             </div>
 
-            {/* Confirm Password Input */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-2">
-                Confirmar Contraseña
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 text-slate-500" size={18} />
+            <div className="register-input-group">
+              <label className="register-label">Confirmar Contraseña</label>
+              <div className="register-input-wrapper">
+                <Lock className="register-input-icon" size={18} />
                 <input
                   type="password"
-                  id="confirmPassword"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full bg-slate-700 border border-slate-600 rounded-lg py-2 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                  className="register-input"
                   disabled={isLoading}
                 />
               </div>
               {formData.confirmPassword && formData.password === formData.confirmPassword && (
-                <div className="mt-2 flex items-center gap-2 text-green-400 text-sm">
+                <div className="password-match">
                   <CheckCircle size={16} />
                   <span>Las contraseñas coinciden</span>
                 </div>
               )}
             </div>
 
-            {/* Terms Checkbox */}
-            <div className="flex items-start gap-3 pt-2">
+            <div className="register-checkbox">
               <input
                 type="checkbox"
                 id="agreeTerms"
                 name="agreeTerms"
                 checked={formData.agreeTerms}
                 onChange={handleChange}
-                className="mt-1 w-4 h-4 bg-slate-700 border border-slate-600 rounded cursor-pointer"
                 disabled={isLoading}
               />
-              <label htmlFor="agreeTerms" className="text-sm text-slate-400">
+              <label htmlFor="agreeTerms">
                 Acepto los{' '}
-                <a href="#" className="text-blue-500 hover:text-blue-400">
-                  términos y condiciones
-                </a>{' '}
-                y la{' '}
-                <a href="#" className="text-blue-500 hover:text-blue-400">
-                  política de privacidad
-                </a>
+                <a href="#" onClick={(e) => e.preventDefault()}>términos y condiciones</a>
+                {' '}y la{' '}
+                <a href="#" onClick={(e) => e.preventDefault()}>política de privacidad</a>
               </label>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 mt-6"
-            >
+            <button type="submit" disabled={isLoading} className="register-button">
               {isLoading ? (
                 <>
                   <Loader size={18} className="animate-spin" />
@@ -268,15 +471,12 @@ export default function RegisterPage() {
               )}
             </button>
           </form>
-        </div>
 
-        {/* Footer */}
-        <p className="text-center text-slate-400">
-          ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-blue-500 hover:text-blue-400 font-semibold transition">
-            Inicia sesión aquí
-          </Link>
-        </p>
+          <div className="register-footer">
+            ¿Ya tienes cuenta?{' '}
+            <Link to="/login">Inicia sesión aquí</Link>
+          </div>
+        </div>
       </div>
     </div>
   )

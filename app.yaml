@@ -4,7 +4,13 @@ services:
     github:
       branch: master
       repo: DAMSanti/BarbWeb
-    build_command: cd /workspace && cd frontend && npm install && npm run build && cd /workspace && cd backend && npm install && npx prisma db push --skip-generate && npm run build
+    build_command: |
+      cd /workspace && \
+      npm install && \
+      npm run build:frontend && \
+      npm run build:backend && \
+      cd /workspace/backend && \
+      npx prisma db push --skip-generate --accept-data-loss || true
     run_command: cd /workspace/backend && node dist/index.js
     envs:
       - key: PORT

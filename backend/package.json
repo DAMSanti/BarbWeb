@@ -7,8 +7,9 @@
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
     "build": "prisma generate && tsc",
-    "start": "npm run db:push:silent && node dist/index.js",
+    "start": "npm run db:init && node dist/index.js",
     "preview": "node dist/index.js",
+    "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",
     "db:push": "prisma db push --skip-generate --accept-data-loss",
     "db:push:silent": "prisma db push --skip-generate --accept-data-loss 2>/dev/null || true",
     "db:seed": "node --loader ts-node/esm prisma/seed.ts",

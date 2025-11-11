@@ -92,6 +92,12 @@ app.use((_err: any, _req: express.Request, res: express.Response, _next: express
   })
 })
 
+// Check environment variables before starting
+console.log('Environment variables check:')
+console.log(`NODE_ENV: ${process.env.NODE_ENV || 'not set'}`)
+console.log(`DATABASE_URL: ${process.env.DATABASE_URL ? 'SET' : 'NOT SET'}`)
+console.log(`PORT: ${PORT}`)
+
 // Start server
 app.listen(PORT, '0.0.0.0', async () => {
   console.log(`✅ Server running on http://0.0.0.0:${PORT}`)

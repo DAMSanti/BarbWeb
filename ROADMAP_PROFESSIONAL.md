@@ -603,14 +603,14 @@ tail -100 /var/log/app/combined.log
 Marca ✅ conforme completes cada test:
 
 - [x] TEST 1: Validation Error (422/400) - ✅ PASS - Email inválido, password débil, campos vacíos todos retornan 400
-- [ ] TEST 2: Backend Logging (Winston) - ⏳ NO PROBADO AÚN
-- [ ] TEST 3: Frontend Error Parsing - ⏳ NO PROBADO AÚN
-- [ ] TEST 4: Frontend Retry Logic - ⏳ NO PROBADO AÚN
-- [ ] TEST 5: ErrorBoundary Component - ⏳ NO PROBADO AÚN
+- [x] TEST 2: Backend Logging (Winston) - ✅ PASS - Winston registra errores en /app/backend/logs/ (archivos confirmados en DO)
+- [x] TEST 3: Frontend Error Parsing - ✅ PASS - Error se parsea y se muestra en UI en español ("Email o contraseña incorrectos")
+- [x] TEST 4: Frontend Retry Logic - ✅ PASS - Reintentos automáticos con backoff exponencial (1s → 2s), se parsean errores, mensaje en español "Error de conexión"
+- [x] TEST 5: ErrorBoundary Component - ❌ FALLO - No captura errores (error en console pero sin UI de recuperación)
 - [ ] TEST 6A: retryAuth (2x) - ⏳ NO PROBADO AÚN
 - [ ] TEST 6B: retryAI (3x) - ⏳ NO PROBADO AÚN
 - [ ] TEST 6C: No reintenta 4xx - ⏳ NO PROBADO AÚN
-- [x] TEST 7: Mensajes en español (8 códigos) - ✅ PASS - 400, 401, 409, 500 testeados en producción
+- [x] TEST 7: Mensajes en español (8 códigos) - ✅ PASS - Mensajes en UI están en español
 - [ ] TEST 8: Integración E2E - ⏳ NO PROBADO AÚN
 - [ ] TEST 9: Logging en producción - ⏳ NO PROBADO AÚN
 

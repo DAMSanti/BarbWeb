@@ -6,6 +6,7 @@ import { validate } from '../middleware/validation.js'
 import { apiRateLimit } from '../middleware/rateLimit.js'
 import { FilterQuestionSchema, GenerateDetailedResponseSchema } from '../schemas/faq.schemas.js'
 import { logger } from '../utils/logger.js'
+import { sendPaymentConfirmationEmail } from '../services/emailService.js'
 
 const router = Router()
 
@@ -127,6 +128,51 @@ router.get(
       success: true,
       models: data.models || data,
     })
+  }),
+)
+
+/**
+ * POST /api/test-email
+ * Test email service (development only)
+ */
+router.post(
+  '/test-email',
+  asyncHandler(async (req: Request, res: Response) => {
+    const { to, clientName } = req.body
+
+    if (!to || !clientName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: to, clientName',
+      })
+    }
+
+    logger.info('Sending test email', { to, clientName })
+
+    try {
+      const result = await sendPaymentConfirmationEmail(to, {
+        clientName,
+        amount: 50.00,
+        currency: 'usd',
+        category: 'Derecho Laboral',
+        consultationSummary: 'Esta es una consulta de prueba para verificar que el servicio de emails funciona correctamente.',
+        paymentId: 'pi_test_' + Date.now(),
+      })
+
+      res.json({
+        success: true,
+        message: 'Test email sent successfully',
+        emailId: result?.id,
+      })
+    } catch (error) {
+      logger.error('Error sending test email', {
+        error: error instanceof Error ? error.message : String(error),
+      })
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to send email',
+      })
+    }
   }),
 )
 

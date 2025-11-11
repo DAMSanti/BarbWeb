@@ -181,13 +181,19 @@ export async function filterQuestionWithBackend(
   try {
     const result = await retryAI(async () => {
       console.log('[filterQuestionWithBackend] Making POST to /api/filter-question')
-      const { data } = await apiClient.post('/api/filter-question', {
+      const response = await apiClient.post('/api/filter-question', {
         question,
       })
-      console.log('[filterQuestionWithBackend] Received data:', data)
+      console.log('[filterQuestionWithBackend] Full response:', response.data)
+      
+      // Backend devuelve {success: true, data: {...}}
+      // Extraer el data correctamente
+      const { data: responseData } = response
+      console.log('[filterQuestionWithBackend] ResponseData:', responseData)
+      
       return {
-        success: true,
-        data,
+        success: responseData.success,
+        data: responseData.data,
       }
     })
     console.log('[filterQuestionWithBackend] Final result:', result)

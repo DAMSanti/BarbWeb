@@ -11,6 +11,7 @@ import { verifyToken, isAuthenticated } from '../middleware/auth.js'
 import { exchangeGoogleCode, exchangeMicrosoftCode } from '../utils/oauthHelper.js'
 import { validate } from '../middleware/validation.js'
 import { asyncHandler } from '../middleware/errorHandler.js'
+import { authRateLimit } from '../middleware/rateLimit.js'
 import {
   RegisterSchema,
   LoginSchema,
@@ -30,6 +31,7 @@ const router = express.Router()
  */
 router.post(
   '/register',
+  authRateLimit,
   validate(RegisterSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email, password, name } = req.body
@@ -51,6 +53,7 @@ router.post(
  */
 router.post(
   '/login',
+  authRateLimit,
   validate(LoginSchema),
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body

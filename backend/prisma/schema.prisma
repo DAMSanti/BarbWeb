@@ -100,7 +100,6 @@ model FAQ {
   updatedAt DateTime @updatedAt
 
   @@index([category])
-  @@fulltext([question, answer]) // Búsqueda full-text en PostgreSQL
   @@map("faqs")
 }
 

@@ -91,7 +91,8 @@ app.use((_err: any, _req: express.Request, res: express.Response, _next: express
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on http://0.0.0.0:${PORT}`)
   console.log(`🔗 CORS enabled for all origins`)
-  console.log(`🤖 OpenAI integration: ${process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
+  console.log(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
+  console.log(`💾 Database: ${process.env.DATABASE_URL ? '✅ Connected' : '❌ Not configured'}`)
   console.log(`📁 Serving frontend from: ${frontendPath}`)
 })
 

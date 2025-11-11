@@ -8,6 +8,7 @@ import {
   linkOAuthAccount,
 } from '../services/authService.js'
 import { verifyToken, isAuthenticated } from '../middleware/auth.js'
+import { exchangeGoogleCode, exchangeMicrosoftCode } from '../utils/oauthHelper.js'
 
 const router = express.Router()
 
@@ -80,6 +81,81 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 // ============================================================
 // OAUTH AUTHENTICATION (Google & Microsoft)
 // ============================================================
+
+/**
+ * GET /auth/google/callback
+ * Google OAuth callback - handles redirect from Google with authorization code
+ */
+router.get('/google/callback', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { code, state, error } = req.query
+
+    if (error) {
+      res.status(400).json({ error: `Google OAuth error: ${error}` })
+      return
+    }
+
+    if (!code || typeof code !== 'string') {
+      res.status(400).json({ error: 'Authorization code is required' })
+      return
+    }
+
+    // Exchange code for user info
+    const userInfo = await exchangeGoogleCode(code)
+
+    // Login or register user
+    const result = await oauthLogin('google', userInfo.sub, userInfo.email, userInfo.name, userInfo.picture)
+
+    // Create response with tokens - send to frontend
+    const frontendUrl = (globalThis as any).process?.env?.FRONTEND_URL || 'http://localhost:5173'
+    const accessToken = result.tokens.accessToken
+    const refreshToken = result.tokens.refreshToken
+
+    // Redirect to frontend with tokens in URL fragment (safer than query)
+    res.redirect(`${frontendUrl}?token=${accessToken}&refresh=${refreshToken}`)
+  } catch (error: any) {
+    console.error('Google OAuth callback error:', error)
+    const frontendUrl = (globalThis as any).process?.env?.FRONTEND_URL || 'http://localhost:5173'
+    res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(error.message)}`)
+  }
+})
+
+/**
+ * GET /auth/microsoft/callback
+ * Microsoft OAuth callback - handles redirect from Microsoft with authorization code
+ */
+router.get('/microsoft/callback', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { code, state, error, error_description } = req.query
+
+    if (error) {
+      res.status(400).json({ error: `Microsoft OAuth error: ${error_description || error}` })
+      return
+    }
+
+    if (!code || typeof code !== 'string') {
+      res.status(400).json({ error: 'Authorization code is required' })
+      return
+    }
+
+    // Exchange code for user info
+    const userInfo = await exchangeMicrosoftCode(code)
+
+    // Login or register user
+    const result = await oauthLogin('microsoft', userInfo.sub, userInfo.email, userInfo.name, userInfo.picture)
+
+    // Create response with tokens - send to frontend
+    const frontendUrl = (globalThis as any).process?.env?.FRONTEND_URL || 'http://localhost:5173'
+    const accessToken = result.tokens.accessToken
+    const refreshToken = result.tokens.refreshToken
+
+    // Redirect to frontend with tokens in URL
+    res.redirect(`${frontendUrl}?token=${accessToken}&refresh=${refreshToken}`)
+  } catch (error: any) {
+    const frontendUrl = (globalThis as any).process?.env?.FRONTEND_URL || 'http://localhost:5173'
+    res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(error.message)}`)
+  }
+})
 
 /**
  * POST /auth/oauth/google

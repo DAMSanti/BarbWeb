@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url'
 import apiRoutes from './routes/api.js'
 import authRoutes from './routes/auth.js'
 import { initializeDatabase } from './db/init.js'
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
+import { logger } from './utils/logger.js'
 
 // Force DigitalOcean rebuild - Database initialization v3
 dotenv.config()
@@ -83,32 +85,31 @@ app.get('/barbweb2/*', (req, res) => {
   })
 })
 
-// Error handling - Al final
-app.use((_err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Unhandled error:', _err)
-  res.status(500).json({
-    success: false,
-    error: 'Internal server error',
-  })
-})
+// 404 handler
+app.use(notFoundHandler)
+
+// Error handler
+app.use(errorHandler)
 
 // Start server
 app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`✅ Server running on http://0.0.0.0:${PORT}`)
-  console.log(`🔗 CORS enabled for all origins`)
-  console.log(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
-  console.log(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
+  logger.info(`✅ Server running on http://0.0.0.0:${PORT}`)
+  logger.info(`🔗 CORS enabled for all origins`)
+  logger.info(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
+  logger.info(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
+  logger.info(`📝 Logging: ✅ Winston logger configured`)
+  logger.info(`✔️ Validation: ✅ Zod schemas ready`)
   
-  // Initialize database - now with Managed DB, this should work
-  console.log('� Initializing database tables...')
+  // Initialize database
+  logger.info('🔄 Initializing database tables...')
   const dbReady = await initializeDatabase()
   if (!dbReady) {
-    console.error('❌ Failed to initialize database')
+    logger.error('❌ Failed to initialize database')
     process.exit(1)
   }
   
-  console.log(`💾 Database: ✅ Connected and initialized`)
-  console.log(`📁 Serving frontend from: ${frontendPath}`)
+  logger.info(`💾 Database: ✅ Connected and initialized`)
+  logger.info(`📁 Serving frontend from: ${frontendPath}`)
 })
 
 export default app

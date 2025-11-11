@@ -28,15 +28,13 @@ export default function FAQPage() {
   const [showAutoResponse, setShowAutoResponse] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [backendConnected, setBackendConnected] = useState(false)
 
-  // Verificar conexión con backend al montar
+  // Verificar conexión con backend al montar (para logs)
   useEffect(() => {
     const checkBackend = async () => {
       const isConnected = await checkBackendHealth()
-      setBackendConnected(isConnected)
       if (!isConnected) {
-        console.warn('Backend not connected - using local fallback')
+        console.warn('Backend health check failed - will still try to connect on search')
       }
     }
     checkBackend()
@@ -55,31 +53,27 @@ export default function FAQPage() {
         return
       }
 
-      // Usar backend si está disponible
-      if (backendConnected) {
-        const result = await filterQuestionWithBackend(question)
+      // SIEMPRE intentar backend (no confiar en checkBackendHealth)
+      const result = await filterQuestionWithBackend(question)
 
-        if (!result.success || !result.data) {
-          setErrorMessage(result.error || 'Error al procesar tu pregunta')
-          return
-        }
-
-        // Siempre mostrar respuesta del agente IA
-        setShowAutoResponse(true)
-        setAutoResponse({
-          category: result.data.category,
-          answer: result.data.briefAnswer,
-          confidence: result.data.confidence,
-          reasoning: result.data.reasoning,
-          needsProfessionalConsultation: result.data.needsProfessionalConsultation,
-          complexity: result.data.complexity,
-        })
-
-        // Guardar categoría para consulta futura
-        setSelectedCategory(result.data.category as LegalCategory)
-      } else {
-        setErrorMessage('El servidor no está disponible. Por favor, intenta más tarde.')
+      if (!result.success || !result.data) {
+        setErrorMessage(result.error || 'Error al procesar tu pregunta')
+        return
       }
+
+      // Siempre mostrar respuesta del agente IA
+      setShowAutoResponse(true)
+      setAutoResponse({
+        category: result.data.category,
+        answer: result.data.briefAnswer,
+        confidence: result.data.confidence,
+        reasoning: result.data.reasoning,
+        needsProfessionalConsultation: result.data.needsProfessionalConsultation,
+        complexity: result.data.complexity,
+      })
+
+      // Guardar categoría para consulta futura
+      setSelectedCategory(result.data.category as LegalCategory)
     } catch (error) {
       console.error('Error during search:', error)
       setErrorMessage('Error inesperado. Por favor, intenta de nuevo.')

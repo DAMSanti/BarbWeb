@@ -175,19 +175,27 @@ export interface FilteredQuestionResponse {
 export async function filterQuestionWithBackend(
   question: string,
 ): Promise<FilteredQuestionResponse> {
+  console.log('[filterQuestionWithBackend] Starting with question:', question.substring(0, 50))
+  console.log('[filterQuestionWithBackend] API_URL:', API_URL)
+  
   try {
-    return await retryAI(async () => {
+    const result = await retryAI(async () => {
+      console.log('[filterQuestionWithBackend] Making POST to /api/filter-question')
       const { data } = await apiClient.post('/api/filter-question', {
         question,
       })
+      console.log('[filterQuestionWithBackend] Received data:', data)
       return {
         success: true,
         data,
       }
     })
+    console.log('[filterQuestionWithBackend] Final result:', result)
+    return result
   } catch (error) {
+    console.error('[filterQuestionWithBackend] Error caught:', error)
     const frontendError = parseBackendError(error)
-    console.error('Error filtering question:', frontendError)
+    console.error('[filterQuestionWithBackend] Parsed error:', frontendError)
     return {
       success: false,
       error: frontendError.userMessage,

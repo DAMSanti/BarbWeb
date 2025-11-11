@@ -12,7 +12,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHED_KEY!)
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
   const navigate = useNavigate()
-  const { consultations } = useAppStore()
+  const { consultations, tokens } = useAppStore()
 
   const consultation = consultations.find((c) => c.id === consultationId)
   const [clientSecret, setClientSecret] = useState<string>('')
@@ -34,12 +34,14 @@ export default function CheckoutPage() {
           apiUrl: import.meta.env.VITE_API_URL,
         })
 
-        const token = localStorage.getItem('accessToken')
+        const token = tokens?.accessToken
         if (!token) {
           setGlobalError('Por favor, inicia sesión para continuar con el pago')
           setIsLoadingIntent(false)
           return
         }
+
+        console.log('[Checkout] Token found:', token?.substring(0, 20) + '...')
 
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payments/create-payment-intent`, {
           method: 'POST',
@@ -55,9 +57,16 @@ export default function CheckoutPage() {
           }),
         })
 
+        console.log('[Checkout] Response status:', response.status)
         const data = await response.json()
+        console.log('[Checkout] Response data:', data)
 
         if (!response.ok) {
+          if (response.status === 401) {
+            setGlobalError('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.')
+            setTimeout(() => navigate('/login'), 2000)
+            return
+          }
           throw new Error(data.error || 'Error al crear la intención de pago')
         }
 
@@ -311,7 +320,7 @@ function CheckoutForm({
 }) {
   const stripe = useStripe()
   const elements = useElements()
-  const { updateConsultation } = useAppStore()
+  const { updateConsultation, tokens } = useAppStore()
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(true)
@@ -373,7 +382,7 @@ function CheckoutForm({
 
         // Confirmar el pago en el backend
         try {
-          const token = localStorage.getItem('accessToken')
+          const token = tokens?.accessToken
           await fetch(`${import.meta.env.VITE_API_URL}/api/payments/confirm-payment`, {
             method: 'POST',
             headers: {

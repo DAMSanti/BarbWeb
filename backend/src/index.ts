@@ -4,6 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import apiRoutes from './routes/api.js'
 import authRoutes from './routes/auth.js'
+import { initializeDatabase } from './db/init.js'
 
 // Force DigitalOcean rebuild - Database initialization v3
 dotenv.config()
@@ -97,7 +98,16 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🔗 CORS enabled for all origins`)
   console.log(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
   console.log(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
-  console.log(`💾 Database: Ready (tables created via migrations)`)
+  
+  // Initialize database - now with Managed DB, this should work
+  console.log('� Initializing database tables...')
+  const dbReady = await initializeDatabase()
+  if (!dbReady) {
+    console.error('❌ Failed to initialize database')
+    process.exit(1)
+  }
+  
+  console.log(`💾 Database: ✅ Connected and initialized`)
   console.log(`📁 Serving frontend from: ${frontendPath}`)
 })
 

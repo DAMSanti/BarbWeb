@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Scale, Phone, Mail, LogIn, LogOut, User } from 'lucide-react'
+import { Scale, LogIn, LogOut, User } from 'lucide-react'
 import { useAppStore } from '../store/appStore'
 
 export default function Header() {
@@ -33,17 +33,8 @@ export default function Header() {
             </a>
           </nav>
 
-          {/* Contact Info & Auth Actions */}
+          {/* Auth Actions */}
           <div className="header-contact hidden lg:flex items-center space-x-6">
-            <a href="tel:+34672722452" className="header-contact-link flex items-center space-x-2">
-              <Phone size={18} />
-              <span className="text-sm">+34 672 722 452</span>
-            </a>
-            <a href="mailto:abogados.bgarcia@gmail.com" className="header-contact-link flex items-center space-x-2">
-              <Mail size={18} />
-              <span className="text-sm">abogados.bgarcia@gmail.com</span>
-            </a>
-            
             {isAuthenticated && user ? (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-primary-color bg-opacity-10">

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { PrismaClient } from '@prisma/client'
+import { AuthenticationError, ConflictError } from '../utils/errors.js'
 
 const prisma = new PrismaClient()
 
@@ -52,7 +53,7 @@ export const registerUser = async (
   })
 
   if (existingUser) {
-    throw new Error('El email ya está registrado')
+    throw new ConflictError('El email ya está registrado')
   }
 
   // Hash password
@@ -99,12 +100,12 @@ export const loginUser = async (
   })
 
   if (!user || !user.passwordHash) {
-    throw new Error('Email o contraseña incorrectos')
+    throw new AuthenticationError('Email o contraseña incorrectos')
   }
 
   const isPasswordValid = await verifyPassword(password, user.passwordHash)
   if (!isPasswordValid) {
-    throw new Error('Email o contraseña incorrectos')
+    throw new AuthenticationError('Email o contraseña incorrectos')
   }
 
   // Update last login

@@ -174,14 +174,21 @@ router.post(
         emailId: result?.id,
       })
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      const errorStack = error instanceof Error ? error.stack : undefined
+      const errorDetails = JSON.stringify(error, Object.getOwnPropertyNames(error))
+      
       logger.error('Error sending test email', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
+        error: errorMessage,
+        stack: errorStack,
+        details: errorDetails,
       })
+      
       res.status(500).json({
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to send email',
-        details: error instanceof Error ? error.stack : String(error),
+        error: errorMessage,
+        stack: errorStack,
+        details: errorDetails,
       })
     }
   }),

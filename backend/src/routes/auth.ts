@@ -78,7 +78,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 })
 
 // ============================================================
-// OAUTH AUTHENTICATION (Google, GitHub, etc)
+// OAUTH AUTHENTICATION (Google & Microsoft)
 // ============================================================
 
 /**
@@ -118,22 +118,31 @@ router.post('/oauth/google', async (req: Request, res: Response): Promise<void> 
 })
 
 /**
- * POST /auth/oauth/github
- * GitHub OAuth callback - login or register
+ * POST /auth/oauth/microsoft
+ * Microsoft OAuth callback - login or register
  */
-router.post('/oauth/github', async (req: Request, res: Response): Promise<void> => {
+router.post('/oauth/microsoft', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id: providerAccountId, email, name, avatar_url } = req.body
+    const { idToken, code } = req.body
 
-    if (!providerAccountId || !email) {
-      res.status(400).json({ error: 'Invalid GitHub data' })
+    if (!idToken && !code) {
+      res.status(400).json({ error: 'idToken or code is required' })
       return
     }
 
-    const result = await oauthLogin('github', providerAccountId, email, name, avatar_url)
+    // In production: verify idToken with Microsoft API
+    // For now, we'll receive already-verified data from frontend
+    const { oid: providerAccountId, email, name, picture } = req.body
+
+    if (!providerAccountId || !email) {
+      res.status(400).json({ error: 'Invalid Microsoft data' })
+      return
+    }
+
+    const result = await oauthLogin('microsoft', providerAccountId, email, name, picture)
 
     res.json({
-      message: result.isNewUser ? 'GitHub account created' : 'Login with GitHub successful',
+      message: result.isNewUser ? 'Microsoft account created' : 'Login with Microsoft successful',
       user: result.user,
       tokens: result.tokens,
       isNewUser: result.isNewUser,

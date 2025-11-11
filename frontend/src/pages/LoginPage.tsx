@@ -73,6 +73,20 @@ export default function LoginPage() {
     window.location.href = googleAuthUrl
   }
 
+  const handleMicrosoftLogin = () => {
+    // Redirect to Microsoft OAuth flow
+    const clientId = import.meta.env.VITE_MICROSOFT_CLIENT_ID
+    const redirectUri = `${window.location.origin}/auth/microsoft/callback`
+    
+    if (!clientId) {
+      setLocalError('Microsoft OAuth no está configurado')
+      return
+    }
+
+    const microsoftAuthUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20email%20profile`
+    window.location.href = microsoftAuthUrl
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
@@ -176,15 +190,19 @@ export default function LoginPage() {
             Google
           </button>
 
-          {/* GitHub Button (Optional) */}
+          {/* Microsoft Button */}
           <button
             type="button"
-            className="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
+            onClick={handleMicrosoftLogin}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2"
           >
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+            <svg width="20" height="20" viewBox="0 0 21 21" fill="currentColor">
+              <path d="M0 0h10v10H0z" fill="#F1511B" />
+              <path d="M11 0h10v10H11z" fill="#80CC28" />
+              <path d="M0 11h10v10H0z" fill="#00A4EF" />
+              <path d="M11 11h10v10H11z" fill="#FFB900" />
             </svg>
-            GitHub
+            Microsoft
           </button>
         </div>
 

@@ -45,6 +45,32 @@ export const SearchFAQSchema = z.object({
   }),
 })
 
+// **NUEVO: Schemas para endpoints de consultas IA**
+export const FilterQuestionSchema = z.object({
+  body: z.object({
+    question: z
+      .string()
+      .min(10, 'La pregunta debe tener al menos 10 caracteres')
+      .max(1000, 'La pregunta no puede exceder 1000 caracteres')
+      .transform((q) => q.trim()),
+  }),
+})
+
+export const GenerateDetailedResponseSchema = z.object({
+  body: z.object({
+    question: z
+      .string()
+      .min(10, 'La pregunta debe tener al menos 10 caracteres')
+      .max(1000, 'La pregunta no puede exceder 1000 caracteres')
+      .transform((q) => q.trim()),
+    category: z
+      .string()
+      .min(2, 'La categoría debe tener al menos 2 caracteres')
+      .max(100, 'La categoría no puede exceder 100 caracteres')
+      .transform((c) => c.trim()),
+  }),
+})
+
 // Tipos exportados
 export type CreateFAQPayload = z.infer<typeof CreateFAQSchema>['body']
 export type UpdateFAQPayload = z.infer<typeof UpdateFAQSchema>['body']
@@ -52,3 +78,5 @@ export type GetFAQParams = z.infer<typeof GetFAQSchema>['params']
 export type DeleteFAQParams = z.infer<typeof DeleteFAQSchema>['params']
 export type ListFAQQuery = z.infer<typeof ListFAQSchema>['query']
 export type SearchFAQPayload = z.infer<typeof SearchFAQSchema>['body']
+export type FilterQuestionPayload = z.infer<typeof FilterQuestionSchema>['body']
+export type GenerateDetailedResponsePayload = z.infer<typeof GenerateDetailedResponseSchema>['body']

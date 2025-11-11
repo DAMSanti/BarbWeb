@@ -321,9 +321,7 @@ Esta sección te muestra cómo testear la implementación de error handling que 
 
 #### Paso 1: Intentar login con email inválido
 ```bash
-curl -X POST http://localhost:3000/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "invalid-email", "password": "pass123"}'
+curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" -d '{"email": "invalid-email", "password": "pass1234"}'
 ```
 
 **Respuesta esperada**:
@@ -343,7 +341,7 @@ curl -X POST http://localhost:3000/auth/login \
 
 #### Paso 2: Intentar registro sin password
 ```bash
-curl -X POST http://localhost:3000/auth/register \
+curl -X POST http://https://back-jqdv9.ondigitalocean.app/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email": "user@test.com", "name": "John"}'
 ```
@@ -604,19 +602,53 @@ tail -100 /var/log/app/combined.log
 
 Marca ✅ conforme completes cada test:
 
-- [ ] TEST 1: Validation Error (422)
-- [ ] TEST 2: Backend Logging (Winston)
-- [ ] TEST 3: Frontend Error Parsing
-- [ ] TEST 4: Frontend Retry Logic
-- [ ] TEST 5: ErrorBoundary Component
-- [ ] TEST 6A: retryAuth (2x)
-- [ ] TEST 6B: retryAI (3x)
-- [ ] TEST 6C: No reintenta 4xx
-- [ ] TEST 7: Mensajes en español (8 códigos)
-- [ ] TEST 8: Integración E2E
-- [ ] TEST 9: Logging en producción
+- [x] TEST 1: Validation Error (422/400) - ✅ PASS - Email inválido, password débil, campos vacíos todos retornan 400
+- [ ] TEST 2: Backend Logging (Winston) - ⏳ NO PROBADO AÚN
+- [ ] TEST 3: Frontend Error Parsing - ⏳ NO PROBADO AÚN
+- [ ] TEST 4: Frontend Retry Logic - ⏳ NO PROBADO AÚN
+- [ ] TEST 5: ErrorBoundary Component - ⏳ NO PROBADO AÚN
+- [ ] TEST 6A: retryAuth (2x) - ⏳ NO PROBADO AÚN
+- [ ] TEST 6B: retryAI (3x) - ⏳ NO PROBADO AÚN
+- [ ] TEST 6C: No reintenta 4xx - ⏳ NO PROBADO AÚN
+- [x] TEST 7: Mensajes en español (8 códigos) - ✅ PASS - 400, 401, 409, 500 testeados en producción
+- [ ] TEST 8: Integración E2E - ⏳ NO PROBADO AÚN
+- [ ] TEST 9: Logging en producción - ⏳ NO PROBADO AÚN
 
-**Si pasan todos**: ✅ ERROR HANDLING IMPLEMENTADO CORRECTAMENTE
+### 📊 TESTS REALMENTE COMPLETADOS EN PRODUCCIÓN
+
+- [x] TEST 10: JSON Corrupto (500) - ✅ PASS - Retorna 500 "Error del servidor"
+- [x] TEST 11: Endpoint No Existe (404) - ✅ PASS - Retorna 404 "Ruta no encontrada"
+- [x] TEST 12: Email con Espacios - ✅ PASS - Rechazado como "Email inválido"
+- [x] TEST 13: Password Solo Números - ✅ PASS - Rechazado por falta de mayúscula
+- [x] TEST 14: Refresh Token Válido (200) - ✅ PASS - Retorna nuevo access token
+- [x] TEST 15: Refresh Token Inválido (401) - ✅ PASS - Retorna 401 "Refresh token inválido o expirado" (FIJO)
+- [x] TEST 16: Rate Limiting (429) - ✅ PASS - Implementado en /auth endpoints (5 req/15min)
+- [x] TEST 17: Login con Usuario Nuevo - ✅ PASS - Loguea exitosamente
+- [x] TEST 18: Register Nuevo Usuario - ✅ PASS - Crea usuario y retorna tokens
+- [x] TEST 19: Email Duplicado (409) - ✅ PASS - Retorna 409 "El email ya está registrado"
+- [x] TEST 20: Persistencia de Usuario (localStorage) - ✅ PASS - Header muestra nombre tras login
+
+**TESTS COMPLETADOS**: 11/20 ✅ PASS
+**TESTS PENDIENTES**: 9/20 ⏳ (Requieren testing en navegador)
+
+### ⚠️ TAREAS CRÍTICAS PENDIENTES
+
+1. **Validación de Consultas IA** - 🔴 CRÍTICO
+   - ❌ `/api/filter-question` no rechaza preguntas cortas
+   - ❌ `/api/generate-response` sin validación
+   - ✅ SCHEMASYA CREADOS (FilterQuestionSchema, GenerateDetailedResponseSchema)
+   - ⏳ FALTA: Aplicar validaciones en rutas
+
+2. **IA no responde** - 🔴 CRÍTICO
+   - ❌ GEMINI_API_KEY probablemente no configurado
+   - ❌ Sin errores aparentes en logs
+   - ✅ Rate limiting + validación agregados
+   - ⏳ FALTA: Configurar GEMINI_API_KEY en DigitalOcean
+
+3. **Demasiadas peticiones** - ✅ PARCIALMENTE ARREGLADO
+   - ✅ Rate limiting implementado (5 req/15min en auth)
+   - ❌ No está en `/api/filter-question` y `/api/generate-response` aún
+   - ⏳ FALTA: Agregar apiRateLimit a endpoints de IA
 
 ---
 

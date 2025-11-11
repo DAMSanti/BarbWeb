@@ -47,7 +47,7 @@ export function rateLimit(windowMs: number = 15 * 60 * 1000, maxRequests: number
       const error = new RateLimitError(
         `Demasiadas solicitudes. Por favor espera ${Math.ceil((record.resetTime - now) / 1000)} segundos.`
       )
-      throw error
+      return next(error)
     }
 
     next()

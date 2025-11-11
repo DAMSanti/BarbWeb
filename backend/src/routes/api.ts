@@ -2,13 +2,12 @@ import { Router, Request, Response } from 'express'
 import { filterQuestionWithAI, generateDetailedResponse } from '../services/openaiService.js'
 import { findSimilarFAQ } from '../utils/faqDatabase.js'
 import { asyncHandler } from '../middleware/errorHandler.js'
+import { validate } from '../middleware/validation.js'
+import { apiRateLimit } from '../middleware/rateLimit.js'
+import { FilterQuestionSchema, GenerateDetailedResponseSchema } from '../schemas/faq.schemas.js'
 import { logger } from '../utils/logger.js'
 
 const router = Router()
-
-interface FilterQuestionRequest {
-  question: string
-}
 
 interface FilterQuestionResponse {
   success: boolean
@@ -27,17 +26,16 @@ interface FilterQuestionResponse {
 /**
  * POST /api/filter-question
  * Filtra una pregunta legal usando OpenAI
+ * Validaciones: pregunta 10-1000 caracteres
  */
 router.post(
   '/filter-question',
+  apiRateLimit,
+  validate(FilterQuestionSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { question } = req.body as FilterQuestionRequest
+    const { question } = req.body
 
-    if (!question || typeof question !== 'string') {
-      const err = new Error('Question is required and must be a string')
-      ;(err as any).statusCode = 400
-      throw err
-    }
+    logger.info(`[filter-question] Processing: "${question.substring(0, 50)}..."`)
 
     // Paso 1: Usar el agente IA para analizar y responder
     const aiResult = await filterQuestionWithAI(question)
@@ -61,6 +59,7 @@ router.post(
       },
     }
 
+    logger.info(`[filter-question] Success - Category: ${aiResult.category}`)
     res.json(response)
   }),
 )
@@ -68,20 +67,20 @@ router.post(
 /**
  * POST /api/generate-response
  * Genera una respuesta detallada para una pregunta específica
+ * Validaciones: pregunta 10-1000 chars, categoría 2-100 chars
  */
 router.post(
   '/generate-response',
+  apiRateLimit,
+  validate(GenerateDetailedResponseSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { question, category } = req.body as { question: string; category: string }
+    const { question, category } = req.body
 
-    if (!question || !category) {
-      const err = new Error('Question and category are required')
-      ;(err as any).statusCode = 400
-      throw err
-    }
+    logger.info(`[generate-response] Processing: "${question.substring(0, 50)}..." in category: ${category}`)
 
     const response = await generateDetailedResponse(question, category)
 
+    logger.info(`[generate-response] Success`)
     res.json({
       success: true,
       data: {

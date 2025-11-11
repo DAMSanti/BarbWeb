@@ -68,12 +68,17 @@ export async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS "payments" (
         "id" TEXT NOT NULL,
         "userId" TEXT NOT NULL,
-        "amount" DOUBLE PRECISION NOT NULL,
-        "currency" TEXT NOT NULL DEFAULT 'EUR',
+        "amount" DECIMAL(10,2) NOT NULL,
+        "currency" TEXT NOT NULL DEFAULT 'usd',
         "status" TEXT NOT NULL,
-        "stripePaymentId" TEXT,
+        "stripeSessionId" TEXT UNIQUE,
         "question" TEXT,
-        "consultationDetails" TEXT,
+        "category" TEXT,
+        "consultationSummary" TEXT,
+        "reasoning" TEXT,
+        "confidence" DOUBLE PRECISION,
+        "receiptUrl" TEXT,
+        "refundedAmount" DECIMAL(10,2),
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         CONSTRAINT "payments_pkey" PRIMARY KEY ("id")
@@ -81,6 +86,8 @@ export async function initializeDatabase() {
     `
 
     await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "payments_userId_idx" ON "payments"("userId")`
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "payments_status_idx" ON "payments"("status")`
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "payments_stripeSessionId_idx" ON "payments"("stripeSessionId")`
 
     // Crear tabla faqs
     await prisma.$executeRaw`

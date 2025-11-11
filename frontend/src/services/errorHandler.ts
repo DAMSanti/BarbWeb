@@ -20,10 +20,22 @@ export class FrontendError extends Error {
 export const parseBackendError = (error: any): FrontendError => {
   console.error('[Error Parser]', error)
 
-  // Error de respuesta HTTP
-  if (error.response) {
+  // Si es un Error object simple (del cliente, no del servidor)
+  // y NO tiene propiedades de Axios (como 'response', 'code', 'isAxiosError')
+  if (error instanceof Error && !('response' in error) && !('code' in error) && !('isAxiosError' in error)) {
+    // Estos son errores del cliente (validación local)
+    return new FrontendError(
+      error.message,
+      error.message,  // Usar el mensaje del cliente directamente
+      400,
+      error,
+    )
+  }
+
+  // Error de respuesta HTTP del servidor
+  if (error?.response) {
     const { status, data } = error.response
-    const backendMessage = data?.error || 'Error desconocido del servidor'
+    const backendMessage = data?.error || data?.message || 'Error desconocido del servidor'
     const userMessage = getUserFriendlyMessage(status, backendMessage)
 
     return new FrontendError(
@@ -35,7 +47,18 @@ export const parseBackendError = (error: any): FrontendError => {
   }
 
   // Error de red (sin respuesta del servidor)
-  if (error.message === 'Network Error' || error.code === 'ECONNABORTED' || !error.response) {
+  // Verificar específicamente: Network Error, timeout, o axios sin response
+  if (error?.code === 'ECONNABORTED' || error?.code === 'ENOTFOUND' || error?.code === 'ECONNREFUSED') {
+    return new FrontendError(
+      'Error de conexión',
+      'No se pudo conectar al servidor. Verifica tu conexión a internet.',
+      0,
+      error,
+    )
+  }
+
+  // Si es un error de axios pero sin respuesta (probablemente network error)
+  if (error?.isAxiosError && !error?.response) {
     return new FrontendError(
       'Error de conexión',
       'No se pudo conectar al servidor. Verifica tu conexión a internet.',

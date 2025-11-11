@@ -8,7 +8,7 @@ import { useErrorHandler } from '../hooks/useErrorHandler.js'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const { register, setError, setIsLoading, isLoading } = useAppStore()
+  const { register, setIsLoading, isLoading } = useAppStore()
   const { error, handleError, clearError, errorMessage } = useErrorHandler()
   
   const [formData, setFormData] = useState({
@@ -91,7 +91,6 @@ export default function RegisterPage() {
     } catch (err: any) {
       // Use parseBackendError through handleError hook
       handleError(err, 'RegisterPage.handleSubmit')
-      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }

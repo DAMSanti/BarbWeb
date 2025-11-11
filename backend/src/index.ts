@@ -3,6 +3,7 @@ import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import apiRoutes from './routes/api.js'
+import authRoutes from './routes/auth.js'
 
 // Force Railway rebuild - Manual CORS headers v2
 dotenv.config()
@@ -46,6 +47,9 @@ app.get('/', (req, res) => {
 
 // Rutas de la API - ANTES que las rutas estáticas
 app.use('/api', apiRoutes)
+
+// Auth routes
+app.use('/auth', authRoutes)
 
 // Servir archivos estáticos del frontend en /barbweb2
 // En producción, el backend/dist está en /workspace/backend/dist, así que ../../../ nos lleva a /workspace/frontend/dist
@@ -92,7 +96,8 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on http://0.0.0.0:${PORT}`)
   console.log(`🔗 CORS enabled for all origins`)
   console.log(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
-  console.log(`💾 Database: ${process.env.DATABASE_URL ? '✅ Connected' : '❌ Not configured'}`)
+  console.log(`� JWT Authentication: ✅ Configured (JWT + OAuth2)`)
+  console.log(`�💾 Database: ${process.env.DATABASE_URL ? '✅ Connected' : '❌ Not configured'}`)
   console.log(`📁 Serving frontend from: ${frontendPath}`)
 })
 

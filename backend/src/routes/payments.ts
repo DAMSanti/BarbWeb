@@ -117,10 +117,10 @@ router.post(
           await prisma.payment.create({
             data: {
               userId,
-              stripePaymentId: paymentIntentId,
+              stripeSessionId: paymentIntentId,
               amount: paymentIntent.amount / 100,
               status: 'completed',
-              consultationDetails: 'Consulta legal completada',
+              consultationSummary: 'Consulta legal completada',
             },
           })
 
@@ -187,7 +187,7 @@ router.get(
           id: p.id,
           amount: p.amount,
           status: p.status,
-          consultationDetails: p.consultationDetails,
+          consultationSummary: p.consultationSummary,
           createdAt: p.createdAt,
         })),
       })
@@ -233,12 +233,12 @@ router.post(
     }
 
     try {
-      if (!payment.stripePaymentId) {
+      if (!payment.stripeSessionId) {
         throw new PaymentError('Este pago no tiene un ID de Stripe válido')
       }
 
       const refund = await stripe.refunds.create({
-        payment_intent: payment.stripePaymentId,
+        payment_intent: payment.stripeSessionId,
       })
 
       await prisma.payment.update({

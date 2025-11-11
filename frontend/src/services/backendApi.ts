@@ -21,11 +21,12 @@ const apiClient: AxiosInstance = axios.create({
 // Cliente API con métodos de autenticación y retry automático
 export const backendApi = {
   // Auth endpoints con retry conservador (2 intentos)
-  async register(email: string, password: string, name: string) {
+  async register(email: string, password: string, confirmPassword: string, name: string) {
     return retryAuth(async () => {
       const { data } = await apiClient.post('/auth/register', {
         email,
         password,
+        confirmPassword,
         name,
       })
       return data

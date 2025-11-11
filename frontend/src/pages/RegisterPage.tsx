@@ -81,7 +81,12 @@ export default function RegisterPage() {
       }
 
       // Make API call
-      const response = await backendApi.register(formData.email, formData.password, formData.name)
+      const response = await backendApi.register(
+        formData.email,
+        formData.password,
+        formData.confirmPassword,
+        formData.name
+      )
 
       // Store tokens and user
       register(response.user, response.tokens)

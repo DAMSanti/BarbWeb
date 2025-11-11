@@ -78,11 +78,17 @@ export const parseBackendError = (error: any): FrontendError => {
 
 /**
  * Convierte códigos HTTP a mensajes amigables para el usuario
+ * IMPORTANTE: Si backendMessage existe (error específico del backend), úsalo primero
  */
 const getUserFriendlyMessage = (statusCode: number, backendMessage: string): string => {
+  // Si el backend devolvió un mensaje específico, usarlo siempre
+  if (backendMessage && backendMessage.trim() && backendMessage !== 'Error desconocido del servidor') {
+    return backendMessage
+  }
+
   const messages: Record<number, string> = {
     400: 'Los datos enviados no son válidos. Por favor revisa tu información.',
-    401: 'Tu sesión expiró. Por favor inicia sesión de nuevo.',
+    401: 'Email o contraseña incorrectos. Por favor intenta de nuevo.',
     403: 'No tienes permiso para hacer esto.',
     404: 'El recurso no fue encontrado.',
     409: 'Este elemento ya existe. Por favor intenta con otro valor.',

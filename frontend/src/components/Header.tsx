@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
-import { Scale, Phone, Mail, LogIn } from 'lucide-react'
+import { Scale, Phone, Mail, LogIn, LogOut, User } from 'lucide-react'
+import { useAppStore } from '../store/appStore'
 
 export default function Header() {
+  const { user, isAuthenticated, logout } = useAppStore()
+
   return (
     <header className="site-header">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,7 +33,7 @@ export default function Header() {
             </a>
           </nav>
 
-          {/* Contact Info & Login Button */}
+          {/* Contact Info & Auth Actions */}
           <div className="header-contact hidden lg:flex items-center space-x-6">
             <a href="tel:+34672722452" className="header-contact-link flex items-center space-x-2">
               <Phone size={18} />
@@ -40,10 +43,27 @@ export default function Header() {
               <Mail size={18} />
               <span className="text-sm">abogados.bgarcia@gmail.com</span>
             </a>
-            <Link to="/login" className="header-contact-link flex items-center space-x-2 bg-accent-color text-accent-contrast hover:opacity-90">
-              <LogIn size={18} />
-              <span className="text-sm font-semibold">Login</span>
-            </Link>
+            
+            {isAuthenticated && user ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-primary-color bg-opacity-10">
+                  <User size={18} />
+                  <span className="text-sm font-semibold">{user.name || user.email}</span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="header-contact-link flex items-center space-x-2 bg-red-600 text-white hover:bg-red-700"
+                >
+                  <LogOut size={18} />
+                  <span className="text-sm font-semibold">Salir</span>
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="header-contact-link flex items-center space-x-2 bg-accent-color text-accent-contrast hover:opacity-90">
+                <LogIn size={18} />
+                <span className="text-sm font-semibold">Login</span>
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}

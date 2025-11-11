@@ -4,7 +4,6 @@ import { Search, Filter, Lightbulb, AlertCircle, CheckCircle } from 'lucide-reac
 import StyleSwitcher from '../components/StyleSwitcher'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { LegalCategory, ConsultationRequest } from '../types'
-import { faqDatabase } from '../utils/faqMatcher'
 import { useAppStore } from '../store/appStore'
 import { filterQuestionWithBackend, checkBackendHealth } from '../services/backendApi'
 
@@ -106,8 +105,7 @@ export default function FAQPage() {
     navigate(`/checkout/${consultation.id}`)
   }
 
-  // Mostrar FAQs sugeridas basadas en categoría seleccionada
-  const suggestedFaqs = selectedCategory ? (faqDatabase[selectedCategory] || []) : []
+  const suggestedFaqs: any[] = [] // FAQs now come from backend API
 
   // Estilos según diseño
   const containerMaxWidth = layout === 'minimalist' ? 'max-w-5xl' : 'max-w-4xl'

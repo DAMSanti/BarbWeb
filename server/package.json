@@ -1,9 +1,0 @@
-{
-  "name": "backend-build-wrapper",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "build": "npm --prefix .. run build:backend && node ./scripts/link-backend.js"
-  }
-}

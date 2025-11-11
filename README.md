@@ -1,228 +1,454 @@
-# 🏛️ Barbara & Abogados - Plataforma de Consultas Legales# 🏛️ Bufete Jurídico - Plataforma de Consultas Legales
+# 🏛️ BarbWeb - Plataforma de Consultas Legales# 🏛️ BarbWeb - Plataforma de Consultas Legales
 
 
 
-Plataforma web para consultas legales en línea con sistema inteligente de filtrado de preguntas usando IA.Una plataforma web moderna para un bufete de abogados que ofrece consultas legales rápidas, seguras y accesibles. Con un sistema inteligente de filtrado de preguntas que proporciona respuestas automáticas cuando es posible, o facilita la conexión con abogados profesionales a través de una pasarela de pagos segura.
+Plataforma web moderna para un bufete de abogados con sistema inteligente de filtrado de preguntas usando IA. Proporciona respuestas automáticas o facilita la conexión con abogados profesionales a través de una pasarela de pagos segura.
 
 
 
-## 🏗️ Estructura del Proyecto## ✨ Características Principales
+## ✨ Características PrincipalesPlataforma web para consultas legales en línea con sistema inteligente de filtrado de preguntas usando IA.Una plataforma web moderna para un bufete de abogados que ofrece consultas legales rápidas, seguras y accesibles. Con un sistema inteligente de filtrado de preguntas que proporciona respuestas automáticas cuando es posible, o facilita la conexión con abogados profesionales a través de una pasarela de pagos segura.
 
 
 
-```### 🤖 Sistema Inteligente de Filtrado
+### 🤖 Sistema Inteligente
 
-BarbWeb/- **Detección Automática de Categoría**: Analiza la pregunta del usuario y detecta automáticamente su categoría legal
+- **Detección Automática de Categoría**: Analiza preguntas y detecta categoría legal
 
-├── frontend/          # Aplicación React + Vite- **Respuestas Automáticas**: Base de datos de preguntas frecuentes con respuestas verificadas por abogados
+- **Respuestas Automáticas**: Base de datos de FAQs verificadas por abogados## 🏗️ Estructura del Proyecto## ✨ Características Principales
 
-│   ├── src/           # Código fuente- **Similitud Semántica**: Algoritmo de similitud para encontrar preguntas relacionadas
+- **Similitud Semántica**: Algoritmo para encontrar preguntas relacionadas
+
+
+
+### 💳 Pasarela de Pagos
+
+- **Stripe Integration**: Sistema de pagos seguro (mockup actualmente)```### 🤖 Sistema Inteligente de Filtrado
+
+- **Checkout Simplificado**: Proceso rápido y eficiente
+
+- **Confirmación Inmediata**: Recepción instantánea de confirmaciónBarbWeb/- **Detección Automática de Categoría**: Analiza la pregunta del usuario y detecta automáticamente su categoría legal
+
+
+
+### 🎨 Diseño Moderno├── frontend/          # Aplicación React + Vite- **Respuestas Automáticas**: Base de datos de preguntas frecuentes con respuestas verificadas por abogados
+
+- **Interfaz Responsiva**: Funciona en móvil, tablet y desktop
+
+- **TailwindCSS**: Estilos modernos y consistentes│   ├── src/           # Código fuente- **Similitud Semántica**: Algoritmo de similitud para encontrar preguntas relacionadas
+
+- **Animaciones Suaves**: Transiciones elegantes
 
 │   ├── public/        # Archivos estáticos
 
-│   └── package.json### 💳 Pasarela de Pagos Integrada
+### 🔐 Autenticación Completa
 
-├── backend/           # API Node.js + Express- **Stripe Integration**: Sistema de pagos seguro y confiable
+- **Email/Password**: Registro e inicio de sesión│   └── package.json### 💳 Pasarela de Pagos Integrada
+
+- **OAuth2**: Google y Microsoft
+
+- **JWT Tokens**: 15 min acceso, 7 días refresh├── backend/           # API Node.js + Express- **Stripe Integration**: Sistema de pagos seguro y confiable
+
+- **Rutas Protegidas**: Acceso autorizado
 
 │   ├── src/           # Código fuente- **Checkout Simplificado**: Proceso de compra rápido y eficiente
 
+## 🏗️ Estructura del Proyecto
+
 │   └── package.json- **Confirmación Inmediata**: Recepción instantánea de confirmación de pago
-
-├── .github/           # GitHub Actions
-
-└── app.yaml           # Config Digital Ocean### 🎨 Diseño Moderno
-
-```- **Interfaz No-Cuadriculada**: Diseño fluido y agradable, no basado en grillas simples
-
-- **Responsivo**: Funciona perfectamente en móvil, tablet y desktop
-
-## 🚀 Inicio Rápido- **TailwindCSS**: Estilos modernos y consistentes
-
-- **Animaciones Suaves**: Transiciones elegantes entre elementos
-
-### Frontend
-
-```bash### 📱 Responsive Design
-
-cd frontend- Mobile-first approach
-
-npm install- Menú adaptable para dispositivos pequeños
-
-npm run dev- Formularios optimizados para todos los tamaños de pantalla
 
 ```
 
-## 🏗️ Estructura del Proyecto
+BarbWeb/├── .github/           # GitHub Actions
 
-### Backend
+├── frontend/              # React + TypeScript + Vite
 
-```bash```
+│   ├── src/└── app.yaml           # Config Digital Ocean### 🎨 Diseño Moderno
+
+│   │   ├── components/    # Header, Footer, PrivateRoute
+
+│   │   ├── pages/         # HomePage, FAQPage, LoginPage, CheckoutPage```- **Interfaz No-Cuadriculada**: Diseño fluido y agradable, no basado en grillas simples
+
+│   │   ├── store/         # Zustand global state
+
+│   │   ├── services/      # Backend API calls- **Responsivo**: Funciona perfectamente en móvil, tablet y desktop
+
+│   │   ├── types/         # TypeScript definitions
+
+│   │   ├── theme/         # Theme configuration## 🚀 Inicio Rápido- **TailwindCSS**: Estilos modernos y consistentes
+
+│   │   ├── layouts/       # ClassicLayout, MinimalistLayout
+
+│   │   └── styles/        # Global CSS- **Animaciones Suaves**: Transiciones elegantes entre elementos
+
+│   └── package.json
+
+│### Frontend
+
+├── backend/               # Express + TypeScript + Prisma
+
+│   ├── src/```bash### 📱 Responsive Design
+
+│   │   ├── routes/        # API endpoints (auth, api)
+
+│   │   ├── middleware/    # Auth, error handlerscd frontend- Mobile-first approach
+
+│   │   ├── services/      # Business logic (auth, OpenAI)
+
+│   │   ├── utils/         # FAQ database, OAuth helpersnpm install- Menú adaptable para dispositivos pequeños
+
+│   │   └── db/            # Database initialization
+
+│   ├── prisma/npm run dev- Formularios optimizados para todos los tamaños de pantalla
+
+│   │   ├── schema.prisma  # Database models
+
+│   │   ├── migrations/    # Database migrations```
+
+│   │   ├── init.sql       # Initial schema
+
+│   │   └── seed.ts        # Database seeding## 🏗️ Estructura del Proyecto
+
+│   └── package.json
+
+│### Backend
+
+└── .github/               # GitHub configuration
+
+    └── copilot-instructions.md```bash```
+
+```
 
 cd backendbufete-abogados-web/
 
+## 🚀 Inicio Rápido
+
 npm install├── src/
 
-npm run dev│   ├── components/
+### Prerequisites
 
-```│   │   ├── Header.tsx          # Navbar principal
-
-│   │   └── Footer.tsx          # Pie de página
-
-## 🎨 Stack Tecnológico│   ├── pages/
-
-│   │   ├── HomePage.tsx        # Página de inicio
-
-### Frontend│   │   ├── FAQPage.tsx         # Centro de consultas (el corazón del app)
-
-- **React 18** - Framework UI│   │   └── CheckoutPage.tsx    # Página de pago
-
-- **TypeScript** - Tipado estático│   ├── store/
-
-- **Vite** - Build tool rápido│   │   └── appStore.ts         # Estado global con Zustand
-
-- **TailwindCSS** - Estilos modernos│   ├── types/
-
-- **React Router v6** - Navegación│   │   └── index.ts            # Definiciones de tipos TypeScript
-
-- **Zustand** - Estado global│   ├── utils/
-
-- **Lucide Icons** - Iconografía│   │   └── faqMatcher.ts       # Lógica de detección y matching de preguntas
-
-│   ├── styles/
-
-### Backend│   │   └── globals.css         # Estilos globales
-
-- **Node.js** - Runtime│   ├── App.tsx                 # Componente raíz
-
-- **Express** - Framework web│   └── main.tsx                # Punto de entrada
-
-- **TypeScript** - Tipado estático├── index.html                  # HTML principal
-
-- **Google Gemini AI** - Inteligencia artificial├── vite.config.ts              # Configuración de Vite
-
-- **@google/generative-ai** - SDK oficial├── tailwind.config.ts          # Configuración de TailwindCSS
-
-├── postcss.config.js           # Configuración de PostCSS
-
-## 💡 Características Principales├── tsconfig.json               # Configuración de TypeScript
-
-└── package.json                # Dependencias y scripts
-
-### 🤖 Agente Legal IA```
-
-- Análisis automático de preguntas legales
-
-- Detección de categoría (Civil, Penal, Laboral, etc.)## 🚀 Instalación y Setup
-
-- Evaluación de complejidad
-
-- Respuesta orientativa inmediata### Requisitos Previos
-
-- Recomendación inteligente de consulta profesional- Node.js >= 16
+- Node.js >= 16npm run dev│   ├── components/
 
 - npm o yarn
 
-### 💼 Sistema de Conversión
-
-- ~80% de casos redirigen a consulta pagada### Pasos de Instalación
-
-- Respuesta básica gratuita (genera confianza)
-
-- CTA claro para solicitar consulta profesional1. **Clona el repositorio**
-
-- Precio: $29.99 por consulta```bash
-
-git clone <repository-url>
-
-### 🎨 Diseño Corporativocd bufete-abogados-web
-
-- **Colores**: Oro (#d4af37) y Negro (#1a1a1a)```
-
-- **Responsive**: Mobile-first
-
-- **Moderno**: Gradientes y sombras suaves2. **Instala las dependencias**
-
-- **Profesional**: Tipografía clara y espaciado generoso```bash
-
-npm install
-
-## 🌐 Deploy en Digital Ocean```
+- PostgreSQL (o usar DigitalOcean Managed Database)```│   │   ├── Header.tsx          # Navbar principal
 
 
 
-La aplicación se despliega automáticamente desde GitHub (rama `master`).3. **Configura las variables de entorno**
-
-```bash
-
-- **Frontend**: https://back-jqdv9.ondigitalocean.app/barbweb2/cp .env.example .env.local
-
-- **API**: https://back-jqdv9.ondigitalocean.app/api/```
+### Frontend│   │   └── Footer.tsx          # Pie de página
 
 
 
-### Variables de Entorno RequeridasEdita `.env.local` y añade tu clave pública de Stripe:
+```bash## 🎨 Stack Tecnológico│   ├── pages/
 
-```env```
+cd frontend
 
-GEMINI_API_KEY=tu_clave_api_geminiVITE_STRIPE_PUBLISHABLE_KEY=pk_test_tu_clave_aqui
+npm install│   │   ├── HomePage.tsx        # Página de inicio
 
-PORT=3000```
+npm run dev          # http://localhost:5173
 
-NODE_ENV=production
+npm run build        # Build para producción### Frontend│   │   ├── FAQPage.tsx         # Centro de consultas (el corazón del app)
 
-```### Desarrollo Local
+npm run preview      # Preview del build
+
+```- **React 18** - Framework UI│   │   └── CheckoutPage.tsx    # Página de pago
 
 
 
-## 📊 Flujo de Usuario```bash
+### Backend- **TypeScript** - Tipado estático│   ├── store/
 
-npm run dev
 
-``````
 
-Usuario hace pregunta
+```bash- **Vite** - Build tool rápido│   │   └── appStore.ts         # Estado global con Zustand
 
-    ↓La aplicación se abrirá en `http://localhost:5173`
+cd backend
 
-IA analiza (Gemini 2.5 Flash Lite)
+npm install- **TailwindCSS** - Estilos modernos│   ├── types/
 
-    ↓## 📚 Cómo Funciona el Sistema de Preguntas
+npm run dev          # http://localhost:3000
 
-Muestra respuesta básica orientativa
-
-    ↓### 1. **Flujo de Usuario**
-
-Evalúa complejidad```
-
-    ↓Usuario hace pregunta
-
-Si es complejo → Recomienda consulta profesional ($29.99)        ↓
-
-    ↓Detección automática de categoría
-
-Usuario solicita consulta        ↓
-
-    ↓Búsqueda en base de datos FAQ
-
-Pasarela de pago (Stripe - próximamente)        ↓
-
-    ↓┌─ Respuesta encontrada → Mostrar respuesta automática
-
-Abogado recibe consulta organizada por categoría│
-
-```└─ Sin respuesta → Redireccionar a checkout para consulta profesional
+npm run build        # Build para producción- **React Router v6** - Navegación│   │   └── index.ts            # Definiciones de tipos TypeScript
 
 ```
 
-## 📂 Categorías Legales
+- **Zustand** - Estado global│   ├── utils/
 
-### 2. **Base de Datos de FAQs**
+## 🛠️ Configuración de Ambiente
 
-- CivilUbicada en `src/utils/faqMatcher.ts`, contiene:
+- **Lucide Icons** - Iconografía│   │   └── faqMatcher.ts       # Lógica de detección y matching de preguntas
 
-- Penal- Preguntas comunes organizadas por categoría
+### Backend (.env)
 
-- Laboral- Respuestas verificadas por expertos
+│   ├── styles/
+
+```env
+
+# Database### Backend│   │   └── globals.css         # Estilos globales
+
+DATABASE_URL=postgresql://user:password@host:5432/barbweb
+
+- **Node.js** - Runtime│   ├── App.tsx                 # Componente raíz
+
+# Server
+
+PORT=3000- **Express** - Framework web│   └── main.tsx                # Punto de entrada
+
+NODE_ENV=development
+
+FRONTEND_URL=http://localhost:5173- **TypeScript** - Tipado estático├── index.html                  # HTML principal
+
+
+
+# JWT- **Google Gemini AI** - Inteligencia artificial├── vite.config.ts              # Configuración de Vite
+
+JWT_SECRET=your-secret-key-here
+
+JWT_REFRESH_SECRET=your-refresh-secret-here- **@google/generative-ai** - SDK oficial├── tailwind.config.ts          # Configuración de TailwindCSS
+
+
+
+# OAuth - Google├── postcss.config.js           # Configuración de PostCSS
+
+GOOGLE_CLIENT_ID=your-client-id
+
+GOOGLE_CLIENT_SECRET=your-client-secret## 💡 Características Principales├── tsconfig.json               # Configuración de TypeScript
+
+GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
+
+└── package.json                # Dependencias y scripts
+
+# OAuth - Microsoft
+
+MICROSOFT_CLIENT_ID=your-client-id### 🤖 Agente Legal IA```
+
+MICROSOFT_CLIENT_SECRET=your-client-secret
+
+MICROSOFT_REDIRECT_URI=http://localhost:3000/auth/microsoft/callback- Análisis automático de preguntas legales
+
+
+
+# Gemini AI- Detección de categoría (Civil, Penal, Laboral, etc.)## 🚀 Instalación y Setup
+
+GEMINI_API_KEY=your-gemini-api-key
+
+```- Evaluación de complejidad
+
+
+
+### Frontend (.env.local)- Respuesta orientativa inmediata### Requisitos Previos
+
+
+
+```env- Recomendación inteligente de consulta profesional- Node.js >= 16
+
+VITE_API_URL=http://localhost:3000
+
+- npm o yarn
+
+# OAuth - Google
+
+VITE_GOOGLE_CLIENT_ID=your-client-id### 💼 Sistema de Conversión
+
+
+
+# OAuth - Microsoft- ~80% de casos redirigen a consulta pagada### Pasos de Instalación
+
+VITE_MICROSOFT_CLIENT_ID=your-client-id
+
+VITE_MICROSOFT_REDIRECT_URI=http://localhost:3000/auth/microsoft/callback- Respuesta básica gratuita (genera confianza)
+
+```
+
+- CTA claro para solicitar consulta profesional1. **Clona el repositorio**
+
+## 📦 Stack Tecnológico
+
+- Precio: $29.99 por consulta```bash
+
+### Frontend
+
+- React 18git clone <repository-url>
+
+- TypeScript
+
+- Vite### 🎨 Diseño Corporativocd bufete-abogados-web
+
+- React Router v6
+
+- TailwindCSS- **Colores**: Oro (#d4af37) y Negro (#1a1a1a)```
+
+- Zustand (state management)
+
+- Lucide Icons- **Responsive**: Mobile-first
+
+
+
+### Backend- **Moderno**: Gradientes y sombras suaves2. **Instala las dependencias**
+
+- Node.js
+
+- Express- **Profesional**: Tipografía clara y espaciado generoso```bash
+
+- TypeScript
+
+- Prisma ORMnpm install
+
+- PostgreSQL
+
+- JWT## 🌐 Deploy en Digital Ocean```
+
+- Google Gemini AI
+
+- OAuth2 (Google, Microsoft)
+
+
+
+## 🔗 API EndpointsLa aplicación se despliega automáticamente desde GitHub (rama `master`).3. **Configura las variables de entorno**
+
+
+
+### Authentication```bash
+
+- `POST /auth/register` - Crear cuenta
+
+- `POST /auth/login` - Iniciar sesión- **Frontend**: https://back-jqdv9.ondigitalocean.app/barbweb2/cp .env.example .env.local
+
+- `POST /auth/refresh` - Renovar token
+
+- `POST /auth/logout` - Cerrar sesión- **API**: https://back-jqdv9.ondigitalocean.app/api/```
+
+- `GET /auth/google` - OAuth Google
+
+- `GET /auth/google/callback` - Google callback
+
+- `GET /auth/microsoft` - OAuth Microsoft
+
+- `GET /auth/microsoft/callback` - Microsoft callback### Variables de Entorno RequeridasEdita `.env.local` y añade tu clave pública de Stripe:
+
+- `GET /auth/me` - Obtener usuario actual
+
+- `GET /auth/verify-token` - Verificar token```env```
+
+
+
+### APIGEMINI_API_KEY=tu_clave_api_geminiVITE_STRIPE_PUBLISHABLE_KEY=pk_test_tu_clave_aqui
+
+- `POST /api/ask` - Hacer pregunta (IA + FAQ matching)
+
+- `GET /api/health` - Health checkPORT=3000```
+
+
+
+## 📊 Base de DatosNODE_ENV=production
+
+
+
+### Models```### Desarrollo Local
+
+- **User**: Usuarios registrados con email/password
+
+- **OAuthAccount**: Cuentas vinculadas con OAuth
+
+- **RefreshToken**: Tokens de refresco para JWT
+
+- **Payment**: Historial de pagos## 📊 Flujo de Usuario```bash
+
+- **FAQ**: Preguntas frecuentes
+
+- **CustomAgent**: Agentes personalizadosnpm run dev
+
+
+
+## 🚢 Despliegue``````
+
+
+
+### DigitalOcean App PlatformUsuario hace pregunta
+
+
+
+```bash    ↓La aplicación se abrirá en `http://localhost:5173`
+
+# Configurar variables de ambiente en DigitalOcean
+
+# Todas las variables VITE_ deben tener prefijo VITE_IA analiza (Gemini 2.5 Flash Lite)
+
+
+
+# Hacer push a GitHub (auto-redeploy)    ↓## 📚 Cómo Funciona el Sistema de Preguntas
+
+git push origin master
+
+```Muestra respuesta básica orientativa
+
+
+
+## 📚 Documentación Adicional    ↓### 1. **Flujo de Usuario**
+
+
+
+- `ROADMAP_PROFESSIONAL.md` - Roadmap completo del proyectoEvalúa complejidad```
+
+- `PROGRESS_REPORT.md` - Reporte de progreso actual
+
+- `CLEANUP_AND_ERROR_HANDLING.md` - Plan de limpieza y error handling    ↓Usuario hace pregunta
+
+- `.github/copilot-instructions.md` - Instrucciones para desarrollo
+
+Si es complejo → Recomienda consulta profesional ($29.99)        ↓
+
+## ✅ Status del Proyecto
+
+    ↓Detección automática de categoría
+
+### Fase 1: Foundation ✅ COMPLETADA (40%)
+
+- ✅ Database schema y modelsUsuario solicita consulta        ↓
+
+- ✅ JWT authentication system
+
+- ✅ Email/password login y register    ↓Búsqueda en base de datos FAQ
+
+- ✅ OAuth2 Google y Microsoft
+
+- ✅ Protected routesPasarela de pago (Stripe - próximamente)        ↓
+
+- ✅ User session management
+
+- ✅ Token persistence    ↓┌─ Respuesta encontrada → Mostrar respuesta automática
+
+
+
+**Progreso: 40% (4 semanas de ~10 estimadas)**Abogado recibe consulta organizada por categoría│
+
+
+
+### Fase 2: Payments (PRÓXIMA)```└─ Sin respuesta → Redireccionar a checkout para consulta profesional
+
+- Stripe backend integration
+
+- Stripe frontend checkout```
+
+- Email notifications
+
+- Admin panel## 📂 Categorías Legales
+
+
+
+## 📄 Licencia### 2. **Base de Datos de FAQs**
+
+
+
+Proyecto privado - Todos los derechos reservados- CivilUbicada en `src/utils/faqMatcher.ts`, contiene:
+
+
+
+## 👨‍💼 Equipo- Penal- Preguntas comunes organizadas por categoría
+
+
+
+- **Developer**: Santiago (@DAMSanti)- Laboral- Respuestas verificadas por expertos
+
+- **Client**: Bufete Jurídico
 
 - Administrativo- Palabras clave para detección automática
 

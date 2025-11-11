@@ -4,8 +4,8 @@ services:
     github:
       branch: master
       repo: DAMSanti/BarbWeb
-    build_command: npm install && npm run build:frontend && npm run build:backend
-    run_command: cd /workspace/backend && npx prisma generate && npm start
+    build_command: npm install --ignore-scripts && npm run build:frontend && npm run build:backend
+    run_command: cd /workspace/backend && npx prisma generate && node dist/index.js && tsc && npm start
     envs:
       - key: PORT
         value: "3000"

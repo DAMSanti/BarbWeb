@@ -50,12 +50,12 @@ export default function Header() {
           </nav>
 
           {/* Contact Info & Auth */}
-          <div className="header-contact hidden lg:flex items-center space-x-6">
-            <a href="tel:+34672722452" className="header-contact-link flex items-center space-x-2">
+          <div className="header-contact flex items-center space-x-4 lg:space-x-6">
+            <a href="tel:+34672722452" className="header-contact-link hidden lg:flex items-center space-x-2">
               <Phone size={18} />
               <span className="text-sm">+34 672 722 452</span>
             </a>
-            <a href="mailto:bgarcia@icacantabria.es" className="header-contact-link flex items-center space-x-2">
+            <a href="mailto:bgarcia@icacantabria.es" className="header-contact-link hidden lg:flex items-center space-x-2">
               <Mail size={18} />
               <span className="text-sm">bgarcia@icacantabria.es</span>
             </a>
@@ -65,10 +65,10 @@ export default function Header() {
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-slate-700 transition"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-slate-700 transition text-sm"
                 >
-                  <UserIcon size={18} />
-                  <span className="text-sm font-medium">{user.name || user.email}</span>
+                  <UserIcon size={16} />
+                  <span className="font-medium truncate max-w-xs">{user.name || user.email}</span>
                 </button>
 
                 {/* User Dropdown Menu */}
@@ -99,7 +99,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={handleLoginClick}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm"
               >
                 Iniciar Sesión
               </button>

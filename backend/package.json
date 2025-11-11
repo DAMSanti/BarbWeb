@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "npx prisma generate --skip-validate && tsc",
+    "build": "tsc",
     "start": "npx prisma generate && node dist/index.js",
     "preview": "node dist/index.js",
     "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",

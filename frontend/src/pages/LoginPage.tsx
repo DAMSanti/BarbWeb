@@ -6,7 +6,7 @@ import { backendApi } from '../services/backendApi'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login, setError, setIsLoading, error, isLoading } = useAppStore()
+  const { login, setError, setIsLoading, isLoading } = useAppStore()
   
   const [formData, setFormData] = useState({
     email: '',
@@ -42,18 +42,15 @@ export default function LoginPage() {
       }
 
       // Make API call
-      const response = await backendApi.post('/auth/login', {
-        email: formData.email,
-        password: formData.password,
-      })
+      const response = await backendApi.login(formData.email, formData.password)
 
       // Store tokens and user
-      login(response.data.user, response.data.tokens)
+      login(response.user, response.tokens)
       
       // Redirect to home
       navigate('/')
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || 'Error al iniciar sesión'
+      const errorMessage = err.message || 'Error al iniciar sesión'
       setLocalError(errorMessage)
       setError(errorMessage)
     } finally {

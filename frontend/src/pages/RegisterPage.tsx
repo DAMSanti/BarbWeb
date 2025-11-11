@@ -79,14 +79,10 @@ export default function RegisterPage() {
       }
 
       // Make API call
-      const response = await backendApi.post('/auth/register', {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      })
+      const response = await backendApi.register(formData.email, formData.password, formData.name)
 
       // Store tokens and user
-      register(response.data.user, response.data.tokens)
+      register(response.user, response.tokens)
       
       // Redirect to home
       navigate('/')

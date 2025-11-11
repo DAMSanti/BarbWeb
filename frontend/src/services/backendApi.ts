@@ -6,6 +6,58 @@ const API_URL = import.meta.env.VITE_API_URL || (
     : 'http://localhost:3000'
 )
 
+// Cliente API con métodos de autenticación
+export const backendApi = {
+  // Auth endpoints
+  async register(email: string, password: string, name: string) {
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name }),
+    })
+    if (!response.ok) throw new Error(await response.text())
+    return await response.json()
+  },
+
+  async login(email: string, password: string) {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    if (!response.ok) throw new Error(await response.text())
+    return await response.json()
+  },
+
+  async refreshToken(refreshToken: string) {
+    const response = await fetch(`${API_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    })
+    if (!response.ok) throw new Error(await response.text())
+    return await response.json()
+  },
+
+  async logout(refreshToken: string) {
+    const response = await fetch(`${API_URL}/auth/logout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    })
+    if (!response.ok) throw new Error(await response.text())
+    return await response.json()
+  },
+
+  async getMe(accessToken: string) {
+    const response = await fetch(`${API_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    if (!response.ok) throw new Error(await response.text())
+    return await response.json()
+  },
+}
+
 export interface FilteredQuestionResponse {
   success: boolean
   data?: {

@@ -44,7 +44,7 @@ router.post(
     }
 
     const { amount, currency, consultationId, description } = validation.data
-    const userId = (req as any).user.id
+    const userId = (req as any).user.userId
 
     try {
       const paymentIntent = await stripe.paymentIntents.create({
@@ -96,7 +96,7 @@ router.post(
     }
 
     const { paymentIntentId, consultationId } = validation.data
-    const userId = (req as any).user.id
+    const userId = (req as any).user.userId
 
     try {
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
@@ -162,7 +162,7 @@ router.get(
   verifyToken,
   asyncHandler(async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).user.id
+      const userId = (req as any).user.userId
 
       if (!userId) {
         throw new ValidationError('Usuario no identificado')
@@ -210,7 +210,7 @@ router.post(
   verifyToken,
   asyncHandler(async (req: Request, res: Response) => {
     const { paymentId } = req.params
-    const userId = (req as any).user.id
+    const userId = (req as any).user.userId
 
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },

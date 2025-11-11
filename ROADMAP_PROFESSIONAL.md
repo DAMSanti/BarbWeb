@@ -1308,10 +1308,33 @@ TOTAL MENSUAL: $100-300/mes
 
 ---
 
-**Última actualización**: Noviembre 11, 2025 - 17:45 (UTC-5)
-**Versión**: 2.2 (Error Handling Completo - Backend + Frontend)
+**Última actualización**: Noviembre 11, 2025 - 18:00 (UTC-5)
+**Versión**: 2.3 (Error Handling + Design System Cleanup)
 **Próxima Revisión**: Noviembre 14, 2025 (después de implementar Stripe)
-**Estado General**: ✅ En excelente ritmo - 60% del proyecto completado
+**Estado General**: ✅ En excelente ritmo - 62% del proyecto completado
+
+---
+
+## 🎨 ACTUALIZACIÓN - SESSION CLEANUP (Noviembre 11, 18:00)
+
+### ✅ Design System Simplificado
+- ✅ Eliminado ClassicLayout.tsx completamente
+- ✅ Eliminado StyleSwitcher.tsx completamente
+- ✅ MinimalistLayout es ahora el único design system
+- ✅ Actualizado HomePage, FAQPage, CheckoutPage
+- ✅ Simplificado appStore (removida lógica de layout)
+- ✅ Commit: `9ffe8a0` - "refactor: Remove Classic layout and design switcher"
+- ✅ Build: 0 TypeScript errors, vite build exitoso
+
+### 📝 Archivos de Documentación Nuevos
+- **SESSION_SUMMARY_DESIGN_CLEANUP.md** - Resumen detallado del cleanup
+- **TEST_6_RETRY_STRATEGIES.md** - Guía paso a paso para TEST 6
+
+### 🧪 Próximos Tests (READY TO GO)
+- ⏳ TEST 6A: retryAuth (2x, 500ms) - 10 minutos
+- ⏳ TEST 6B: retryAI (3x, 1500ms) - 10 minutos
+- ⏳ TEST 6C: No reintenta 4xx - 5 minutos
+- ⏳ TEST 8: E2E completo - 15 minutos
 
 ---
 

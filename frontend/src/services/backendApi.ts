@@ -224,10 +224,13 @@ export async function generateDetailedResponse(
  */
 export async function checkBackendHealth(): Promise<boolean> {
   try {
-    return await retryAsync(async () => {
+    const result = await retryAsync(async () => {
       const { data } = await apiClient.get('/api/health')
+      console.log('[checkBackendHealth] Response:', data)
       return data.success === true
     })
+    console.log('[checkBackendHealth] Final result:', result)
+    return result
   } catch (error) {
     console.error('Backend health check failed:', parseBackendError(error))
     return false

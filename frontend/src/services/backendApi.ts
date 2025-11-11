@@ -1,6 +1,7 @@
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, AxiosError } from 'axios'
 import { parseBackendError } from './errorHandler.js'
 import { retryAsync, retryAuth, retryAI } from '../utils/retry.js'
+import { useAppStore } from '../store/appStore.js'
 
 // En producción, el frontend se sirve desde /barbweb2/ en el mismo dominio que la API
 // Usar una URL relativa (sin dominio) para que funcione tanto en local como en producción
@@ -17,6 +18,88 @@ const apiClient: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
 })
+
+// Flag para evitar loops infinitos de refresh
+let isRefreshing = false
+let refreshSubscribers: Array<() => void> = []
+
+const onRefreshed = (callback: () => void) => {
+  refreshSubscribers.push(callback)
+}
+
+const refreshTokenAndRetry = async () => {
+  const store = useAppStore.getState()
+  const { refreshToken } = store.tokens || {}
+
+  if (!refreshToken) {
+    store.logout()
+    return null
+  }
+
+  try {
+    const response = await axios.post(`${API_URL}/auth/refresh`, {
+      refreshToken,
+    })
+    const newAccessToken = response.data.accessToken
+
+    // Update store with new token
+    store.setTokens({
+      accessToken: newAccessToken,
+      refreshToken,
+    })
+
+    // Ejecutar todas las peticiones que estaban esperando
+    refreshSubscribers.forEach((callback) => callback())
+    refreshSubscribers = []
+
+    return newAccessToken
+  } catch (error) {
+    store.logout()
+    return null
+  }
+}
+
+// Interceptor de respuesta para manejar 401
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as any
+
+    // Si es 401 y no ya hemos intentado refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // Si ya estamos refrescando, esperar y reintentar
+        return new Promise((resolve) => {
+          onRefreshed(() => {
+            const store = useAppStore.getState()
+            if (store.tokens?.accessToken) {
+              originalRequest.headers.Authorization = `Bearer ${store.tokens.accessToken}`
+              resolve(apiClient(originalRequest))
+            }
+          })
+        })
+      }
+
+      originalRequest._retry = true
+      isRefreshing = true
+
+      try {
+        const newAccessToken = await refreshTokenAndRetry()
+        isRefreshing = false
+
+        if (newAccessToken) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+          return apiClient(originalRequest)
+        }
+      } catch (refreshError) {
+        isRefreshing = false
+        return Promise.reject(refreshError)
+      }
+    }
+
+    return Promise.reject(error)
+  },
+)
 
 // Cliente API con métodos de autenticación y retry automático
 export const backendApi = {

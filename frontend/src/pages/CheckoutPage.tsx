@@ -5,7 +5,6 @@ import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
-import { useErrorHandler } from '../hooks/useErrorHandler'
 
 // Inicializar Stripe con la clave pública
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHED_KEY!)
@@ -14,7 +13,6 @@ export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
   const navigate = useNavigate()
   const { consultations } = useAppStore()
-  const { handleError } = useErrorHandler()
 
   const consultation = consultations.find((c) => c.id === consultationId)
   const [clientSecret, setClientSecret] = useState<string>('')
@@ -33,11 +31,14 @@ export default function CheckoutPage() {
         console.log('[Checkout] Creating payment intent', {
           consultationId,
           amount: consultation.price * 1.21,
+          apiUrl: import.meta.env.VITE_API_URL,
         })
 
         const token = localStorage.getItem('accessToken')
         if (!token) {
-          throw new Error('Por favor, inicia sesión para continuar')
+          setGlobalError('Por favor, inicia sesión para continuar con el pago')
+          setIsLoadingIntent(false)
+          return
         }
 
         const response = await fetch(`${import.meta.env.VITE_API_URL}/payments/create-payment-intent`, {
@@ -75,7 +76,7 @@ export default function CheckoutPage() {
     }
 
     createPaymentIntent()
-  }, [consultation, consultationId, handleError])
+  }, [consultation, consultationId])
 
   const [clientName, setClientName] = useState(consultation?.clientName || '')
   const [clientEmail, setClientEmail] = useState(consultation?.clientEmail || '')
@@ -247,9 +248,9 @@ export default function CheckoutPage() {
               )}
 
               {/* Loading Payment Intent */}
-              {isLoadingIntent && (
+              {isLoadingIntent && !globalError && (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <Loader2 className="w-12 h-12 animate-spin text-primary-600 mb-4" />
+                  <div className="w-12 h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mb-4"></div>
                   <p className="text-gray-600">Preparando formulario de pago...</p>
                 </div>
               )}

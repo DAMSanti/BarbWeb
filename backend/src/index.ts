@@ -6,7 +6,7 @@ import apiRoutes from './routes/api.js'
 import authRoutes from './routes/auth.js'
 import { initializeDatabase } from './db/init.js'
 
-// Force Railway rebuild - Manual CORS headers v2
+// Force DigitalOcean rebuild - Database initialization v3
 dotenv.config()
 
 const __filename = fileURLToPath(import.meta.url)

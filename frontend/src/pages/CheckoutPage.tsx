@@ -41,7 +41,7 @@ export default function CheckoutPage() {
           return
         }
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/payments/create-payment-intent`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payments/create-payment-intent`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -374,7 +374,7 @@ function CheckoutForm({
         // Confirmar el pago en el backend
         try {
           const token = localStorage.getItem('accessToken')
-          await fetch(`${import.meta.env.VITE_API_URL}/payments/confirm-payment`, {
+          await fetch(`${import.meta.env.VITE_API_URL}/api/payments/confirm-payment`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

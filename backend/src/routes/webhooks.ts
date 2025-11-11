@@ -1,10 +1,11 @@
 import { Router, Request, Response, raw } from 'express'
 import Stripe from 'stripe'
-import prisma from '../db/init.js'
+import { getPrismaClient } from '../db/init.js'
 import { logger } from '../utils/logger.js'
 import { ValidationError } from '../utils/errors.js'
 
 const router = Router()
+const prisma = getPrismaClient()
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)

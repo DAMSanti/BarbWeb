@@ -1,12 +1,25 @@
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
+let prismaInstance: PrismaClient | null = null
+
+/**
+ * Get or create Prisma client instance (singleton pattern)
+ */
+export function getPrismaClient(): PrismaClient {
+  if (!prismaInstance) {
+    prismaInstance = new PrismaClient({
+      log: ['error', 'warn'],
+    })
+  }
+  return prismaInstance
+}
 
 /**
  * Inicializa la base de datos ejecutando SQL directo para crear tablas
  */
 export async function initializeDatabase() {
   try {
+    const prisma = getPrismaClient()
     console.log('🔄 Initializing database tables...')
     console.log(`📍 Attempting to connect to Prisma with DATABASE_URL`)
     console.log(`📍 Prisma connection test starting...`)
@@ -115,4 +128,5 @@ export async function initializeDatabase() {
   }
 }
 
-export default prisma
+// Export default singleton instance
+export default getPrismaClient()

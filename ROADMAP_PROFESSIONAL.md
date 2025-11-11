@@ -635,16 +635,6 @@ Marca ✅ conforme completes cada test:
 **TESTS COMPLETADOS**: 21/22 ✅ PASS
 **TESTS PENDIENTES**: 1/22 ⏳
 
-### ✅ TAREAS CRÍTICAS - TODAS RESUELTAS
-
-1. **Demasiadas peticiones** - ✅ COMPLETAMENTE ARREGLADO
-   - ✅ Rate limiting implementado (5 req/15min en auth)
-   - ✅ Rate limiting en `/api/filter-question` con apiRateLimit middleware
-   - ✅ Rate limiting en `/api/generate-response` con apiRateLimit middleware
-   - ✅ COMPLETADO: apiRateLimit aplicado a todos los endpoints de IA
-
----
-
 ### 📊 Métricas de Testing
 
 Para verificar que todo funciona:
@@ -710,15 +700,15 @@ Integrar Stripe completamente para transacciones reales y email confirmations.
 **Tiempo**: 12-14 horas | **Prioridad**: CRÍTICA
 
 #### Tareas
-- [ ] Instalar `stripe` package
-- [ ] Crear endpoints:
-  - `POST /api/create-payment-intent` - Crear pago
-  - `POST /api/confirm-payment` - Confirmar pago
-  - `GET /api/payment-history` - Historial de pagos
+- [x] ✅ Instalar `stripe` package (19.3.0)
+- [x] ✅ Crear endpoints:
+  - `POST /api/payments/create-payment-intent` - Crear pago
+  - `POST /api/payments/confirm-payment` - Confirmar pago
+  - `GET /api/payments/history` - Historial de pagos
   - `POST /webhooks/stripe` - Webhook de Stripe
-- [ ] Guardar `stripe_session_id` en BD
-- [ ] Manejar webhooks (payment_intent.succeeded, etc.)
-- [ ] Refunds logic
+- [x] ✅ Guardar `stripe_session_id` en BD (stripePaymentId)
+- [x] ✅ Manejar webhooks (payment_intent.succeeded, payment_failed, charge.refunded)
+- [x] ✅ Refunds logic (POST /api/payments/:id/refund)
 
 #### Código Base
 ```typescript

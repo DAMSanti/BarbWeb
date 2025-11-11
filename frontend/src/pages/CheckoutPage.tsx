@@ -8,7 +8,7 @@ import { useAppStore } from '../store/appStore'
 import { useErrorHandler } from '../hooks/useErrorHandler'
 
 // Inicializar Stripe con la clave pública
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!)
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHED_KEY!)
 
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()

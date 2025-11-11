@@ -112,7 +112,7 @@ export default function CheckoutPage() {
   // Success Screen
   if (paymentSuccess) {
     return (
-      <div className="relative min-h-screen flex items-center justify-center py-12 px-4" style={{ background: 'var(--body-bg)' }}>
+      <div className="relative min-h-screen flex items-center justify-center py-12 px-4">
         <ChessboardBackground
           imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
           opacity={0.1}

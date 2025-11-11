@@ -252,7 +252,7 @@ export const refreshAccessToken = async (
     })
 
     if (!user || !user.refreshTokens.includes(refreshToken)) {
-      throw new Error('Refresh token inválido')
+      throw new AuthenticationError('Refresh token inválido o expirado')
     }
 
     // Generate new access token
@@ -269,8 +269,13 @@ export const refreshAccessToken = async (
     )
 
     return { accessToken }
-  } catch (error) {
-    throw new Error('Refresh token inválido o expirado')
+  } catch (error: any) {
+    // Si es un error de autenticación nuestro, re-lanzarlo
+    if (error instanceof AuthenticationError) {
+      throw error
+    }
+    // Si es un error JWT (token inválido, expirado, etc), convertir a AuthenticationError
+    throw new AuthenticationError('Refresh token inválido o expirado')
   }
 }
 

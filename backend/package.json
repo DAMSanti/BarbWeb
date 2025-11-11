@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "prisma generate && tsc && prisma db push --skip-generate --accept-data-loss",
-    "start": "node dist/index.js",
+    "build": "prisma generate && tsc",
+    "start": "prisma db push --skip-generate --accept-data-loss && node dist/index.js",
     "preview": "node dist/index.js",
     "db:push": "prisma db push",
     "db:seed": "node --loader ts-node/esm prisma/seed.ts",

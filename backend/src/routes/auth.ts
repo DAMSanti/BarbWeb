@@ -9,6 +9,14 @@ import {
 } from '../services/authService.js'
 import { verifyToken, isAuthenticated } from '../middleware/auth.js'
 import { exchangeGoogleCode, exchangeMicrosoftCode } from '../utils/oauthHelper.js'
+import { validate } from '../middleware/validation.js'
+import { asyncHandler } from '../middleware/errorHandler.js'
+import {
+  RegisterSchema,
+  LoginSchema,
+  OAuthCallbackSchema,
+  RefreshTokenSchema,
+} from '../schemas/auth.schemas.js'
 
 const router = express.Router()
 
@@ -20,63 +28,43 @@ const router = express.Router()
  * POST /auth/register
  * Register a new user with email and password
  */
-router.post('/register', async (req: Request, res: Response): Promise<void> => {
-  try {
+router.post(
+  '/register',
+  validate(RegisterSchema),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email, password, name } = req.body
-
-    // Validation
-    if (!email || !password || !name) {
-      res.status(400).json({ error: 'Email, password, and name are required' })
-      return
-    }
-
-    if (password.length < 8) {
-      res.status(400).json({ error: 'Password must be at least 8 characters' })
-      return
-    }
-
-    if (!email.includes('@')) {
-      res.status(400).json({ error: 'Invalid email format' })
-      return
-    }
 
     const result = await registerUser(email, password, name)
 
     res.status(201).json({
+      success: true,
       message: 'User registered successfully',
       user: result.user,
       tokens: result.tokens,
     })
-  } catch (error: any) {
-    res.status(400).json({ error: error.message })
-  }
-})
+  }),
+)
 
 /**
  * POST /auth/login
  * Login user with email and password
  */
-router.post('/login', async (req: Request, res: Response): Promise<void> => {
-  try {
+router.post(
+  '/login',
+  validate(LoginSchema),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body
-
-    // Validation
-    if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' })
-      return
-    }
 
     const result = await loginUser(email, password)
 
     res.json({
+      success: true,
       message: 'Login successful',
       user: result.user,
       tokens: result.tokens,
     })
-  } catch (error: any) {
-    res.status(401).json({ error: error.message })
-  }
-})
+  }),
+)
 
 // ============================================================
 // OAUTH AUTHENTICATION (Google & Microsoft)
@@ -162,71 +150,45 @@ router.get('/microsoft/callback', async (req: Request, res: Response): Promise<v
  * Google OAuth callback - login or register
  * Body: { idToken, code } from Google
  */
-router.post('/oauth/google', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { idToken, code } = req.body
-
-    if (!idToken && !code) {
-      res.status(400).json({ error: 'idToken or code is required' })
-      return
-    }
-
-    // In production: verify idToken with Google API
-    // For now, we'll receive already-verified data from frontend
+router.post(
+  '/oauth/google',
+  validate(OAuthCallbackSchema),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { sub: providerAccountId, email, name, picture } = req.body
-
-    if (!providerAccountId || !email) {
-      res.status(400).json({ error: 'Invalid Google data' })
-      return
-    }
 
     const result = await oauthLogin('google', providerAccountId, email, name, picture)
 
     res.json({
+      success: true,
       message: result.isNewUser ? 'Google account created' : 'Login with Google successful',
       user: result.user,
       tokens: result.tokens,
       isNewUser: result.isNewUser,
     })
-  } catch (error: any) {
-    res.status(400).json({ error: error.message })
-  }
-})
+  }),
+)
 
 /**
  * POST /auth/oauth/microsoft
  * Microsoft OAuth callback - login or register
  */
-router.post('/oauth/microsoft', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { idToken, code } = req.body
-
-    if (!idToken && !code) {
-      res.status(400).json({ error: 'idToken or code is required' })
-      return
-    }
-
-    // In production: verify idToken with Microsoft API
-    // For now, we'll receive already-verified data from frontend
+router.post(
+  '/oauth/microsoft',
+  validate(OAuthCallbackSchema),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { oid: providerAccountId, email, name, picture } = req.body
-
-    if (!providerAccountId || !email) {
-      res.status(400).json({ error: 'Invalid Microsoft data' })
-      return
-    }
 
     const result = await oauthLogin('microsoft', providerAccountId, email, name, picture)
 
     res.json({
+      success: true,
       message: result.isNewUser ? 'Microsoft account created' : 'Login with Microsoft successful',
       user: result.user,
       tokens: result.tokens,
       isNewUser: result.isNewUser,
     })
-  } catch (error: any) {
-    res.status(400).json({ error: error.message })
-  }
-})
+  }),
+)
 
 // ============================================================
 // TOKEN MANAGEMENT
@@ -236,42 +198,42 @@ router.post('/oauth/microsoft', async (req: Request, res: Response): Promise<voi
  * POST /auth/refresh
  * Refresh access token using refresh token
  */
-router.post('/refresh', async (req: Request, res: Response): Promise<void> => {
-  try {
+router.post(
+  '/refresh',
+  validate(RefreshTokenSchema),
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { refreshToken } = req.body
-
-    if (!refreshToken) {
-      res.status(400).json({ error: 'Refresh token is required' })
-      return
-    }
 
     const result = await refreshAccessToken(refreshToken)
 
     res.json({
+      success: true,
       message: 'Token refreshed successfully',
       accessToken: result.accessToken,
     })
-  } catch (error: any) {
-    res.status(401).json({ error: error.message })
-  }
-})
+  }),
+)
 
 /**
  * POST /auth/logout
- * Logout user - invalidate refresh tokens
+ * Logout user (invalidate refresh token)
  */
-router.post('/logout', verifyToken, isAuthenticated, async (req: Request, res: Response): Promise<void> => {
-  try {
+router.post(
+  '/logout',
+  verifyToken,
+  isAuthenticated,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { refreshToken } = req.body
     const userId = req.user!.userId
 
     await logoutUser(userId, refreshToken || '')
 
-    res.json({ message: 'Logout successful' })
-  } catch (error: any) {
-    res.status(400).json({ error: error.message })
-  }
-})
+    res.json({
+      success: true,
+      message: 'Logout successful',
+    })
+  }),
+)
 
 // ============================================================
 // ACCOUNT LINKING
@@ -281,25 +243,28 @@ router.post('/logout', verifyToken, isAuthenticated, async (req: Request, res: R
  * POST /auth/link-oauth
  * Link OAuth account to existing authenticated user
  */
-router.post('/link-oauth', verifyToken, isAuthenticated, async (req: Request, res: Response): Promise<void> => {
-  try {
+router.post(
+  '/link-oauth',
+  verifyToken,
+  isAuthenticated,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const userId = req.user!.userId
     const { provider, providerAccountId, email, name, picture } = req.body
 
     if (!provider || !providerAccountId) {
-      res.status(400).json({ error: 'Provider and providerAccountId are required' })
-      return
+      const err = new Error('Provider and providerAccountId are required')
+      ;(err as any).statusCode = 400
+      throw err
     }
 
     await linkOAuthAccount(userId, provider, providerAccountId, email, name, picture)
 
     res.json({
+      success: true,
       message: `${provider} account linked successfully`,
     })
-  } catch (error: any) {
-    res.status(400).json({ error: error.message })
-  }
-})
+  }),
+)
 
 // ============================================================
 // VERIFICATION ENDPOINTS
@@ -309,15 +274,17 @@ router.post('/link-oauth', verifyToken, isAuthenticated, async (req: Request, re
  * GET /auth/me
  * Get current user info (requires auth token)
  */
-router.get('/me', verifyToken, isAuthenticated, async (req: Request, res: Response): Promise<void> => {
-  try {
+router.get(
+  '/me',
+  verifyToken,
+  isAuthenticated,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
     res.json({
+      success: true,
       user: req.user,
     })
-  } catch (error: any) {
-    res.status(400).json({ error: error.message })
-  }
-})
+  }),
+)
 
 /**
  * GET /auth/verify-token
@@ -325,6 +292,7 @@ router.get('/me', verifyToken, isAuthenticated, async (req: Request, res: Respon
  */
 router.get('/verify-token', verifyToken, (req: Request, res: Response): void => {
   res.json({
+    success: true,
     valid: true,
     user: req.user,
   })

@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express'
 import { filterQuestionWithAI, generateDetailedResponse } from '../services/openaiService.js'
 import { findSimilarFAQ } from '../utils/faqDatabase.js'
+import { asyncHandler } from '../middleware/errorHandler.js'
+import { logger } from '../utils/logger.js'
 
 const router = Router()
 
@@ -26,16 +28,15 @@ interface FilterQuestionResponse {
  * POST /api/filter-question
  * Filtra una pregunta legal usando OpenAI
  */
-router.post('/filter-question', async (req: Request, res: Response) => {
-  try {
+router.post(
+  '/filter-question',
+  asyncHandler(async (req: Request, res: Response) => {
     const { question } = req.body as FilterQuestionRequest
 
     if (!question || typeof question !== 'string') {
-      res.status(400).json({
-        success: false,
-        error: 'Question is required and must be a string',
-      } as FilterQuestionResponse)
-      return
+      const err = new Error('Question is required and must be a string')
+      ;(err as any).statusCode = 400
+      throw err
     }
 
     // Paso 1: Usar el agente IA para analizar y responder
@@ -61,47 +62,22 @@ router.post('/filter-question', async (req: Request, res: Response) => {
     }
 
     res.json(response)
-  } catch (error) {
-    console.error('Error in filter-question endpoint:', error)
-    
-    // Capturar errores específicos de Gemini
-    let errorMessage = 'Error al procesar la consulta. Por favor, intenta de nuevo.'
-    
-    if (error instanceof Error) {
-      if (error.message.includes('overloaded') || error.message.includes('503')) {
-        errorMessage = 'El servicio de IA está temporalmente sobrecargado. Por favor, intenta de nuevo en unos segundos.'
-      } else if (error.message.includes('not configured') || error.message.includes('API key')) {
-        errorMessage = 'El servicio de IA no está disponible en este momento. Por favor, contacta al administrador.'
-      } else if (error.message.includes('404')) {
-        errorMessage = 'El modelo de IA no está disponible. Por favor, contacta al administrador.'
-      } else if (error.message.includes('quota') || error.message.includes('limit')) {
-        errorMessage = 'Se ha alcanzado el límite de consultas. Por favor, intenta más tarde.'
-      } else {
-        errorMessage = `Error: ${error.message}`
-      }
-    }
-    
-    res.status(500).json({
-      success: false,
-      error: errorMessage,
-    } as FilterQuestionResponse)
-  }
-})
+  }),
+)
 
 /**
  * POST /api/generate-response
  * Genera una respuesta detallada para una pregunta específica
  */
-router.post('/generate-response', async (req: Request, res: Response) => {
-  try {
+router.post(
+  '/generate-response',
+  asyncHandler(async (req: Request, res: Response) => {
     const { question, category } = req.body as { question: string; category: string }
 
     if (!question || !category) {
-      res.status(400).json({
-        success: false,
-        error: 'Question and category are required',
-      })
-      return
+      const err = new Error('Question and category are required')
+      ;(err as any).statusCode = 400
+      throw err
     }
 
     const response = await generateDetailedResponse(question, category)
@@ -114,28 +90,8 @@ router.post('/generate-response', async (req: Request, res: Response) => {
         response,
       },
     })
-  } catch (error) {
-    console.error('Error in generate-response endpoint:', error)
-    
-    // Capturar errores específicos de Gemini
-    let errorMessage = 'Error al generar la respuesta. Por favor, intenta de nuevo.'
-    
-    if (error instanceof Error) {
-      if (error.message.includes('overloaded') || error.message.includes('503')) {
-        errorMessage = 'El servicio de IA está temporalmente sobrecargado. Por favor, intenta de nuevo en unos segundos.'
-      } else if (error.message.includes('not configured') || error.message.includes('API key')) {
-        errorMessage = 'El servicio de IA no está disponible en este momento.'
-      } else if (error.message.includes('quota') || error.message.includes('limit')) {
-        errorMessage = 'Se ha alcanzado el límite de consultas. Por favor, intenta más tarde.'
-      }
-    }
-    
-    res.status(500).json({
-      success: false,
-      error: errorMessage,
-    })
-  }
-})
+  }),
+)
 
 /**
  * GET /api/health
@@ -143,6 +99,7 @@ router.post('/generate-response', async (req: Request, res: Response) => {
  */
 router.get('/health', (req: Request, res: Response) => {
   res.json({
+    success: true,
     status: 'ok',
     timestamp: new Date().toISOString(),
   })
@@ -152,20 +109,17 @@ router.get('/health', (req: Request, res: Response) => {
  * GET /api/list-models
  * List available Gemini models
  */
-router.get('/list-models', async (req: Request, res: Response) => {
-  try {
+router.get(
+  '/list-models',
+  asyncHandler(async (req: Request, res: Response) => {
     const { GoogleGenerativeAI } = await import('@google/generative-ai')
     
     if (!process.env.GEMINI_API_KEY) {
-      res.status(400).json({
-        success: false,
-        error: 'GEMINI_API_KEY not configured',
-      })
-      return
+      const err = new Error('GEMINI_API_KEY not configured')
+      ;(err as any).statusCode = 500
+      throw err
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-    
     // Intentar listar modelos
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + process.env.GEMINI_API_KEY)
     const data: any = await response.json()
@@ -174,13 +128,7 @@ router.get('/list-models', async (req: Request, res: Response) => {
       success: true,
       models: data.models || data,
     })
-  } catch (error) {
-    console.error('Error listing models:', error)
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to list models',
-    })
-  }
-})
+  }),
+)
 
 export default router

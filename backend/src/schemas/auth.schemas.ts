@@ -13,7 +13,7 @@ export const RegisterSchema = z.object({
 export const LoginSchema = z.object({
   body: z.object({
     email: EmailSchema,
-    password: z.string().min(1, 'Contraseña requerida'),
+    password: PasswordSchema,
   }),
 })
 

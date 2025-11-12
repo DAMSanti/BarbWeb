@@ -4,9 +4,13 @@
   "description": "Backend for law firm consultation platform with OpenAI integration",
   "type": "module",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "echo 'Build dependencies only - compilation happens at runtime'",
+    "build": "npm install --force && echo 'Build dependencies only - compilation happens at runtime'",
     "start": "tsc && npx prisma generate && node dist/index.js",
     "preview": "node dist/index.js",
     "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",

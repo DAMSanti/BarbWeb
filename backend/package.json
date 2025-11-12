@@ -10,8 +10,9 @@
   },
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "npm install --force && echo 'Build dependencies only - compilation happens at runtime'",
-    "start": "tsc && npx prisma generate && node dist/index.js",
+    "build": "echo 'Dependencies will be installed by npm ci'",
+    "postbuild": "tsc && npx prisma generate",
+    "start": "node dist/index.js",
     "preview": "node dist/index.js",
     "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",
     "db:push": "prisma db push --skip-generate --accept-data-loss",

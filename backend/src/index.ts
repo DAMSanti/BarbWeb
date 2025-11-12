@@ -2,8 +2,6 @@ import express from 'express'
 import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import helmet from 'helmet'
-import rateLimit from 'express-rate-limit'
 import apiRoutes from './routes/api.js'
 import authRoutes from './routes/auth.js'
 import paymentRoutes from './routes/payments.js'
@@ -21,62 +19,9 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = Number(process.env.PORT || 3000)
 
-// ============================================================================
-// SECURITY MIDDLEWARE
-// ============================================================================
-
-// Helmet.js - Security Headers (CSRF, XSS, Clickjacking protection, etc)
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", 'https://api.stripe.com', 'https://js.stripe.com'],
-    },
-  },
-  hsts: {
-    maxAge: 31536000, // 1 year in seconds
-    includeSubDomains: true,
-    preload: true,
-  },
-}))
-
-// Rate Limiting - Proteger contra brute force y DDoS
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Límite de 100 requests por IP cada 15 minutos
-  message: 'Demasiadas solicitudes, intenta más tarde',
-  standardHeaders: true, // Retorna info de rate limit en headers
-  legacyHeaders: false, // Deshabilita X-RateLimit-* headers
-  skip: (req) => {
-    // No aplicar rate limit a health check
-    return req.path === '/'
-  },
-})
-
-// Rate limiting más estricto para auth (login, register)
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // Máximo 5 intentos por IP cada 15 minutos
-  message: 'Demasiados intentos de login. Intenta más tarde.',
-  skipSuccessfulRequests: true, // No contar requests exitosos
-})
-
-// Rate limiting estricto para pagos
-const paymentLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hora
-  max: 50, // Máximo 50 requests por IP cada hora
-  message: 'Demasiadas transacciones. Intenta más tarde.',
-})
-
 // Middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
-// Aplicar rate limiting global
-app.use(limiter)
 
 // Add custom CORS headers manually - Override any Railway proxy headers
 app.use((_req, res, next) => {
@@ -108,13 +53,13 @@ app.get('/', (req, res) => {
 // Rutas de la API - ANTES que las rutas estáticas
 app.use('/api', apiRoutes)
 
-// Auth routes - Con rate limiting más estricto
-app.use('/auth', authLimiter, authRoutes)
+// Auth routes
+app.use('/auth', authRoutes)
 
-// Payment routes - Con rate limiting para pagos
-app.use('/api/payments', paymentLimiter, paymentRoutes)
+// Payment routes
+app.use('/api/payments', paymentRoutes)
 
-// Webhook routes - SIN rate limiting (confiamos en Stripe)
+// Webhook routes
 app.use('/webhooks', webhookRoutes)
 
 // Servir archivos estáticos del frontend en /barbweb2
@@ -160,8 +105,6 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 app.listen(PORT, '0.0.0.0', async () => {
   logger.info(`✅ Server running on http://0.0.0.0:${PORT}`)
   logger.info(`🔗 CORS enabled for all origins`)
-  logger.info(`🛡️  Helmet.js: ✅ Security headers configured`)
-  logger.info(`⏱️  Rate Limiting: ✅ Configured (100 req/15min global, 5 req/15min auth, 50 req/1h payments)`)
   logger.info(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
   logger.info(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
   logger.info(`📝 Logging: ✅ Winston logger configured`)

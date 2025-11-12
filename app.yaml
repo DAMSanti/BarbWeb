@@ -4,8 +4,8 @@ services:
     github:
       branch: master
       repo: DAMSanti/BarbWeb
-    build_command: npm install && npm run build:frontend && npm run build:backend && cd /workspace/backend && npx prisma db push --skip-generate --accept-data-loss || true
-    run_command: cd /workspace/backend && npm start
+    build_command: npm install --ignore-scripts && npm run build:frontend && npm run build:backend
+    run_command: cd /workspace/backend && npx prisma generate && node dist/index.js && tsc && npm start
     envs:
       - key: PORT
         value: "3000"
@@ -21,12 +21,6 @@ services:
         value: https://${APP_DOMAIN}
       - key: VITE_STRIPE_PUBLISHABLE_KEY
         value: ${VITE_STRIPE_PUBLISHABLE_KEY}
-      - key: RESEND_API_KEY
-        value: ${RESEND_API_KEY}
-      - key: EMAIL_FROM
-        value: ${EMAIL_FROM}
-      - key: LAWYER_EMAIL
-        value: ${LAWYER_EMAIL}
     http_port: 3000
 
 databases:

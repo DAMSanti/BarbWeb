@@ -4,16 +4,10 @@
   "description": "Backend for law firm consultation platform with OpenAI integration",
   "type": "module",
   "main": "dist/index.js",
-  "engines": {
-    "node": "22.x",
-    "npm": "10.x"
-  },
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "tsc && npx prisma generate",
-    "build:frontend": "cd /workspace/frontend && npm install && npm run build",
-    "build:backend": "tsc && npx prisma generate",
-    "start": "node dist/index.js",
+    "build": "echo 'Build dependencies only - compilation happens at runtime'",
+    "start": "tsc && npx prisma generate && node dist/index.js",
     "preview": "node dist/index.js",
     "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",
     "db:push": "prisma db push --skip-generate --accept-data-loss",
@@ -40,8 +34,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
-    "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",

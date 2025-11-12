@@ -11,6 +11,8 @@
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
     "build": "tsc && npx prisma generate",
+    "build:frontend": "cd /workspace/frontend && npm install && npm run build",
+    "build:backend": "tsc && npx prisma generate",
     "start": "node dist/index.js",
     "preview": "node dist/index.js",
     "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",

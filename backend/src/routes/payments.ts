@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import Stripe from 'stripe'
 import { verifyToken } from '../middleware/auth.js'
 import { asyncHandler } from '../middleware/errorHandler.js'
+import { paymentLimiter } from '../middleware/security.js'
 import { getPrismaClient } from '../db/init.js'
 import { logger } from '../utils/logger.js'
 import { ValidationError, PaymentError } from '../utils/errors.js'
@@ -30,6 +31,7 @@ const confirmPaymentSchema = z.object({
 // Crear un PaymentIntent para cobrar
 router.post(
   '/create-payment-intent',
+  paymentLimiter,
   verifyToken,
   asyncHandler(async (req: Request, res: Response) => {
     const validation = createPaymentIntentSchema.safeParse(req.body)

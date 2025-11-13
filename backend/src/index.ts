@@ -8,6 +8,7 @@ import paymentRoutes from './routes/payments.js'
 import webhookRoutes from './routes/webhooks.js'
 import { initializeDatabase } from './db/init.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
+import { initializeSecurityMiddleware, authLimiter, paymentLimiter } from './middleware/security.js'
 import { logger } from './utils/logger.js'
 
 // Force DigitalOcean rebuild - Database initialization v3
@@ -19,27 +20,16 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = Number(process.env.PORT || 3000)
 
-// Middleware
+// ============================================================================
+// SECURITY MIDDLEWARE (MUST BE FIRST)
+// ============================================================================
+initializeSecurityMiddleware(app)
+
+// ============================================================================
+// BODY PARSER MIDDLEWARE
+// ============================================================================
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
-// Add custom CORS headers manually - Override any Railway proxy headers
-app.use((_req, res, next) => {
-  const origin = _req.headers.origin || '*'
-  
-  // Always respond with the requesting origin, never railway.com
-  res.header('Access-Control-Allow-Origin', origin === 'https://railway.com' ? '*' : origin)
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  res.header('Access-Control-Allow-Credentials', 'false')
-  res.header('Vary', 'Origin')
-  
-  if (_req.method === 'OPTIONS') {
-    res.sendStatus(200)
-    return
-  }
-  next()
-})
 
 // Health check
 app.get('/', (req, res) => {

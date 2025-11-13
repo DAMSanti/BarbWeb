@@ -5,12 +5,12 @@
   "type": "module",
   "main": "dist/index.js",
   "engines": {
-    "node": "18.x",
+    "node": "20.x",
     "npm": "10.x"
   },
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "tsc",
+    "build": "npx tsc",
     "start": "sh start.sh",
     "preview": "node dist/index.js",
     "test": "vitest run",

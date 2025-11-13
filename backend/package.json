@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "$(npm bin)/tsc",
+    "build": "tsc",
     "start": "sh start.sh",
     "preview": "node dist/index.js",
     "test": "vitest run",

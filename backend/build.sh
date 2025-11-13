@@ -33,7 +33,8 @@ npm install --legacy-peer-deps --no-save @types/node || npm install --no-save @t
 echo ""
 echo "📦 [3/6] Installing backend dependencies..."
 cd /workspace/backend
-npm install --legacy-peer-deps || npm install
+echo "(ensuring devDependencies are installed for build)"
+npm_config_production=false npm install --legacy-peer-deps || npm install
 
 # Ensure TypeScript and Node types are available for build (install even if NODE_ENV=production)
 echo ""
@@ -73,13 +74,18 @@ ls -la /workspace/backend/node_modules/.prisma 2>/dev/null || echo "  no backend
 cd /workspace
 # Try generate in repo root (where node_modules may be hoisted). If it fails, log but continue and try backend generate.
 echo "Generating prisma client in /workspace using schema ./backend/prisma/schema.prisma (root generate - best-effort)"
-if ! npx prisma generate --schema=./backend/prisma/schema.prisma; then
+# Force Prisma to use library engine where possible to avoid platform binary download issues
+if ! PRISMA_CLI_QUERY_ENGINE_TYPE=library npx prisma generate --schema=./backend/prisma/schema.prisma; then
 	echo "⚠️ Prisma generate in /workspace failed (continuing to attempt backend generate)."
 fi
 
 # Also attempt generate in backend folder (best-effort)
 cd /workspace/backend
-npx prisma generate --schema=./prisma/schema.prisma || echo "⚠️  Prisma generate in backend failed or skipped"
+# Try backend generate using library engine first, then fallback to default
+if ! PRISMA_CLI_QUERY_ENGINE_TYPE=library npx prisma generate --schema=./prisma/schema.prisma; then
+	echo "⚠️  Prisma generate in backend with library engine failed, trying default"
+	npx prisma generate --schema=./prisma/schema.prisma || echo "⚠️  Prisma generate in backend failed or skipped"
+fi
 
 # Step 7: Push database schema (only if DATABASE_URL available at build time)
 echo ""

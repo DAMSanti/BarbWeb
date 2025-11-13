@@ -22,7 +22,7 @@ import { getApiUrl } from './services/backendApi'
 function AppContent() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { login, tokens } = useAppStore()
+  const { login, tokens, setIsAuthInitialized } = useAppStore()
 
   // Handle OAuth callback - extract tokens from URL
   useEffect(() => {
@@ -55,19 +55,20 @@ function AppContent() {
 
   // Fetch user info from backend when we have tokens
   useEffect(() => {
-    if (tokens?.accessToken) {
-      fetch(`${getApiUrl()}/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${tokens.accessToken}`,
-        },
-      })
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Failed to fetch user: ${res.status}`)
+    const initializeAuth = async () => {
+      try {
+        if (tokens?.accessToken) {
+          const response = await fetch(`${getApiUrl()}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${tokens.accessToken}`,
+            },
+          })
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch user: ${response.status}`)
           }
-          return res.json()
-        })
-        .then((data) => {
+          
+          const data = await response.json()
           if (data.user) {
             // Update user info in store
             const { setUser, setIsAuthenticated } = useAppStore.getState()
@@ -79,15 +80,20 @@ function AppContent() {
             })
             setIsAuthenticated(true)
           }
-        })
-        .catch((err) => {
-          console.error('Failed to fetch user:', err)
-          // Si falla, limpiar tokens
-          const { logout } = useAppStore.getState()
-          logout()
-        })
+        }
+      } catch (err) {
+        console.error('Failed to fetch user:', err)
+        // Si falla, limpiar tokens
+        const { logout } = useAppStore.getState()
+        logout()
+      } finally {
+        // Mark auth as initialized (even if failed, so we can redirect)
+        setIsAuthInitialized(true)
+      }
     }
-  }, [tokens])
+
+    initializeAuth()
+  }, [tokens, setIsAuthInitialized])
 
   // Apply theme on mount
   useEffect(() => {

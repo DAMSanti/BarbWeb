@@ -24,6 +24,7 @@ interface AppState {
   user: User | null
   tokens: Tokens | null
   isAuthenticated: boolean
+  isAuthInitialized: boolean
   isLoading: boolean
   error: string | null
   
@@ -36,6 +37,7 @@ interface AppState {
   setUser: (user: User | null) => void
   setTokens: (tokens: Tokens | null) => void
   setIsAuthenticated: (isAuthenticated: boolean) => void
+  setIsAuthInitialized: (isAuthInitialized: boolean) => void
   setIsLoading: (isLoading: boolean) => void
   setError: (error: string | null) => void
   login: (user: User, tokens: Tokens) => void
@@ -55,6 +57,7 @@ export const useAppStore = create<AppState>()(
       user: null,
       tokens: null,
       isAuthenticated: false,
+      isAuthInitialized: false,
       isLoading: false,
       error: null,
 
@@ -81,6 +84,8 @@ export const useAppStore = create<AppState>()(
       
       setIsAuthenticated: (isAuthenticated: boolean) => set({ isAuthenticated }),
       
+      setIsAuthInitialized: (isAuthInitialized: boolean) => set({ isAuthInitialized }),
+      
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
       
       setError: (error: string | null) => set({ error }),
@@ -90,6 +95,7 @@ export const useAppStore = create<AppState>()(
           user,
           tokens,
           isAuthenticated: true,
+          isAuthInitialized: true,
           error: null,
         }),
       
@@ -98,6 +104,7 @@ export const useAppStore = create<AppState>()(
           user,
           tokens,
           isAuthenticated: true,
+          isAuthInitialized: true,
           error: null,
         }),
       

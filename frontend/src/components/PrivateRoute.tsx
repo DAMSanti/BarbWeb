@@ -8,7 +8,12 @@ interface PrivateRouteProps {
 }
 
 export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredRole }) => {
-  const { isAuthenticated, user } = useAppStore()
+  const { isAuthenticated, isAuthInitialized, user } = useAppStore()
+
+  // While auth is being verified, show nothing (prevents flash of unprotected content)
+  if (!isAuthInitialized) {
+    return null
+  }
 
   if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />

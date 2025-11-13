@@ -29,6 +29,11 @@ echo "📦 [3/6] Installing backend dependencies..."
 cd /workspace/backend
 npm install --legacy-peer-deps || npm install
 
+# Ensure TypeScript and Node types are available for build (install even if NODE_ENV=production)
+echo ""
+echo "📦 [3b/6] Ensuring TypeScript and @types/node are installed for build..."
+npm install --legacy-peer-deps --no-save typescript @types/node || npm install --no-save typescript @types/node
+
 # Step 5: Compile TypeScript to JavaScript
 echo ""
 echo "🔨 [4/6] Compiling TypeScript..."

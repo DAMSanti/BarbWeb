@@ -5,7 +5,6 @@
 
 import { getPrismaClient } from '../db/init.js'
 import { logger } from '../utils/logger.js'
-import { Decimal } from '@prisma/client/runtime/library'
 
 const prisma = getPrismaClient()
 
@@ -273,9 +272,9 @@ export const getPayments = async (options: GetPaymentsOptions) => {
     },
     summary: {
       successedCount: successedPayments._count,
-      successedTotal: successedPayments._sum.amount || new Decimal(0),
+      successedTotal: successedPayments._sum.amount || 0,
       refundedCount: refundedPayments._count,
-      refundedTotal: refundedPayments._sum.refundedAmount || new Decimal(0),
+      refundedTotal: refundedPayments._sum.refundedAmount || 0,
     },
   }
 }
@@ -428,7 +427,7 @@ export const getAnalytics = async (options: AnalyticsOptions) => {
     endDate,
     totalUsers,
     totalPayments,
-    totalRevenue: totalRevenue._sum.amount || new Decimal(0),
+    totalRevenue: totalRevenue._sum.amount || 0,
   })
 
   return {
@@ -444,19 +443,19 @@ export const getAnalytics = async (options: AnalyticsOptions) => {
       byStatus: paymentByStatus.map((s) => ({
         status: s.status,
         count: s._count,
-        total: s._sum.amount || new Decimal(0),
+        total: s._sum.amount || 0,
       })),
     },
     revenue: {
-      total: totalRevenue._sum.amount || new Decimal(0),
-      refunded: totalRefunded._sum.refundedAmount || new Decimal(0),
-      netRevenue: (totalRevenue._sum.amount || new Decimal(0)).toNumber() - (totalRefunded._sum.refundedAmount || new Decimal(0)).toNumber(),
-      averagePayment: avgPayment._avg.amount || new Decimal(0),
+      total: totalRevenue._sum.amount || 0,
+      refunded: totalRefunded._sum.refundedAmount || 0,
+      netRevenue: (totalRevenue._sum.amount?.toNumber() || 0) - (totalRefunded._sum.refundedAmount?.toNumber() || 0),
+      averagePayment: avgPayment._avg.amount || 0,
     },
     categories: paymentsByCategory.map((c) => ({
       category: c.category,
       count: c._count,
-      total: c._sum.amount || new Decimal(0),
+      total: c._sum.amount || 0,
     })),
     dateRange: {
       startDate: startDate || null,

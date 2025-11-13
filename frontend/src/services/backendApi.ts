@@ -5,15 +5,27 @@ import { useAppStore } from '../store/appStore.js'
 
 // En producción, el frontend se sirve desde /barbweb2/ en el mismo dominio que la API
 // Usar una URL relativa (sin dominio) para que funcione tanto en local como en producción
-const API_URL = import.meta.env.VITE_API_URL || (
-  typeof window !== 'undefined' && window.location.origin.includes('ondigitalocean.app')
-    ? window.location.origin
-    : 'http://localhost:3000'
-)
+// LAZY EVALUATION: No evaluar import.meta.env en el scope global
+const getApiUrl = (): string => {
+  try {
+    return import.meta.env.VITE_API_URL || (
+      typeof window !== 'undefined' && window.location.origin.includes('ondigitalocean.app')
+        ? window.location.origin
+        : 'http://localhost:3000'
+    )
+  } catch (e) {
+    // Fallback si import.meta.env no está disponible (esbuild en producción)
+    return typeof window !== 'undefined' && window.location.origin.includes('ondigitalocean.app')
+      ? window.location.origin
+      : 'http://localhost:3000'
+  }
+}
 
-// Crear instancia de Axios
+// Crear instancia de Axios (usa función lazy para obtener la URL)
 const apiClient: AxiosInstance = axios.create({
-  baseURL: API_URL,
+  get baseURL() {
+    return getApiUrl()
+  },
   headers: {
     'Content-Type': 'application/json',
   },
@@ -37,7 +49,7 @@ const refreshTokenAndRetry = async () => {
   }
 
   try {
-    const response = await axios.post(`${API_URL}/auth/refresh`, {
+    const response = await axios.post(`${getApiUrl()}/auth/refresh`, {
       refreshToken,
     })
     const newAccessToken = response.data.accessToken
@@ -176,7 +188,7 @@ export async function filterQuestionWithBackend(
   question: string,
 ): Promise<FilteredQuestionResponse> {
   console.log('[filterQuestionWithBackend] Starting with question:', question.substring(0, 50))
-  console.log('[filterQuestionWithBackend] API_URL:', API_URL)
+  console.log('[filterQuestionWithBackend] API_URL:', getApiUrl())
   
   try {
     const result = await retryAI(async () => {

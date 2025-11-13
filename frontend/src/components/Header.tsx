@@ -66,15 +66,15 @@ export default function Header() {
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                     style={{
-                      backgroundColor: '#fbbf24',
-                      borderColor: '#f59e0b',
-                      color: '#000000'
+                      background: 'linear-gradient(135deg, #d4af37, #8b2e1f)',
+                      borderColor: '#6b1f12',
+                      color: '#ffffff'
                     }}
                     className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:opacity-90 border transition-all duration-200"
                   >
-                    <User size={18} style={{ color: '#000000' }} />
-                    <span className="text-sm font-semibold" style={{ color: '#000000' }}>{user.name || user.email}</span>
-                    <ChevronDown size={16} style={{ color: '#000000', transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
+                    <User size={18} style={{ color: '#ffffff' }} />
+                    <span className="text-sm font-semibold" style={{ color: '#ffffff' }}>{user.name || user.email}</span>
+                    <ChevronDown size={16} style={{ color: '#ffffff', transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
                   </button>
 
                   {/* Dropdown Menu - Dark Theme */}
@@ -123,7 +123,14 @@ export default function Header() {
                   )}
                 </div>
               ) : (
-                <Link to="/login" className="header-contact-link flex items-center space-x-2 bg-accent-color text-accent-contrast hover:opacity-90">
+                <Link 
+                  to="/login" 
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37, #8b2e1f)',
+                    color: '#ffffff'
+                  }}
+                  className="header-contact-link flex items-center space-x-2 hover:opacity-90 px-4 py-2 rounded-lg border border-transparent transition-all duration-200"
+                >
                   <LogIn size={18} />
                   <span className="text-sm font-semibold">Login</span>
                 </Link>

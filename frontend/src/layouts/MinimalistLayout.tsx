@@ -186,7 +186,7 @@ export default function MinimalistLayout() {
         .minimalist-card-number {
           font-size: 3.5rem;
           font-weight: 800;
-          background: linear-gradient(135deg, var(--primary-500, #d4af37), var(--accent-500, #d946ef));
+          background: linear-gradient(135deg, #d4af37, #8b2e1f);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;

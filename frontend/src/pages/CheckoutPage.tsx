@@ -5,6 +5,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
+import { getApiUrl } from '../services/backendApi'
 
 // Inicializar Stripe con lazy evaluation
 // No evaluar import.meta.env en el scope global
@@ -44,7 +45,7 @@ export default function CheckoutPage() {
         console.log('[Checkout] Creating payment intent', {
           consultationId,
           amount: consultation.price * 1.21,
-          apiUrl: import.meta.env.VITE_API_URL,
+          apiUrl: getApiUrl(),
         })
 
         const token = tokens?.accessToken
@@ -56,7 +57,7 @@ export default function CheckoutPage() {
 
         console.log('[Checkout] Token found:', token?.substring(0, 20) + '...')
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/payments/create-payment-intent`, {
+        const response = await fetch(`${getApiUrl()}/api/payments/create-payment-intent`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -396,7 +397,7 @@ function CheckoutForm({
         // Confirmar el pago en el backend
         try {
           const token = tokens?.accessToken
-          await fetch(`${import.meta.env.VITE_API_URL}/api/payments/confirm-payment`, {
+          await fetch(`${getApiUrl()}/api/payments/confirm-payment`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

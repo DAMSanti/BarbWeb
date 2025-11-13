@@ -103,11 +103,18 @@ function AppContent() {
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/faq" element={<FAQPage />} />
-          <Route path="/consultation" element={<ConsultationPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
           {/* Protected routes */}
+          <Route
+            path="/consultation"
+            element={
+              <PrivateRoute>
+                <ConsultationPage />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/checkout/:consultationId"
             element={

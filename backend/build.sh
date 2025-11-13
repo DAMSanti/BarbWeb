@@ -11,29 +11,35 @@ echo "======================================"
 
 # Step 1: Install dependencies in root
 echo ""
-echo "📦 [1/5] Installing root dependencies..."
+echo "📦 [1/6] Installing root dependencies..."
 cd /workspace
 npm install --legacy-peer-deps || npm install
 
-# Step 2: Build frontend
+# Step 2: Install Prisma in root (required for CLI)
 echo ""
-echo "🎨 [2/5] Building frontend..."
+echo "📦 [1b/6] Installing Prisma globally for CLI..."
+npm install --legacy-peer-deps prisma@latest || npm install prisma@latest
+
+# Step 3: Build frontend
+echo ""
+echo "🎨 [2/6] Building frontend..."
 npm run build:frontend || echo "⚠️  Frontend build skipped or failed"
 
-# Step 3: Install backend dependencies
+# Step 4: Install backend dependencies
 echo ""
-echo "📦 [3/5] Installing backend dependencies..."
+echo "📦 [3/6] Installing backend dependencies..."
 cd /workspace/backend
 npm install --legacy-peer-deps || npm install
 
-# Step 4: Generate Prisma client
+# Step 5: Generate Prisma client
 echo ""
-echo "🔄 [4/5] Generating Prisma client..."
+echo "🔄 [4/6] Generating Prisma client..."
+cd /workspace/backend
 npx prisma generate
 
-# Step 5: Push database schema
+# Step 6: Push database schema
 echo ""
-echo "💾 [5/5] Pushing database schema..."
+echo "💾 [5/6] Pushing database schema..."
 npx prisma db push --skip-generate --accept-data-loss || echo "⚠️  Database push failed or skipped"
 
 echo ""

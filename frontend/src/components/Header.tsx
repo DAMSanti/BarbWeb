@@ -7,6 +7,7 @@ export default function Header() {
   const { user, isAuthenticated, logout } = useAppStore()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Cerrar dropdown cuando se hace click fuera
@@ -138,12 +139,83 @@ export default function Header() {
             </div>
 
             {/* Mobile menu button */}
-            <button className="header-mobile-btn md:hidden p-2 rounded-lg">
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="header-mobile-btn md:hidden p-2 rounded-lg z-20"
+              style={{ color: '#fbbf24' }}
+            >
               <svg className="header-mobile-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
               </svg>
             </button>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden bg-black border-t border-neutral-700 py-4">
+              {/* Navigation Links */}
+              <Link 
+                to="/" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-3 text-neutral-200 hover:text-amber-400 transition-colors"
+              >
+                Inicio
+              </Link>
+              <Link 
+                to="/faq" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-4 py-3 text-neutral-200 hover:text-amber-400 transition-colors"
+              >
+                Consultas
+              </Link>
+
+              {/* Divider */}
+              <div className="border-t border-neutral-700 my-2"></div>
+
+              {/* Auth Actions */}
+              {isAuthenticated && user ? (
+                <>
+                  <Link 
+                    to="#" 
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setMobileMenuOpen(false)
+                      setSettingsOpen(true)
+                    }}
+                    className="block px-4 py-3 text-neutral-200 hover:text-amber-400 transition-colors"
+                  >
+                    Mi Cuenta
+                  </Link>
+                  {user.role === 'admin' && (
+                    <Link 
+                      to="/admin" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block px-4 py-3 text-neutral-200 hover:text-amber-400 transition-colors"
+                    >
+                      Administración
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      logout()
+                      setMobileMenuOpen(false)
+                    }}
+                    className="w-full text-left px-4 py-3 text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    Salir
+                  </button>
+                </>
+              ) : (
+                <Link 
+                  to="/login" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-4 py-3 text-neutral-200 hover:text-amber-400 transition-colors"
+                >
+                  Login
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </header>
 

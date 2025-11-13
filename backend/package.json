@@ -9,9 +9,9 @@
     "npm": "10.x"
   },
   "scripts": {
-    "dev": "node --loader ts-node/esm src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
+  "dev": "node --loader ts-node/esm src/index.ts",
+  "build": "tsc",
+  "start": "sh start.sh",
     "preview": "node dist/index.js",
     "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",
     "db:push": "prisma db push --skip-generate --accept-data-loss",

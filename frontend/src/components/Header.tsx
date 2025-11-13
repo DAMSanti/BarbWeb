@@ -49,8 +49,8 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Navigation */}
-            <nav className="main-nav hidden md:flex space-x-8">
+            {/* Navigation - Centered */}
+            <nav className="main-nav hidden md:flex space-x-8 flex-1 justify-center">
               <Link to="/" className="header-link font-medium">
                 Inicio
               </Link>
@@ -66,8 +66,8 @@ export default function Header() {
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
                     style={{
-                      backgroundColor: '#d97706',
-                      borderColor: '#b45309',
+                      backgroundColor: '#fbbf24',
+                      borderColor: '#f59e0b',
                       color: '#000000'
                     }}
                     className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:opacity-90 border transition-all duration-200"

@@ -2,7 +2,7 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import cors from 'cors'
 import { Express } from 'express'
-import { logger } from '../utils/logger'
+import { logger } from '../utils/logger.js'
 
 /**
  * SECURITY MIDDLEWARE CONFIGURATION

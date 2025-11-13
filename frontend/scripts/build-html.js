@@ -3,9 +3,11 @@
  * Simple script to generate HTML entry point for esbuild output
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, '../dist');
 
 // Create dist directory if it doesn't exist

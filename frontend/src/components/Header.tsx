@@ -139,13 +139,13 @@ export default function Header() {
       {settingsOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setSettingsOpen(false)}>
           <div
-            className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full mx-4 p-0 overflow-hidden"
+            className="bg-gradient-to-br from-slate-950 to-black rounded-2xl shadow-2xl border border-amber-700 border-opacity-40 max-w-md w-full mx-4 p-0 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-6 py-4 border-b border-slate-700">
-              <h2 className="text-xl font-bold text-slate-100 flex items-center space-x-2">
-                <Settings size={24} className="text-amber-400" />
+            <div className="bg-gradient-to-r from-black via-slate-900 to-black px-6 py-4 border-b border-amber-700 border-opacity-40">
+              <h2 className="text-xl font-bold text-amber-400 flex items-center space-x-2">
+                <Settings size={24} />
                 <span>Mi Cuenta</span>
               </h2>
             </div>
@@ -153,36 +153,36 @@ export default function Header() {
             {/* Content */}
             <div className="p-6 space-y-4">
               {/* Usuario Info */}
-              <div className="bg-slate-800 bg-opacity-50 rounded-lg p-4 border border-slate-700">
-                <p className="text-xs text-slate-400 uppercase font-semibold mb-2">Información</p>
-                <div className="space-y-2">
+              <div className="bg-black bg-opacity-50 rounded-lg p-4 border border-amber-700 border-opacity-30">
+                <p className="text-xs text-amber-600 uppercase font-semibold mb-2 tracking-widest">Información</p>
+                <div className="space-y-3">
                   <div>
-                    <span className="text-slate-400 text-sm">Nombre:</span>
-                    <p className="text-slate-100 font-medium">{user?.name || 'No especificado'}</p>
+                    <span className="text-amber-700 text-xs font-semibold">Nombre</span>
+                    <p className="text-slate-100 font-medium mt-1">{user?.name || 'No especificado'}</p>
                   </div>
                   <div>
-                    <span className="text-slate-400 text-sm">Email:</span>
-                    <p className="text-slate-100 font-medium">{user?.email}</p>
+                    <span className="text-amber-700 text-xs font-semibold">Email</span>
+                    <p className="text-slate-100 font-medium mt-1">{user?.email}</p>
                   </div>
                 </div>
               </div>
 
               {/* Opciones */}
               <div className="space-y-2">
-                <button className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-slate-100 font-medium transition-colors text-sm">
+                <button className="w-full px-4 py-2 bg-black hover:bg-slate-950 border border-amber-700 border-opacity-40 hover:border-opacity-60 rounded-lg text-amber-400 font-medium transition-all text-sm">
                   Cambiar Contraseña
                 </button>
-                <button className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-slate-100 font-medium transition-colors text-sm">
+                <button className="w-full px-4 py-2 bg-black hover:bg-slate-950 border border-amber-700 border-opacity-40 hover:border-opacity-60 rounded-lg text-amber-400 font-medium transition-all text-sm">
                   Actualizar Perfil
                 </button>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="bg-slate-800 bg-opacity-30 px-6 py-4 border-t border-slate-700 flex space-x-3">
+            <div className="bg-black bg-opacity-30 px-6 py-4 border-t border-amber-700 border-opacity-40 flex space-x-3">
               <button
                 onClick={() => setSettingsOpen(false)}
-                className="flex-1 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-colors"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-black font-semibold rounded-lg transition-all text-sm"
               >
                 Cerrar
               </button>

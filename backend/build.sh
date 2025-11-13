@@ -57,6 +57,7 @@ fi
 echo ""
 echo "🔨 [4/6] Compiling TypeScript..."
 cd /workspace/backend
+npm install --legacy-peer-deps --no-save @types/node || npm install --no-save @types/node || echo "⚠️ Could not install @types/node in backend"
 npm run build || npx tsc
 
 # Step 6: Generate Prisma client
@@ -70,8 +71,11 @@ ls -la /workspace/backend/node_modules/.prisma 2>/dev/null || echo "  no backend
 
 # Generate prisma client in repository root (matches hoisted node_modules)
 cd /workspace
-echo "Generating prisma client in /workspace using schema ./backend/prisma/schema.prisma"
-npx prisma generate --schema=./backend/prisma/schema.prisma || { echo "❌ Prisma generate failed in /workspace. Aborting build."; exit 1; }
+# Try generate in repo root (where node_modules may be hoisted). If it fails, log but continue and try backend generate.
+echo "Generating prisma client in /workspace using schema ./backend/prisma/schema.prisma (root generate - best-effort)"
+if ! npx prisma generate --schema=./backend/prisma/schema.prisma; then
+	echo "⚠️ Prisma generate in /workspace failed (continuing to attempt backend generate)."
+fi
 
 # Also attempt generate in backend folder (best-effort)
 cd /workspace/backend

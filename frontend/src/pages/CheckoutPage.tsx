@@ -79,7 +79,7 @@ export default function CheckoutPage() {
           },
           body: JSON.stringify({
             amount: consultation.price * 1.21,
-            currency: 'usd',
+            currency: 'eur',
             consultationId,
             description: `Consulta Legal - ${consultation.category}`,
           }),
@@ -190,7 +190,7 @@ export default function CheckoutPage() {
               <strong>Categoría:</strong> {consultation.category}
             </p>
             <p className="text-sm text-gray-700">
-              <strong>Monto pagado:</strong> ${(consultation.price * 1.21).toFixed(2)}
+              <strong>Monto pagado:</strong> €{(consultation.price * 1.21).toFixed(2)}
             </p>
           </div>
           <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>
@@ -263,11 +263,11 @@ export default function CheckoutPage() {
               <div className="pt-4 mb-6" style={{ borderColor: 'var(--border-color)', borderTopWidth: '1px' }}>
                 <div className="flex justify-between items-center mb-4">
                   <span style={{ color: 'var(--text-secondary)' }}>Consulta Profesional</span>
-                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>${consultation.price}</span>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>€{consultation.price}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span style={{ color: 'var(--text-secondary)' }}>Impuestos (IVA)</span>
-                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>${(consultation.price * 0.21).toFixed(2)}</span>
+                  <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>€{(consultation.price * 0.21).toFixed(2)}</span>
                 </div>
               </div>
 
@@ -275,7 +275,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Total</span>
                   <span className="text-2xl font-bold" style={{ color: 'var(--accent-color)' }}>
-                    ${(consultation.price * 1.21).toFixed(2)}
+                    €{(consultation.price * 1.21).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -574,7 +574,7 @@ function CheckoutForm({
         ) : (
           <>
             <CreditCard size={20} />
-            <span>Pagar ${(consultation.price * 1.21).toFixed(2)}</span>
+            <span>Pagar €{(consultation.price * 1.21).toFixed(2)}</span>
           </>
         )}
       </button>

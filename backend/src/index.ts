@@ -17,14 +17,14 @@ dotenv.config()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const app = express()
-const PORT = Number(process.env.PORT || 3000)
-
 console.log('📋 Environment Check:')
-console.log(`  PORT: ${PORT}`)
+console.log(`  PORT: ${process.env.PORT || 3000}`)
 console.log(`  DATABASE_URL: ${process.env.DATABASE_URL ? '✅ Set' : '❌ NOT SET'}`)
 console.log(`  NODE_ENV: ${process.env.NODE_ENV || 'development'}`)
 console.log('---')
+
+const app = express()
+const PORT = Number(process.env.PORT || 3000)
 
 // ============================================================================
 // SECURITY MIDDLEWARE (MUST BE FIRST)
@@ -98,46 +98,52 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 })
 
 // Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  logger.info(`✅ Server running on http://0.0.0.0:${PORT}`)
-  logger.info(`🔗 CORS enabled for all origins`)
-  logger.info(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
-  logger.info(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
-  logger.info(`📝 Logging: ✅ Winston logger configured`)
-  logger.info(`✔️ Validation: ✅ Zod schemas ready`)
-})
+try {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    logger.info(`✅ Server running on http://0.0.0.0:${PORT}`)
+    logger.info(`🔗 CORS enabled for all origins`)
+    logger.info(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
+    logger.info(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
+    logger.info(`📝 Logging: ✅ Winston logger configured`)
+    logger.info(`✔️ Validation: ✅ Zod schemas ready`)
+  })
 
-// Handle server errors
-server.on('error', (error: any) => {
-  logger.error('Server error:', error)
-  process.exit(1)
-})
+  // Handle server errors
+  server.on('error', (error: any) => {
+    logger.error('Server error:', error)
+    process.exit(1)
+  })
 
-// Initialize database asynchronously (non-blocking)
-;(async () => {
-  try {
-    logger.info('🔄 Initializing database tables...')
-    const dbReady = await initializeDatabase()
-    if (dbReady) {
-      logger.info(`💾 Database: ✅ Connected and initialized`)
-      logger.info(`📁 Serving frontend from: ${frontendPath}`)
-    } else {
-      logger.warn('⚠️ Database initialization returned false, but server continues')
+  // Initialize database asynchronously (non-blocking)
+  ;(async () => {
+    try {
+      logger.info('🔄 Initializing database tables...')
+      const dbReady = await initializeDatabase()
+      if (dbReady) {
+        logger.info(`💾 Database: ✅ Connected and initialized`)
+        logger.info(`📁 Serving frontend from: ${frontendPath}`)
+      } else {
+        logger.warn('⚠️ Database initialization returned false, but server continues')
+      }
+    } catch (error: any) {
+      logger.error('⚠️ Error during async database initialization:', error.message)
     }
-  } catch (error: any) {
-    logger.error('⚠️ Error during async database initialization:', error.message)
-  }
-})()
+  })()
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (error: any) => {
-  logger.error('Uncaught Exception:', error)
+  // Handle uncaught exceptions
+  process.on('uncaughtException', (error: any) => {
+    logger.error('Uncaught Exception:', error)
+    process.exit(1)
+  })
+
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (reason: any, promise: any) => {
+    logger.error('Unhandled Rejection at:', promise, 'reason:', reason)
+  })
+} catch (startupError: any) {
+  console.error('🚨 FATAL ERROR during startup:', startupError)
+  logger.error('FATAL ERROR during startup:', startupError)
   process.exit(1)
-})
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason: any, promise: any) => {
-  logger.error('Unhandled Rejection at:', promise, 'reason:', reason)
-})
+}
 
 export default app

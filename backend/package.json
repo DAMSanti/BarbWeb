@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "node --loader ts-node/esm src/index.ts",
     "build": "echo 'Build dependencies only - compilation happens at runtime'",
-    "start": "tsc && node dist/index.js",
+    "start": "node --loader ts-node/esm src/index.ts",
     "preview": "node dist/index.js",
     "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",
     "db:push": "prisma db push --skip-generate --accept-data-loss",

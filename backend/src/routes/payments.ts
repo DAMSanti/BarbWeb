@@ -9,7 +9,6 @@ import { ValidationError, PaymentError } from '../utils/errors.js'
 import { z } from 'zod'
 
 const router = Router()
-const prisma = getPrismaClient()
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
@@ -116,7 +115,7 @@ router.post(
       // If a consultationId was provided, mark it as paid
       if (consultationId) {
         try {
-          await prisma.payment.create({
+          await getPrismaClient().payment.create({
             data: {
               userId,
               stripeSessionId: paymentIntentId,
@@ -172,7 +171,7 @@ router.get(
 
       logger.info('Obteniendo historial de pagos', { userId })
 
-      const payments = await prisma.payment.findMany({
+  const payments = await getPrismaClient().payment.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' },
         take: 50,
@@ -216,7 +215,7 @@ router.post(
     const { paymentId } = req.params
     const userId = (req as any).user.userId
 
-    const payment = await prisma.payment.findUnique({
+  const payment = await getPrismaClient().payment.findUnique({
       where: { id: paymentId },
     })
 
@@ -243,7 +242,7 @@ router.post(
         payment_intent: payment.stripeSessionId,
       })
 
-      await prisma.payment.update({
+          await getPrismaClient().payment.update({
         where: { id: paymentId },
         data: {
           status: 'refunded',

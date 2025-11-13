@@ -11,7 +11,6 @@ import {
 } from '../services/emailService.js'
 
 const router = Router()
-const prisma = getPrismaClient()
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
@@ -99,7 +98,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     }
 
     // Check if payment already exists
-    const existingPayment = await prisma.payment.findFirst({
+  const existingPayment = await getPrismaClient().payment.findFirst({
       where: { stripePaymentId: paymentIntent.id },
     })
 
@@ -111,7 +110,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     }
 
     // Create payment record
-    const payment = await prisma.payment.create({
+  const payment = await getPrismaClient().payment.create({
       data: {
         userId,
         stripePaymentId: paymentIntent.id,
@@ -129,7 +128,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     })
 
     // Get user data and payment metadata
-    const user = await prisma.user.findUnique({
+  const user = await getPrismaClient().user.findUnique({
       where: { id: userId },
     })
 
@@ -196,7 +195,7 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
 
   // Get user data
   const user = userId
-    ? await prisma.user.findUnique({ where: { id: userId } })
+    ? await getPrismaClient().user.findUnique({ where: { id: userId } })
     : null
 
   const clientEmail = paymentIntent.receipt_email || user?.email
@@ -224,12 +223,12 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
 async function handleChargeRefunded(charge: Stripe.Charge) {
   try {
     if (charge.payment_intent && typeof charge.payment_intent === 'string') {
-      const payment = await prisma.payment.findFirst({
+  const payment = await getPrismaClient().payment.findFirst({
         where: { stripePaymentId: charge.payment_intent },
       })
 
       if (payment) {
-        await prisma.payment.update({
+  await getPrismaClient().payment.update({
           where: { id: payment.id },
           data: {
             status: 'refunded',
@@ -243,7 +242,7 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
         })
 
         // Get user and payment data
-        const user = await prisma.user.findUnique({
+  const user = await getPrismaClient().user.findUnique({
           where: { id: payment.userId },
         })
 

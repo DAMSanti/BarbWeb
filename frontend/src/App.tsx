@@ -4,6 +4,7 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
 import FAQPage from './pages/FAQPage'
+import ConsultationPage from './pages/ConsultationPage'
 import CheckoutPage from './pages/CheckoutPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -102,6 +103,7 @@ function AppContent() {
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/faq" element={<FAQPage />} />
+          <Route path="/consultation" element={<ConsultationPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           

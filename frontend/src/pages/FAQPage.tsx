@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react'
 import ChessboardBackground from '../components/ChessboardBackground'
-import { LegalCategory, ConsultationRequest } from '../types'
+import { LegalCategory } from '../types'
 import { useAppStore } from '../store/appStore'
 import { filterQuestionWithBackend, checkBackendHealth } from '../services/backendApi'
 
@@ -19,7 +19,7 @@ interface AutoResponse {
 
 export default function FAQPage() {
   const navigate = useNavigate()
-  const { addConsultation, isAuthenticated } = useAppStore()
+  const { isAuthenticated } = useAppStore()
   const [question, setQuestion] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<LegalCategory | null>(null)
   const [autoResponse, setAutoResponse] = useState<AutoResponse | null>(null)
@@ -88,19 +88,7 @@ export default function FAQPage() {
   }
 
   const handleRequestConsultation = () => {
-    const consultation: ConsultationRequest = {
-      id: `consult-${Date.now()}`,
-      clientName: '',
-      clientEmail: '',
-      question: question.trim(),
-      category: selectedCategory || 'Civil',
-      price: CONSULTATION_PRICE,
-      isPaid: false,
-      createdAt: new Date(),
-    }
-
-    addConsultation(consultation)
-    navigate(`/checkout/${consultation.id}`)
+    navigate('/consultation')
   }
 
   const suggestedFaqs: any[] = [] // FAQs now come from backend API

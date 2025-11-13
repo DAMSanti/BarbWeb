@@ -1,11 +1,11 @@
 # 🏛️ ROADMAP PROFESIONAL - Barbara & Abogados
 ## Hoja de Ruta hacia Producción Enterprise
 
-**Versión Actual**: 2.5 (MVP Completo + Error Handling + Stripe Integration 100%)
-**Estado**: ✅ Stripe Funcionando en Producción + Testing E2E Completado
-**Fecha de Actualización**: Noviembre 11, 2025 - 23:00 (UTC-5)
-**Tiempo de Desarrollo**: ~20 horas completadas esta sesión (10h Stripe)
-**Progreso General**: 90% backend, 85% frontend → **87% total**
+**Versión Actual**: 3.0 (MVP Completo + Email Service + Security Middleware)
+**Estado**: ✅ Email Service Funcionando + Security Activa + Testing Framework Setup
+**Fecha de Actualización**: Noviembre 13, 2025 - 18:30 (UTC-5)
+**Tiempo de Desarrollo**: ~108 horas completadas (16h nuevas desde última actualización)
+**Progreso General**: 90% backend, 85% frontend → **85% total**
 
 ---
 
@@ -38,6 +38,8 @@
 - ✅ **NUEVO: Payment confirmation flow** - stripe.confirmPayment()
 - ✅ **NUEVO: Success screen** - Con chessboard background
 - ✅ **NUEVO: Loading states** - isLoadingIntent, isProcessing con CSS spinner
+- ✅ **NUEVO: Variables configuradas en producción (23 backend, 5 frontend)**
+- ✅ **NUEVO: Test E2E completo verificado en producción**
 
 #### Backend
 - ✅ Express API con TypeScript
@@ -63,6 +65,11 @@
 - ✅ **NUEVO: 3 event handlers** - payment_intent.succeeded, payment_failed, charge.refunded
 - ✅ **NUEVO: Database schema fixed** - stripeSessionId, consultationSummary alineados
 - ✅ **NUEVO: Production verified** - Endpoints testeados en DigitalOcean
+- ✅ **NUEVO: Email Service Completo** - Resend v6.4.2 con 4 plantillas HTML
+- ✅ **NUEVO: Webhooks con emails automáticos** - Confirmación, fallo, reembolso, notificación abogado
+- ✅ **NUEVO: Security Middleware** - Helmet v7.1.0 + express-rate-limit v7.1.5
+- ✅ **NUEVO: 3 Rate Limiters** - Global (100/15min), Auth (5/15min), Payment (10/min)
+- ✅ **NUEVO: Testing Framework Setup** - Vitest + Playwright configurados (100+ tests escritos)
 
 #### Infraestructura & Deployment
 - ✅ PostgreSQL 15 en DigitalOcean Managed Database
@@ -78,6 +85,10 @@
 - ✅ **NUEVO: STRIPE_WEBHOOK_SECRET configurado en DigitalOcean**
 - ✅ **NUEVO: VITE_API_URL en frontend (DigitalOcean)**
 - ✅ **NUEVO: VITE_STRIPE_PUBLISHED_KEY en frontend (DigitalOcean)**
+- ✅ **NUEVO: RESEND_API_KEY configurado**
+- ✅ **NUEVO: EMAIL_FROM y LAWYER_EMAIL configurados**
+- ✅ **NUEVO: ALLOW_ALL_CORS=1 activado (cambiar a 0 antes de producción)**
+- ✅ **NUEVO: 23 variables backend, 5 variables frontend configuradas**
 
 #### Modelos de Base de Datos
 - ✅ **User Model** (id, email, name, role, createdAt, updatedAt)
@@ -90,11 +101,14 @@
 ### ⚠️ Lo que Necesita Mejoras
 
 #### Crítico para Producción Enterprise (Fase 2-4)
-1. ✅ **Configurar Variables Frontend** - COMPLETADO (VITE_API_URL + VITE_STRIPE_PUBLISHED_KEY)
+1. ✅ **Configurar Variables Frontend** - COMPLETADO (todas las variables configuradas)
 2. ✅ **Testing E2E de Pagos** - COMPLETADO (Flujo completo con tarjeta test 4242)
-3. **Email Notifications** - 4 TODOs en webhooks.ts (Fase 3) (SIGUIENTE - 6-8 horas)
-4. ✅ **Rate Limiting** - Protección contra abuso (verificado Nov 13, 2025)
-5. **Monitoring** - Sentry integration (2-4 horas)
+3. ✅ **Email Notifications** - COMPLETADO (Resend + 4 templates + webhooks integrados)
+4. ✅ **Rate Limiting** - COMPLETADO (3 limiters activos verificados Nov 13, 2025)
+5. ✅ **Security Headers** - COMPLETADO (Helmet activo verificado Nov 13, 2025)
+6. ⚠️ **CORS Restrictivo** - Pendiente (ALLOW_ALL_CORS=1 activo, cambiar a 0)
+7. ⏳ **Ejecutar Tests** - Pendiente (framework setup, falta ejecutar y generar coverage)
+8. ⏳ **Monitoring** - Pendiente (Sentry integration 2-4 horas)
 
 #### Importante para User Experience (Fase 5-6)
 1. **Panel de Administración** - Gestión de consultas y usuarios (24-32 horas)
@@ -1040,105 +1054,336 @@ Frontend (DigitalOcean):
 
 ---
 
-## 📧 FASE 3: COMUNICACIÓN (Semanas 5-6) | 16-20 horas
+## 📧 FASE 3: COMUNICACIÓN (✅ COMPLETADA - Semanas 7) | 8-10 horas
 
 ### Objetivo
 Sistema de notificaciones por email (SMS NO incluido).
 
-### 3.1 Email Service
-**Tiempo**: 8-10 horas | **Prioridad**: IMPORTANTE
+### ✅ 3.1 Email Service - COMPLETADO
+**Tiempo**: 8-10 horas | **Prioridad**: IMPORTANTE | **Estado**: ✅ DONE 100%
 
-#### Tareas
-- [ ] Configurar Nodemailer o SendGrid
-- [ ] Templates de email (HTML)
-- [ ] Email types:
-  - Bienvenida (post-registro)
-  - Confirmación de pago
-  - Resumen de consulta realizada (incluyendo respuesta de IA)
-  - Factura/recibo
-  - Reset de contraseña
+#### ✅ Tareas Completadas
+- [x] ✅ Resend instalado y configurado (v6.4.2)
+- [x] ✅ Email templates creados (HTML + CSS inline styling)
+- [x] ✅ Email types implementados:
+  - ✅ Payment confirmation (cliente) - Diseño profesional con detalles de pago
+  - ✅ Lawyer notification (abogado) - Nueva consulta pagada con datos cliente
+  - ✅ Payment failed (cliente) - Notificación de fallo con recomendaciones
+  - ✅ Refund confirmation (cliente) - Confirmación de reembolso procesado
+- [x] ✅ Integración con webhooks de Stripe
+- [x] ✅ Error handling y logging para envíos de email
+- [x] ✅ Variables de entorno configuradas (RESEND_API_KEY, EMAIL_FROM, LAWYER_EMAIL)
 
-#### Código Base
+#### ✅ Código Implementado
 ```typescript
-// backend/src/services/emailService.ts
-import nodemailer from 'nodemailer'
+// backend/src/services/emailService.ts (570+ líneas)
+import { Resend } from 'resend'
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-})
+const resend = new Resend(process.env.RESEND_API_KEY)
 
-export async function sendPaymentConfirmation(
-  email: string, 
-  paymentId: string,
-  consultationSummary: string
+export async function sendPaymentConfirmationEmail(
+  email: string,
+  data: {
+    clientName: string
+    amount: number
+    currency: string
+    category: string
+    consultationSummary: string
+    paymentId: string
+  }
 ) {
-  return transporter.sendMail({
-    from: 'noreply@barbaraabogados.es',
+  return resend.emails.send({
+    from: process.env.EMAIL_FROM!,
     to: email,
-    subject: 'Consulta Legal Completada',
-    html: getPaymentEmailTemplate(paymentId, consultationSummary),
+    subject: '✅ Consulta Legal Completada - Barbara & Abogados',
+    html: getPaymentConfirmationTemplate(data),
+  })
+}
+
+export async function sendLawyerNotificationEmail(data: {
+  clientName: string
+  clientEmail: string
+  amount: number
+  category: string
+  consultationSummary: string
+  paymentId: string
+}) {
+  return resend.emails.send({
+    from: process.env.EMAIL_FROM!,
+    to: process.env.LAWYER_EMAIL!,
+    subject: '🔔 Nueva Consulta Pagada - Barbara & Abogados',
+    html: getLawyerNotificationTemplate(data),
   })
 }
 ```
 
+#### ✅ Webhooks Integrados
+```typescript
+// backend/src/routes/webhooks.ts (actualizado)
+case 'payment_intent.succeeded':
+  const paymentIntent = event.data.object
+  
+  // Enviar email de confirmación al cliente
+  if (clientEmail) {
+    await sendPaymentConfirmationEmail(clientEmail, {
+      clientName,
+      amount: paymentIntent.amount / 100,
+      currency: paymentIntent.currency,
+      category,
+      consultationSummary,
+      paymentId: paymentIntent.id,
+    })
+    logger.info('Email de confirmación enviado al cliente', { email: clientEmail })
+  }
+  
+  // Enviar notificación al abogado
+  if (clientEmail) {
+    await sendLawyerNotificationEmail({
+      clientName,
+      clientEmail,
+      amount: paymentIntent.amount / 100,
+      category,
+      consultationSummary,
+      paymentId: paymentIntent.id,
+    })
+    logger.info('Notificación enviada al abogado')
+  }
+  break
+
+case 'payment_intent.payment_failed':
+  if (clientEmail) {
+    await sendPaymentFailedEmail(clientEmail, {
+      clientName,
+      amount: paymentIntent.amount / 100,
+      errorMessage: paymentIntent.last_payment_error?.message,
+    })
+    logger.info('Email de pago fallido enviado', { email: clientEmail })
+  }
+  break
+
+case 'charge.refunded':
+  if (clientEmail) {
+    await sendRefundConfirmationEmail(clientEmail, {
+      clientName,
+      amount: charge.amount_refunded / 100,
+      currency: charge.currency,
+    })
+    logger.info('Email de reembolso enviado', { email: clientEmail })
+  }
+  break
+```
+
+#### 📊 Templates HTML Creados
+- Payment Confirmation Template (180 líneas) - Diseño profesional con:
+  - Cabecera con logo y título
+  - Detalles de pago (monto, categoría, ID)
+  - Resumen de consulta
+  - Footer con información de contacto
+  - Estilos inline para compatibilidad de email
+  
+- Lawyer Notification Template (200 líneas) - Incluye:
+  - Alert de nueva consulta
+  - Datos del cliente (nombre, email)
+  - Detalles de la consulta pagada
+  - CTA para revisar consulta
+  
+- Payment Failed Template (150 líneas) - Con:
+  - Mensaje de error personalizado
+  - Recomendaciones para reintentar
+  - Link para volver al checkout
+  
+- Refund Confirmation Template (140 líneas) - Contiene:
+  - Confirmación de reembolso
+  - Monto reembolsado
+  - Tiempo estimado de procesamiento
+
+#### 🔐 Variables de Entorno
+```
+✅ RESEND_API_KEY = re_fmfGijzv_DWKihg2asdDFDnSL3upb8jWf
+✅ EMAIL_FROM = onboarding@resend.dev
+✅ LAWYER_EMAIL = abogados.bgarcia@gmail.com
+```
+
+#### ✅ Testing Completado
+- ✅ Emails se envían correctamente desde webhooks
+- ✅ Templates se renderizan correctamente
+- ✅ Error handling funciona (logs errores pero no falla el webhook)
+- ✅ Emails llegan a destinatarios (verificado en producción)
+
+#### 📊 Estado: 100% COMPLETADA
+**Fecha de Finalización**: Noviembre 13, 2025
+**Tiempo Total Dedicado**: ~8 horas
+**Archivos Creados**: backend/src/services/emailService.ts (570 líneas)
+**Archivos Modificados**: backend/src/routes/webhooks.ts (integración completa)
+
 ---
 
-## 🛡️ FASE 4: SEGURIDAD Y VALIDACIÓN (Semanas 7) | 16-20 horas
+## 🛡️ FASE 4: SEGURIDAD Y VALIDACIÓN (✅ 90% COMPLETADA - Semana 8) | 16-20 horas
 
 ### Objetivo
 Proteger la aplicación contra vulnerabilidades comunes.
 
-### 4.1 Seguridad Backend
-**Tiempo**: 10-12 horas
+### ✅ 4.1 Seguridad Backend - 90% COMPLETADO
+**Tiempo**: 10-12 horas | **Estado**: ✅ CASI COMPLETO
 
-#### Tareas
-- [x] Rate limiting (express-rate-limit) (verificado Nov 13, 2025)
-- [ ] CORS restrictivo (no `*`)
-- [x] Helmet.js - Headers de seguridad (verificado Nov 13, 2025)
-- [ ] Input validation (Zod)
-- [ ] SQL Injection prevention (Prisma ya lo hace)
-- [ ] XSS prevention
-- [ ] CSRF tokens (si usar cookies)
-- [ ] Password strength validation
-- [ ] JWT expiration corto (15 min)
-- [ ] Refresh token rotation
+#### Tareas Completadas
+- [x] ✅ Rate limiting (express-rate-limit v7.1.5) - Verificado Nov 13, 2025
+  - [x] ✅ Global limiter: 100 req/15min
+  - [x] ✅ Auth limiter: 5 req/15min (anti brute-force)
+  - [x] ✅ Payment limiter: 10 req/min
+- [x] ✅ Helmet.js v7.1.0 - Headers de seguridad activos
+  - [x] ✅ Content-Security-Policy configurado con Stripe domains
+  - [x] ✅ HSTS habilitado (1 año)
+  - [x] ✅ X-Frame-Options: DENY
+  - [x] ✅ XSS Protection activo
+- [x] ✅ Input validation (Zod en todos los endpoints)
+- [x] ✅ SQL Injection prevention (Prisma parametrizado)
+- [x] ✅ XSS prevention (Zod sanitization + Helmet)
+- [x] ✅ Password strength validation (Zod schema)
+- [x] ✅ JWT expiration corto (15 min access token)
+- [x] ✅ Refresh token rotation (implementado en authService)
+- [ ] ⚠️ CORS restrictivo - **PENDIENTE**: ALLOW_ALL_CORS=1 activo (cambiar a 0)
+- [ ] ⚠️ CSRF tokens - **PENDIENTE** (si se usan cookies)
 
-#### Código Base
+#### ✅ Código Implementado
 ```typescript
-// backend/src/index.ts
+// backend/src/middleware/security.ts (180+ líneas)
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import cors from 'cors'
 
-app.use(helmet())
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // 100 requests por ventana
-  message: 'Demasiadas solicitudes, intenta más tarde',
+// Helmet configuration
+export const helmetConfig = helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'", 'https://api.stripe.com', 'https://js.stripe.com'],
+      frameSrc: ["'self'", 'https://js.stripe.com', 'https://hooks.stripe.com'],
+      objectSrc: ["'none'"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000, // 1 año
+    includeSubDomains: true,
+    preload: true,
+  },
+  frameguard: { action: 'deny' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  xssFilter: true,
 })
 
-app.use('/api/', limiter)
+// Rate limiters
+export const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Demasiadas solicitudes desde esta IP',
+  standardHeaders: true,
+  skip: (req) => req.path === '/health' || req.path.includes('/webhooks/stripe'),
+})
+
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: 'Demasiados intentos de login',
+  skipSuccessfulRequests: true,
+})
+
+export const paymentLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: 'Demasiadas solicitudes de pago',
+})
+
+// CORS configuration
+const buildCorsOptions = () => {
+  const frontendUrl = process.env.VITE_FRONTEND_URL || 'http://localhost:5173'
+  const allowedOrigins = [frontendUrl, 'http://localhost:5173', 'http://localhost:3000']
+  
+  // ⚠️ DEBUG MODE - Allow all origins
+  if (process.env.ALLOW_ALL_CORS === '1') {
+    logger.warn('⚠️ ALLOW_ALL_CORS=1 - accepting requests from any origin (debug mode)')
+    return { origin: true, credentials: true, methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'] }
+  }
+  
+  return {
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        logger.warn(`CORS blocked request from origin: ${origin}`)
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  }
+}
+
+export const initializeSecurityMiddleware = (app: Express): void => {
+  app.use(helmetConfig)
+  app.use(cors(buildCorsOptions()))
+  app.use(globalLimiter)
+  logger.info('✅ Security middleware initialized: Helmet + CORS + Rate Limiting')
+}
 ```
 
-### 4.2 Seguridad Frontend
-**Tiempo**: 4-6 horas
+#### ⚠️ PENDIENTE - ALTA PRIORIDAD
+```
+1. Cambiar ALLOW_ALL_CORS=1 a ALLOW_ALL_CORS=0 en DigitalOcean
+2. Verificar que VITE_FRONTEND_URL está configurada correctamente
+3. Test CORS restrictivo en producción
+4. Verificar JWT_SECRET y JWT_REFRESH_SECRET (parecen contener espacios)
+```
 
-- [ ] Sanitizar inputs con DOMPurify
-- [ ] Validación de datos
-- [ ] Secure headers (CSP)
-- [ ] No guardar datos sensibles en localStorage
+### ✅ 4.2 Seguridad Frontend - COMPLETADO
+**Tiempo**: 4-6 horas | **Estado**: ✅ DONE
 
-### 4.3 Testing
-**Tiempo**: 6-8 horas
+- [x] ✅ Validación de datos con Zod
+- [x] ✅ No guardar datos sensibles en localStorage (solo tokens)
+- [x] ✅ Secure API calls con Authorization header
+- [x] ✅ Error boundary para capturar errores
+- [ ] ⏳ Sanitizar inputs con DOMPurify - Pendiente
+- [ ] ⏳ Secure headers (CSP frontend) - Pendiente
 
-- [ ] Setup Vitest o Jest
-- [ ] Tests unitarios (Zod schemas, funciones auxiliares)
-- [ ] Tests de integración (API endpoints)
-- [ ] Cobertura mínima 70%
+### ⏳ 4.3 Testing - 60% COMPLETADO
+**Tiempo**: 6-8 horas | **Estado**: ⏳ EN PROGRESO
+
+- [x] ✅ Setup Vitest (vitest.config.ts creado)
+- [x] ✅ Test files creados:
+  - [x] ✅ backend/tests/unit/validators.test.ts (60+ tests Zod)
+  - [x] ✅ backend/tests/unit/authService.test.ts (40+ tests auth)
+  - [x] ✅ backend/tests/integration/auth.api.test.ts
+  - [x] ✅ backend/tests/e2e/critical-flows.spec.ts (Playwright)
+- [x] ✅ TESTING_GUIDE.md creado
+- [ ] ⏳ Instalar dev dependencies (vitest, playwright, supertest)
+- [ ] ⏳ Ejecutar tests: `npm run test:unit`, `npm run test:integration`, `npm run test:e2e`
+- [ ] ⏳ Generar coverage report: `npm run test:coverage`
+- [ ] ⏳ Verificar cobertura mínima 70%
+
+#### Comandos para Ejecutar Tests
+```powershell
+# Ir al backend
+cd .\backend
+
+# Instalar dev dependencies
+npm install -D vitest @vitest/ui ts-node supertest @types/supertest @playwright/test
+
+# Ejecutar tests unitarios
+npm run test:unit
+
+# Ejecutar tests de integración
+npm run test:integration
+
+# Ejecutar Playwright E2E
+npx playwright install
+npm run test:e2e
+
+# Generar coverage
+npm run test:coverage
+```
 
 ---
 
@@ -1512,10 +1757,19 @@ TOTAL MENSUAL: $100-300/mes
 
 ---
 
-**Última actualización**: Noviembre 11, 2025 - 18:00 (UTC-5)
-**Versión**: 2.3 (Error Handling + Design System Cleanup)
-**Próxima Revisión**: Noviembre 14, 2025 (después de implementar Stripe)
-**Estado General**: ✅ En excelente ritmo - 62% del proyecto completado
+**Última actualización**: Noviembre 13, 2025 - 18:30 (UTC-5)
+**Versión**: 3.0 (Email Service + Security Middleware + Testing Setup)
+**Próxima Revisión**: Noviembre 20, 2025 (después de ejecutar tests y CORS fix)
+**Estado General**: ✅ En excelente ritmo - 85% del proyecto completado
+
+**Próximos Pasos Inmediatos (1-2 semanas)**:
+1. ⏳ Ejecutar tests y generar coverage report (4-6 horas)
+2. ⚠️ Cambiar CORS a modo restrictivo (ALLOW_ALL_CORS=0) (1 hora)
+3. ⚠️ Verificar y rotar JWT secrets si tienen espacios (1 hora)
+4. ⏳ Admin panel backend (8-10 horas)
+5. ⏳ Admin panel frontend (14-18 horas)
+
+**Tiempo Restante Estimado**: ~64 horas (15% del proyecto)
 
 ---
 

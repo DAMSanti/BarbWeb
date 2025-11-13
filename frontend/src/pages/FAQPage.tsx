@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Filter, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react'
+import { Search, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { LegalCategory, ConsultationRequest } from '../types'
 import { useAppStore } from '../store/appStore'
 import { filterQuestionWithBackend, checkBackendHealth } from '../services/backendApi'
 
-const CATEGORIES: LegalCategory[] = ['Civil', 'Penal', 'Laboral', 'Administrativo', 'Mercantil', 'Familia']
 const CONSULTATION_PRICE = 29.99
 
 interface AutoResponse {
@@ -20,10 +19,9 @@ interface AutoResponse {
 
 export default function FAQPage() {
   const navigate = useNavigate()
-  const { addConsultation } = useAppStore()
+  const { addConsultation, isAuthenticated } = useAppStore()
   const [question, setQuestion] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<LegalCategory | null>(null)
-  const [showFilters, setShowFilters] = useState(false)
   const [autoResponse, setAutoResponse] = useState<AutoResponse | null>(null)
   const [showAutoResponse, setShowAutoResponse] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -45,6 +43,13 @@ export default function FAQPage() {
     setErrorMessage('')
     setShowAutoResponse(false)
     setAutoResponse(null)
+
+    // Verificar si el usuario está logueado
+    if (!isAuthenticated) {
+      navigate('/login')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -139,42 +144,6 @@ export default function FAQPage() {
                 />
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               </div>
-            </div>
-
-            {/* Category Filter */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
-                  <Filter size={18} />
-                  <span>Categoría (Opcional - se detecta automáticamente)</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                >
-                  {showFilters ? 'Ocultar' : 'Mostrar'}
-                </button>
-              </div>
-
-              {showFilters && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {CATEGORIES.map((category) => (
-                    <button
-                      key={category}
-                      type="button"
-                      onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
-                      className={`p-3 rounded-lg font-medium transition-all ${
-                        selectedCategory === category
-                          ? 'bg-primary-600 text-white shadow-lg'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Error Message */}

@@ -94,6 +94,11 @@ Horas: ~92 / 150 completadas
 - ✅ **NUEVO: Success screen verificado**
 - ✅ **NUEVO: Flujo completo de pago funciona**
 
+### 🔒 Security middleware verified (Production)
+
+- ✅ `helmet` headers present in production (Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, etc.) — verified Nov 13, 2025
+- ✅ `express-rate-limit` active (X-RateLimit-* headers observed, limiter responding) — verified Nov 13, 2025
+
 ---
 
 ## 🚀 SIGUIENTE FASE: TESTING E2E Y EMAILS (Semana 7)

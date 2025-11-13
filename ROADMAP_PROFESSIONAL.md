@@ -93,7 +93,7 @@
 1. ✅ **Configurar Variables Frontend** - COMPLETADO (VITE_API_URL + VITE_STRIPE_PUBLISHED_KEY)
 2. ✅ **Testing E2E de Pagos** - COMPLETADO (Flujo completo con tarjeta test 4242)
 3. **Email Notifications** - 4 TODOs en webhooks.ts (Fase 3) (SIGUIENTE - 6-8 horas)
-4. **Rate Limiting** - Protección contra abuso (4-6 horas)
+4. ✅ **Rate Limiting** - Protección contra abuso (verificado Nov 13, 2025)
 5. **Monitoring** - Sentry integration (2-4 horas)
 
 #### Importante para User Experience (Fase 5-6)
@@ -1096,9 +1096,9 @@ Proteger la aplicación contra vulnerabilidades comunes.
 **Tiempo**: 10-12 horas
 
 #### Tareas
-- [ ] Rate limiting (express-rate-limit)
+- [x] Rate limiting (express-rate-limit) (verificado Nov 13, 2025)
 - [ ] CORS restrictivo (no `*`)
-- [ ] Helmet.js - Headers de seguridad
+- [x] Helmet.js - Headers de seguridad (verificado Nov 13, 2025)
 - [ ] Input validation (Zod)
 - [ ] SQL Injection prevention (Prisma ya lo hace)
 - [ ] XSS prevention

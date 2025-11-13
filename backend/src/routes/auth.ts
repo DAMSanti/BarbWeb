@@ -6,6 +6,7 @@ import {
   refreshAccessToken,
   logoutUser,
   linkOAuthAccount,
+  setupAdmin,
 } from '../services/authService.js'
 import { verifyToken, isAuthenticated } from '../middleware/auth.js'
 import { exchangeGoogleCode, exchangeMicrosoftCode } from '../utils/oauthHelper.js'
@@ -300,5 +301,47 @@ router.get('/verify-token', verifyToken, (req: Request, res: Response): void => 
     user: req.user,
   })
 })
+
+// ============================================================
+// SETUP & INITIALIZATION
+// ============================================================
+
+/**
+ * POST /auth/setup-admin
+ * Setup initial admin user (idempotent)
+ * Body: { email, password, name, setupToken? }
+ */
+router.post(
+  '/setup-admin',
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { email, password, name, setupToken } = req.body
+
+    // Basic validation
+    if (!email || !password || !name) {
+      res.status(400).json({
+        success: false,
+        error: 'email, password, and name are required',
+      })
+      return
+    }
+
+    if (password.length < 8) {
+      res.status(400).json({
+        success: false,
+        error: 'Password must be at least 8 characters',
+      })
+      return
+    }
+
+    const result = await setupAdmin(email, password, name, setupToken)
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin user created/updated successfully',
+      user: result.user,
+      tokens: result.tokens,
+    })
+  }),
+)
 
 export default router

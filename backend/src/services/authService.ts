@@ -370,12 +370,78 @@ export const linkOAuthAccount = async (
   })
 }
 
+// Setup initial admin user (idempotent - create or update)
+export const setupAdmin = async (
+  email: string,
+  password: string,
+  name: string,
+  setupToken?: string
+): Promise<{ user: any; tokens: TokenPair }> => {
+  // Validate setup token if provided (optional security layer)
+  if (setupToken) {
+    const expectedToken = process.env.SETUP_TOKEN || 'setup-secret-key'
+    if (setupToken !== expectedToken) {
+      throw new Error('Invalid setup token')
+    }
+  }
+
+  // Check if any admin already exists (prevent overwrite)
+  const existingAdmin = await prisma.user.findFirst({
+    where: { role: 'admin' },
+  })
+
+  if (existingAdmin && setupToken !== process.env.SETUP_TOKEN) {
+    throw new Error('Admin user already exists. Use correct setup token to override.')
+  }
+
+  // Hash password
+  const passwordHash = await hashPassword(password)
+
+  // Create or update user as admin
+  const user = await prisma.user.upsert({
+    where: { email },
+    update: {
+      role: 'admin',
+      passwordHash,
+      name,
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+    },
+    create: {
+      email,
+      name,
+      role: 'admin',
+      passwordHash,
+      emailVerified: true,
+      emailVerifiedAt: new Date(),
+    },
+  })
+
+  // Generate tokens
+  const tokens = generateTokens({
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+  })
+
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    },
+    tokens,
+  }
+}
+
 export default {
   registerUser,
   loginUser,
   oauthLogin,
   refreshAccessToken,
   logoutUser,
+  setupAdmin,
   generateTokens,
   hashPassword,
   verifyPassword,

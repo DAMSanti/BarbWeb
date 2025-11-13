@@ -23,6 +23,12 @@ echo ""
 echo "🎨 [2/6] Building frontend..."
 npm run build:frontend || echo "⚠️  Frontend build skipped or failed"
 
+# Ensure @types/node is available at repo root for tsc to pick up (fix TS2688)
+echo ""
+echo "📦 [2b/6] Ensuring @types/node is installed at repo root for TypeScript..."
+cd /workspace
+npm install --legacy-peer-deps --no-save @types/node || npm install --no-save @types/node || echo "⚠️ Could not install @types/node at root"
+
 # Step 4: Install backend dependencies
 echo ""
 echo "📦 [3/6] Installing backend dependencies..."

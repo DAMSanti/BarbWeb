@@ -72,6 +72,9 @@ ls -la /workspace/backend/node_modules/.prisma 2>/dev/null || echo "  no backend
 
 # Generate prisma client in repository root (matches hoisted node_modules)
 cd /workspace
+# Ensure @prisma/client is present at root to align generated client location
+echo "📦 [5a/6] Ensuring @prisma/client installed at repo root (best-effort)..."
+npm install --legacy-peer-deps --no-save @prisma/client || echo "⚠️ Could not install @prisma/client at root"
 # Try generate in repo root (where node_modules may be hoisted). If it fails, log but continue and try backend generate.
 echo "Generating prisma client in /workspace using schema ./backend/prisma/schema.prisma (root generate - best-effort)"
 # Force Prisma to use library engine where possible to avoid platform binary download issues

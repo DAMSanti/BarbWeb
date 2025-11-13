@@ -57,8 +57,19 @@ npm run build || npx tsc
 echo ""
 echo "🔄 [5/6] Generating Prisma client..."
 cd /workspace/backend
-# Generate prisma client using explicit schema path
-npx prisma generate --schema=./prisma/schema.prisma || echo "⚠️  Prisma generate failed or skipped"
+# Diagnostic: show where .prisma client folders currently exist
+echo "Looking for generated prisma clients (root and backend node_modules):"
+ls -la /workspace/node_modules/.prisma 2>/dev/null || echo "  no root .prisma folder"
+ls -la /workspace/backend/node_modules/.prisma 2>/dev/null || echo "  no backend .prisma folder"
+
+# Generate prisma client in repository root (matches hoisted node_modules)
+cd /workspace
+echo "Generating prisma client in /workspace using schema ./backend/prisma/schema.prisma"
+npx prisma generate --schema=./backend/prisma/schema.prisma || { echo "❌ Prisma generate failed in /workspace. Aborting build."; exit 1; }
+
+# Also attempt generate in backend folder (best-effort)
+cd /workspace/backend
+npx prisma generate --schema=./prisma/schema.prisma || echo "⚠️  Prisma generate in backend failed or skipped"
 
 # Step 7: Push database schema (only if DATABASE_URL available at build time)
 echo ""

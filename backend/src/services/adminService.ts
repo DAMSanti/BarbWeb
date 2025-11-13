@@ -383,36 +383,13 @@ export const getAnalytics = async (options: AnalyticsOptions) => {
 
   // Total users
   const totalUsers = await prisma.user.count()
-  const usersByRole = await prisma.user.groupBy({
-    by: ['role'],
-    _count: true,
-  })
 
   // Payment analytics
   const totalPayments = await prisma.payment.count({ where })
-  const paymentByStatus = await prisma.payment.groupBy({
-    by: ['status'],
-    where,
-    _count: true,
-    _sum: { amount: true },
-  })
 
   // Revenue analytics
   const totalRevenue = await prisma.payment.aggregate({
     where: { ...where, status: 'succeeded' },
-    _sum: { amount: true },
-  })
-
-  const totalRefunded = await prisma.payment.aggregate({
-    where: { ...where, status: 'refunded' },
-    _sum: { refundedAmount: true },
-  })
-
-  // Category distribution
-  const paymentsByCategory = await prisma.payment.groupBy({
-    by: ['category'],
-    where: { ...where, status: 'succeeded' },
-    _count: true,
     _sum: { amount: true },
   })
 
@@ -421,6 +398,52 @@ export const getAnalytics = async (options: AnalyticsOptions) => {
     where: { ...where, status: 'succeeded' },
     _avg: { amount: true },
   })
+
+  // Revenue this month (current month)
+  const now = new Date()
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+  const monthRevenue = await prisma.payment.aggregate({
+    where: {
+      status: 'succeeded',
+      createdAt: {
+        gte: monthStart,
+      },
+    },
+    _sum: { amount: true },
+  })
+
+  // Get daily trend data (last 7 days)
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const trendPayments = await prisma.payment.findMany({
+    where: {
+      status: 'succeeded',
+      createdAt: {
+        gte: sevenDaysAgo,
+      },
+    },
+    select: {
+      amount: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  })
+
+  // Group by date
+  const grouped: Record<string, number> = {}
+  trendPayments.forEach((p) => {
+    const date = new Date(p.createdAt).toISOString().split('T')[0] // YYYY-MM-DD
+    if (!grouped[date]) {
+      grouped[date] = 0
+    }
+    grouped[date] += p.amount.toNumber()
+  })
+
+  const paymentTrend = Object.entries(grouped).map(([date, amount]) => ({
+    date,
+    amount,
+  }))
 
   logger.info('[admin] getAnalytics', {
     startDate,
@@ -431,36 +454,12 @@ export const getAnalytics = async (options: AnalyticsOptions) => {
   })
 
   return {
-    users: {
-      total: totalUsers,
-      byRole: usersByRole.map((r) => ({
-        role: r.role,
-        count: r._count,
-      })),
-    },
-    payments: {
-      total: totalPayments,
-      byStatus: paymentByStatus.map((s) => ({
-        status: s.status,
-        count: s._count,
-        total: s._sum.amount || 0,
-      })),
-    },
-    revenue: {
-      total: totalRevenue._sum.amount || 0,
-      refunded: totalRefunded._sum.refundedAmount || 0,
-      netRevenue: (totalRevenue._sum.amount?.toNumber() || 0) - (totalRefunded._sum.refundedAmount?.toNumber() || 0),
-      averagePayment: avgPayment._avg.amount || 0,
-    },
-    categories: paymentsByCategory.map((c) => ({
-      category: c.category,
-      count: c._count,
-      total: c._sum.amount || 0,
-    })),
-    dateRange: {
-      startDate: startDate || null,
-      endDate: endDate || null,
-    },
+    totalRevenue: totalRevenue._sum?.amount?.toNumber() || 0,
+    totalPayments,
+    averagePayment: avgPayment._avg?.amount?.toNumber() || 0,
+    activeUsers: totalUsers,
+    activeRevenueThisMonth: monthRevenue._sum?.amount?.toNumber() || 0,
+    paymentTrend,
   }
 }
 

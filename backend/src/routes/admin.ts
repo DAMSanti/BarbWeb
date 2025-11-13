@@ -20,7 +20,7 @@ import { Router, Request, Response } from 'express'
 import { asyncHandler } from '../middleware/errorHandler.js'
 import { validate } from '../middleware/validation.js'
 import { apiRateLimit } from '../middleware/rateLimit.js'
-import { isAuthenticated } from '../middleware/auth.js'
+import { verifyToken, isAuthenticated } from '../middleware/auth.js'
 import { requireAdmin } from '../middleware/authorization.js'
 import * as adminService from '../services/adminService.js'
 import * as adminSchemas from '../schemas/admin.schemas.js'
@@ -28,7 +28,8 @@ import { logger } from '../utils/logger.js'
 
 const router = Router()
 
-// Apply authentication and rate limiting to all admin routes
+// Apply token verification first, then authentication and rate limiting to all admin routes
+router.use(verifyToken)
 router.use(isAuthenticated)
 router.use(requireAdmin)
 router.use(apiRateLimit)

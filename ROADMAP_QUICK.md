@@ -117,7 +117,6 @@
 - [ ] Dashboard (stats, charts)
 - [ ] Users manager
 - [ ] Payments manager
-- [ ] FAQ manager
 - [ ] Analytics page
 
 ---

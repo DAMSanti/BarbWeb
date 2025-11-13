@@ -4,7 +4,7 @@ services:
     github:
       branch: master
       repo: DAMSanti/BarbWeb
-    build_command: npm install --ignore-scripts && npm run build:frontend && npm run build:backend
+    build_command: npm ci && npm run build:frontend && npm run build:backend
     run_command: cd /workspace/backend && npx prisma generate && node dist/index.js
     envs:
       - key: PORT

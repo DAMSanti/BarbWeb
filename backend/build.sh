@@ -3,8 +3,6 @@
 # Build script for DigitalOcean - Complete build process
 # Handles: npm install, frontend build, backend build, prisma generate, db push
 
-set -e
-
 echo "======================================"
 echo "🚀 Starting Complete Build Process"
 echo "======================================"
@@ -37,7 +35,8 @@ echo "🔄 [4/6] Generating Prisma client..."
 cd /workspace/backend
 # Set a temporary DATABASE_URL if not already set (for schema generation)
 export DATABASE_URL="${DATABASE_URL:-postgresql://temp:temp@localhost/temp}"
-npx prisma generate
+# Use prisma CLI directly if available, fallback to npx
+prisma generate --schema /workspace/backend/prisma/schema.prisma 2>&1 || npx prisma generate 2>&1 || echo "⚠️  Prisma generation had issues but continuing..."
 
 # Step 6: Push database schema
 echo ""

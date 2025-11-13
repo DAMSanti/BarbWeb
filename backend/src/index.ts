@@ -20,6 +20,12 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = Number(process.env.PORT || 3000)
 
+console.log('📋 Environment Check:')
+console.log(`  PORT: ${PORT}`)
+console.log(`  DATABASE_URL: ${process.env.DATABASE_URL ? '✅ Set' : '❌ NOT SET'}`)
+console.log(`  NODE_ENV: ${process.env.NODE_ENV || 'development'}`)
+console.log('---')
+
 // ============================================================================
 // SECURITY MIDDLEWARE (MUST BE FIRST)
 // ============================================================================

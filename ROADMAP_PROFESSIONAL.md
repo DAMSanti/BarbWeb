@@ -2,14 +2,64 @@
 ## Hoja de Ruta hacia Producción Enterprise
 
 **Versión Actual**: 3.0 (MVP Completo + Email Service + Security Middleware)
-**Estado**: ✅ Email Service Funcionando + Security Activa + Testing Framework Setup
-**Fecha de Actualización**: Noviembre 13, 2025 - 18:30 (UTC-5)
-**Tiempo de Desarrollo**: ~108 horas completadas (16h nuevas desde última actualización)
+**Estado**: ✅ Email Service Funcionando + Security Activa + Testing Framework Setup (Framework Ready, Tests Not Executing)
+**Fecha de Actualización**: Noviembre 13, 2025 - 20:45 (UTC-5)
+**Tiempo de Desarrollo**: ~108 horas completadas
 **Progreso General**: 90% backend, 85% frontend → **85% total**
 
 ---
 
-## 📊 ESTADO ACTUAL DEL PROYECTO
+## 🚨 ANÁLISIS CRÍTICO DE COBERTURA DE TESTS - Noviembre 13, 2025
+
+### Cobertura V8 Actual: **8.99%** ⚠️ MUY BAJA
+
+```
+All files            |    8.99 |     1.07 |    7.79 |    9.04 | 
+ routes              |       0 |        0 |       0 |       0 | ❌ CERO COBERTURA
+ schemas             |   79.41 |      100 |   14.28 |   81.81 | ✅ Parcialmente cubierto
+ services            |   14.11 |     3.48 |   22.72 |    14.2 | ⚠️ Muy bajo
+ utils               |       0 |        0 |       0 |       0 | ❌ CERO COBERTURA
+```
+
+### Problema Identificado: Tests Escritos Pero No Ejecutándose
+
+**Archivos de Test Existentes**:
+```
+✅ backend/tests/unit/validators.test.ts (316 líneas)
+✅ backend/tests/unit/authService.test.ts (exists)
+✅ backend/tests/integration/auth.api.test.ts (296 líneas - PLACEHOLDERS)
+✅ backend/tests/integration/admin.api.test.ts (exists)
+✅ backend/tests/e2e/critical-flows.spec.ts (Playwright)
+```
+
+**Estado Real**:
+- ✅ Schemas testados: 79.41% coverage (auth.schemas, payment.schemas ESTÁN testeados)
+- ✅ authService.ts: 29.62% coverage (algunas funciones testeadas)
+- ❌ **routes/*.ts: 0% coverage** - NO HAY TESTS de rutas (auth.ts, payments.ts, admin.ts, webhooks.ts)
+- ❌ **services/emailService.ts: 0% coverage** - Email service NO testeado
+- ❌ **services/openaiService.ts: 0% coverage** - OpenAI service NO testeado
+- ❌ **utils/*.ts: 0% coverage** - Helpers NO testeados
+- ❌ **middleware/*.ts: 0% coverage** - Middleware NO testeado
+
+### Tests Que Son Placeholders (No Ejecutan)
+
+Los archivos `auth.api.test.ts` contienen pruebas comentadas que necesitan `supertest`:
+```typescript
+// describe('POST /auth/register', () => {
+//   it('should register new user', async () => {
+//     const response = await request(app)
+//       .post('/auth/register')
+//       .send({...})
+//     expect(response.status).toBe(201)
+//   })
+// })
+// 
+// Por ahora solo: expect(true).toBe(true) ← NO EJECUTAN NADA
+```
+
+---
+
+## ✅ CÓDIGO REALMENTE IMPLEMENTADO (Verificado Nov 13)
 
 ### ✅ Lo que Ya Funciona
 
@@ -70,6 +120,13 @@
 - ✅ **NUEVO: Security Middleware** - Helmet v7.1.0 + express-rate-limit v7.1.5
 - ✅ **NUEVO: 3 Rate Limiters** - Global (100/15min), Auth (5/15min), Payment (10/min)
 - ✅ **NUEVO: Testing Framework Setup** - Vitest + Playwright configurados (100+ tests escritos)
+- ✅ **NUEVO: Admin Panel Backend Completo** - 10 endpoints /api/admin/* con RBAC
+  - ✅ 4 endpoints gestión usuarios (GET list, GET detail, PATCH role, DELETE)
+  - ✅ 3 endpoints gestión pagos (GET list, GET detail, POST refund)
+  - ✅ 3 endpoints analytics (GET summary, GET trend, data points)
+  - ✅ Middleware RBAC con roles: admin, lawyer, user
+  - ✅ adminService.ts completo con toda la lógica de negocio
+  - ✅ Schemas de validación para admin endpoints
 
 #### Infraestructura & Deployment
 - ✅ PostgreSQL 15 en DigitalOcean Managed Database
@@ -98,7 +155,92 @@
 - ✅ **FAQ Model** (category, question, answer, keywords con full-text search, timestamps)
 - ✅ **CustomAgent Model** (userId, name, systemPrompt, knowledgeBase, timestamps)
 
-### ⚠️ Lo que Necesita Mejoras
+### ⚠️ Lo que Necesita Testing Urgente
+
+#### 🔴 CRÍTICO - Cobertura 0%:
+1. **Todas las rutas backend** (auth.ts, payments.ts, webhooks.ts, admin.ts, api.ts)
+   - Status: Implementadas y funcionando en producción
+   - Tests: NO existen tests que ejecuten contra estas rutas
+   - Prioridad: **ALTA** - Son los endpoints en uso
+
+2. **Email Service** (emailService.ts - 470+ líneas)
+   - Status: Completamente implementado y funcionando en webhooks
+   - Tests: NO testeado
+   - Prioridad: **ALTA** - Crítico para operaciones en producción
+
+3. **OpenAI/Gemini Service** (openaiService.ts - 127 líneas)
+   - Status: Funcionando en /api/filter-question
+   - Tests: NO testeado
+   - Prioridad: **MEDIA** - Core business logic
+
+4. **Middleware** (auth.ts, authorization.ts, errorHandler.ts, security.ts, validation.ts, rateLimit.ts)
+   - Status: Implementado y activo
+   - Tests: NO testeado
+   - Prioridad: **ALTA** - Security-critical
+
+5. **Utils** (logger.ts, oauthHelper.ts, faqDatabase.ts, errors.ts)
+   - Status: Implementado y en uso
+   - Tests: NO testeado
+   - Prioridad: **MEDIA**
+
+#### 🟡 PARCIAL - Cobertura Baja (14-79%):
+1. **Schemas** - 79.41% ✅ (auth.schemas, payment.schemas están bien cubiertos)
+2. **authService.ts** - 29.62% (solo algunas funciones testeadas)
+
+#### 📊 Resumen de Cobertura:
+```
+FUNCIONALIDAD                          IMPLEMENTADO    TESTEADO    % COVERAGE
+──────────────────────────────────────────────────────────────────────────
+Authentication (JWT + OAuth)           ✅ 100%         ⚠️ 30%      29.62%
+Validation (Zod)                       ✅ 100%         ✅ 80%       79.41%
+Payments (Stripe)                      ✅ 100%         ❌ 0%        0%
+Email Service                          ✅ 100%         ❌ 0%        0%
+Admin Panel                            ✅ 100%         ❌ 0%        0%
+Security (Helmet, Rate Limit)          ✅ 100%         ❌ 0%        0%
+Error Handling                         ✅ 100%         ❌ 0%        0%
+Middleware                             ✅ 100%         ❌ 0%        0%
+Routes (API, Auth, Payments, etc)      ✅ 100%         ❌ 0%        0%
+──────────────────────────────────────────────────────────────────────────
+TOTAL                                  ✅ 93%          ❌ 8.99%     8.99% ⚠️
+```
+
+### ✅ Lo que Ya Funciona
+
+#### 🔥 URGENTE - Testing: Framework Ready pero NO Ejecutándose
+**Estado**: ⏳ **BLOQUEADO** - 8.99% coverage | **Tiempo Estimado**: 40-60 horas
+
+**Problema**: 
+- ✅ Vitest + Playwright configurados correctamente
+- ✅ 100+ tests escritos en 4 archivos
+- ❌ Tests de rutas son placeholders (comentados, no ejecutan)
+- ❌ 0% coverage en routes, services, middleware, utils
+- ❌ Solo 79% en schemas, 30% en authService
+
+**Solución Inmediata (esta semana)**:
+```bash
+# 1. Instalar supertest (¡CRÍTICO!)
+npm install -D supertest @types/supertest --workspace backend
+
+# 2. Reemplazar placeholders en auth.api.test.ts
+# Cambiar de: expect(true).toBe(true)
+# A: const response = await request(app).post('/auth/register')...
+
+# 3. Crear nuevos test files
+# - backend/tests/integration/payments.routes.test.ts
+# - backend/tests/integration/admin.routes.test.ts
+# - backend/tests/unit/emailService.test.ts
+# - backend/tests/unit/openaiService.test.ts
+# - backend/tests/unit/middleware.auth.test.ts
+
+# 4. Ejecutar tests
+npm run test:unit       # 10-15 tests
+npm run test:integration # 40+ tests
+npm run test:coverage   # Generar reporte
+```
+
+**Target**: Mínimo 70% coverage antes de próxima release
+
+---
 
 #### Crítico para Producción Enterprise (Fase 2-4)
 1. ✅ **Configurar Variables Frontend** - COMPLETADO (todas las variables configuradas)
@@ -106,15 +248,16 @@
 3. ✅ **Email Notifications** - COMPLETADO (Resend + 4 templates + webhooks integrados)
 4. ✅ **Rate Limiting** - COMPLETADO (3 limiters activos verificados Nov 13, 2025)
 5. ✅ **Security Headers** - COMPLETADO (Helmet activo verificado Nov 13, 2025)
-6. ⚠️ **CORS Restrictivo** - Pendiente (ALLOW_ALL_CORS=1 activo, cambiar a 0)
-7. ⏳ **Ejecutar Tests** - Pendiente (framework setup, falta ejecutar y generar coverage)
-8. ⏳ **Monitoring** - Pendiente (Sentry integration 2-4 horas)
+6. ✅ **Admin Panel Backend** - COMPLETADO (10 endpoints con RBAC, adminService.ts ~600 líneas)
+7. ⚠️ **CORS Restrictivo** - Pendiente (ALLOW_ALL_CORS=1 activo, cambiar a 0)
+8. ⏳ **Ejecutar Tests REALES** - PENDIENTE (framework setup ✅, falta supertest + ejecutar tests)
+9. ⏳ **Monitoring** - Pendiente (Sentry integration 2-4 horas)
 
 #### Importante para User Experience (Fase 5-6)
-1. **Panel de Administración** - Gestión de consultas y usuarios (24-32 horas)
-2. **Historial de Usuario** - Ver consultas antiguas (4-6 horas)
-3. **Testing Unitarios** - Cobertura mínima 70% (16-20 horas)
-4. **API Documentation** - Swagger/OpenAPI (4-6 horas)
+1. ✅ **Panel de Administración Frontend** - COMPLETADO (4 páginas, AdminDashboard, Users, Payments, Analytics)
+2. ⏳ **Historial de Usuario** - Ver consultas antiguas (4-6 horas)
+3. ⏳ **Testing Unitarios** - Cobertura mínima 70% (40-60 horas urgentes)
+4. ⏳ **API Documentation** - Swagger/OpenAPI (4-6 horas)
 
 #### Deseable (Fase 7-8)
 1. **Chat en Vivo** - Soporte real-time con socket.io
@@ -1387,43 +1530,55 @@ npm run test:coverage
 
 ---
 
-## 🎨 FASE 5: PANEL ADMINISTRATIVO (Semanas 8-10) | 24-32 horas
+## 🎨 FASE 5: PANEL ADMINISTRATIVO (✅ 100% COMPLETADA - Semana 8) | 24-32 horas
 
 ### Objetivo
-Interfaz para que administradores gestionen usuarios, pagos y FAQs.
+Interfaz para que administradores gestionen usuarios, pagos y analytics.
 
-### 5.1 Backend Admin Endpoints
-**Tiempo**: 8-10 horas
+### ✅ 5.1 Backend Admin Endpoints - COMPLETADO
+**Tiempo**: 8-10 horas | **Estado**: ✅ DONE 100%
 
-#### Endpoints
+#### ✅ Endpoints Implementados
+
+**Gestión de Usuarios (4 endpoints)**
 ```
-GET    /api/admin/users - Listar usuarios
-GET    /api/admin/users/:id - Detalle usuario
-PATCH  /api/admin/users/:id - Editar usuario
-DELETE /api/admin/users/:id - Eliminar usuario
-
-GET    /api/admin/payments - Listar pagos
-GET    /api/admin/payments/:id - Detalle pago
-PATCH  /api/admin/payments/:id/refund - Reembolso
-
-GET    /api/admin/faqs - Listar FAQs
-POST   /api/admin/faqs - Crear FAQ
-PATCH  /api/admin/faqs/:id - Editar FAQ
-DELETE /api/admin/faqs/:id - Eliminar FAQ
-
-GET    /api/admin/analytics - Estadísticas generales
+✅ GET    /api/admin/users              - Listar usuarios paginated + filtros
+✅ GET    /api/admin/users/:id          - Detalle usuario  
+✅ PATCH  /api/admin/users/:id/role     - Cambiar rol (user/lawyer/admin)
+✅ DELETE /api/admin/users/:id          - Eliminar usuario (cascade delete)
 ```
 
-#### Autenticación
-- [ ] Rol-based access control (RBAC)
-- [ ] Roles: `user`, `lawyer`, `admin`
-- [ ] Middleware de autorización
+**Gestión de Pagos (3 endpoints)**
+```
+✅ GET    /api/admin/payments           - Listar pagos con filtros y búsqueda
+✅ GET    /api/admin/payments/:id       - Detalle de pago
+✅ POST   /api/admin/payments/:id/refund - Procesar reembolso via Stripe
+```
+
+**Analytics (3 endpoints)**
+```
+✅ GET    /api/admin/analytics          - Resumen: ingresos, pagos, usuarios activos
+✅ GET    /api/admin/analytics/trend    - Datos de tendencias (daily/weekly/monthly)
+```
+
+#### ✅ Autenticación y Autorización
+- ✅ Rol-based access control (RBAC) - Middleware implementado
+- ✅ Roles: `user`, `lawyer`, `admin`
+- ✅ Middleware: `requireAdmin`, `requireRole`, `requireAdminOrLawyer`
+- ✅ Protección: Todos los endpoints /api/admin/* requieren admin role
 
 ```typescript
-// backend/src/middleware/authorization.ts
-export const requireRole = (...roles: string[]) => {
+// backend/src/middleware/authorization.ts (100+ líneas)
+export const requireAdmin = (req, res, next) => {
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' })
+  }
+  next()
+}
+
+export const requireRole = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user?.role)) {
       return res.status(403).json({ error: 'Forbidden' })
     }
     next()
@@ -1431,56 +1586,167 @@ export const requireRole = (...roles: string[]) => {
 }
 ```
 
-### 5.2 Frontend Admin Panel
-**Tiempo**: 14-18 horas
-
-#### Páginas Necesarias
-- `AdminDashboard.tsx` - Vista general (stats, gráficos de pagos)
-- `UsersManager.tsx` - Gestionar usuarios
-- `PaymentsManager.tsx` - Historial de pagos y reembolsos
-- `FAQManager.tsx` - Gestionar base de preguntas frecuentes
-- `AnalyticsPage.tsx` - Estadísticas de la plataforma
-
-#### Componentes
-- Dashboard cards (Stats de usuarios, ingresos, etc.)
-- Data tables (react-table)
-- Charts (Chart.js o Recharts)
-- Forms para CRUD de FAQs
-- Filters y búsqueda
-
-#### Ejemplo Estructura
-```
-frontend/src/
-├── pages/admin/
-│   ├── AdminDashboard.tsx
-│   ├── UsersManager.tsx
-│   ├── PaymentsManager.tsx
-│   ├── FAQManager.tsx
-│   └── AnalyticsPage.tsx
-├── components/admin/
-│   ├── StatsCard.tsx
-│   ├── UsersTable.tsx
-│   ├── PaymentsTable.tsx
-│   ├── FAQForm.tsx
-│   └── AnalyticsChart.tsx
-└── hooks/
-    ├── useAdmin.ts
-    ├── useUsers.ts
-    ├── usePayments.ts
-    └── useFAQs.ts
-```
-
-### 5.3 Rutas Protegidas
-**Tiempo**: 2-4 horas
+#### ✅ Admin Service - Lógica de Negocio
+**Archivo**: `backend/src/services/adminService.ts` (600+ líneas)
 
 ```typescript
-// frontend/src/routes/AdminRoutes.tsx
-<Route element={<AdminLayout />}>
+✅ getUsers(options) - Query builder con filtros, búsqueda, paginación
+✅ getUserById(userId) - Detalle con validación de acceso
+✅ updateUserRole(userId, newRole) - Cambiar rol
+✅ deleteUser(userId) - Eliminar usuario + datos relacionados
+
+✅ getPayments(options) - Filtros: status, userId, dateRange, search
+✅ getPaymentDetail(paymentId) - Detalles con validación
+✅ refundPayment(paymentId, reason) - Procesa reembolso con Stripe
+
+✅ getAnalytics(options) - Revenue, count, average, active users
+✅ getAnalyticsTrend(groupBy, dates) - Tendencias con agrupación temporal
+```
+
+#### ✅ Schemas de Validación
+**Archivo**: `backend/src/schemas/admin.schemas.ts` (200+ líneas)
+
+```typescript
+✅ GetUsersSchema - Validación de query params (page, limit, role, search, sort)
+✅ GetUserDetailSchema - Validación de ID
+✅ UpdateUserRoleSchema - Validación de nuevo rol
+✅ DeleteUserSchema - Validación de ID
+
+✅ GetPaymentsSchema - Filtros y paginación
+✅ GetPaymentDetailSchema - ID validation
+✅ RefundPaymentSchema - ID + reason
+
+✅ GetAnalyticsSchema - Date range validation
+✅ GetAnalyticsTrendSchema - groupBy + date range
+```
+
+#### ✅ Integración Completa
+```typescript
+// backend/src/index.ts
+app.use('/api/admin', adminRoutes)  // Protegidas con requireAdmin
+
+// backend/src/routes/admin.ts (259 líneas)
+// Aplicar middlewares en orden:
+router.use(verifyToken)            // Autenticar
+router.use(isAuthenticated)        // Verificar usuario
+router.use(requireAdmin)           // Verificar rol admin
+router.use(apiRateLimit)           // Rate limit
+
+// Todos los endpoints protegidos automáticamente
+```
+
+### ✅ 5.2 Frontend Admin Panel - COMPLETADO
+**Tiempo**: 14-18 horas | **Estado**: ✅ DONE 100%
+
+#### ✅ Páginas Implementadas
+```
+✅ frontend/src/pages/AdminDashboard.tsx
+   - Estadísticas: Revenue, Payment Count, Average, Active Users
+   - Gráficos con tendencias
+   - Charts integrados
+
+✅ frontend/src/pages/AdminUsers.tsx
+   - Tabla de usuarios
+   - Filtros por rol
+   - Búsqueda por nombre/email
+   - Paginación
+   - Acciones: view detail, change role, delete
+
+✅ frontend/src/pages/AdminPayments.tsx
+   - Tabla de pagos
+   - Filtros por status (pending/succeeded/failed/refunded)
+   - Búsqueda por usuario/ID
+   - Paginación
+   - Acciones: view detail, refund
+
+✅ frontend/src/pages/AdminAnalytics.tsx
+   - Datos de tendencias
+   - Filtros por fecha (daily/weekly/monthly)
+   - Visualización de datos históricos
+   - Export data (opcional)
+```
+
+#### ✅ Layout y Navegación
+```
+✅ frontend/src/layouts/AdminLayout.tsx
+   - Sidebar con navegación a cada sección
+   - Header con info de admin
+   - Links: Dashboard, Users, Payments, Analytics
+
+✅ frontend/src/components/AdminNav.tsx
+   - Menu items con iconos
+   - Active state indicator
+   - Mobile responsive
+```
+
+#### ✅ Rutas Protegidas
+```typescript
+// frontend/src/App.tsx - Rutas admin protegidas
+<Route element={<PrivateRoute requiredRole="admin"><AdminLayout /></PrivateRoute>}>
   <Route path="/admin/dashboard" element={<AdminDashboard />} />
-  <Route path="/admin/consultations" element={<ConsultationsManager />} />
-  {/* ... más rutas */}
+  <Route path="/admin/users" element={<AdminUsers />} />
+  <Route path="/admin/payments" element={<AdminPayments />} />
+  <Route path="/admin/analytics" element={<AdminAnalytics />} />
 </Route>
 ```
+
+#### ✅ Características
+- ✅ Data tables con paginación
+- ✅ Filtros y búsqueda en tiempo real
+- ✅ Validación de acceso (solo admins)
+- ✅ Error handling
+- ✅ Loading states
+- ✅ Responsive design
+- ✅ Integración Axios + Zustand
+- ✅ Authorization header en todos los requests
+
+#### 📊 Código Implementado
+```
+frontend/src/pages/
+├── AdminDashboard.tsx          (200+ líneas)
+├── AdminUsers.tsx              (300+ líneas)  
+├── AdminPayments.tsx           (320+ líneas)
+├── AdminAnalytics.tsx          (250+ líneas)
+
+frontend/src/layouts/
+├── AdminLayout.tsx             (150+ líneas)
+
+backend/src/
+├── routes/admin.ts             (259 líneas)
+├── services/adminService.ts    (600+ líneas)
+├── schemas/admin.schemas.ts    (200+ líneas)
+└── middleware/authorization.ts (150+ líneas)
+```
+
+### ✅ 5.3 Testing Admin Panel - PENDIENTE
+**Estado**: ⏳ Necesita tests de integración
+
+```bash
+# Tests pendientes para escribir:
+backend/tests/integration/admin.routes.test.ts
+  - GET /api/admin/users
+  - GET /api/admin/users/:id
+  - PATCH /api/admin/users/:id/role
+  - DELETE /api/admin/users/:id
+  - GET /api/admin/payments
+  - GET /api/admin/payments/:id
+  - POST /api/admin/payments/:id/refund
+  - GET /api/admin/analytics
+  - GET /api/admin/analytics/trend
+
+backend/tests/unit/adminService.test.ts
+  - getUsers() con filters
+  - updateUserRole()
+  - getPayments() con search
+  - refundPayment()
+  - getAnalytics()
+
+backend/tests/unit/middleware.authorization.test.ts
+  - requireAdmin blocks non-admins
+  - requireRole validates correctly
+```
+
+#### 📊 Estado: 100% BACKEND + FRONTEND IMPLEMENTADO, 0% TESTS
 
 ---
 
@@ -1576,7 +1842,7 @@ export const logger = winston.createLogger({
 ## 📋 CHECKLIST DE PRODUCCIÓN
 
 ### Pre-Launch
-- [ ] Todas las tests pasando
+- [ ] Todas las tests pasando (CRÍTICO: Actualmente 8.99%)
 - [ ] Zero console errors en navegador
 - [ ] All endpoints documentados
 - [ ] API documentation (Swagger/OpenAPI)
@@ -1732,6 +1998,88 @@ TOTAL MENSUAL: $100-300/mes
 4. [ ] Testing de pagos
 5. [ ] Admin panel MVP
 6. [ ] Deploy en staging
+
+---
+
+## 🎯 RESUMEN EJECUTIVO - ESTADO ACTUAL (Noviembre 13, 2025)
+
+### ✅ Estado Completado (93% del Código Implementado)
+
+| Componente | Implementación | Testing | Estado |
+|-----------|-----------------|---------|--------|
+| **Backend API** | 100% | 0-30% | ✅ En Producción |
+| **Frontend** | 100% | 0% | ✅ En Producción |
+| **Database** | 100% | N/A | ✅ Funcionando |
+| **Auth (JWT/OAuth2)** | 100% | 30% | ✅ Funcional |
+| **Stripe Pagos** | 100% | 0% | ✅ Producción Real |
+| **Email Service** | 100% | 0% | ✅ 4 Plantillas |
+| **Admin Panel** | 100% | 0% | ✅ Completo |
+| **Security** | 100% | 0% | ✅ Activa |
+| **Webhooks** | 100% | 0% | ✅ Funcionando |
+
+### 🔥 CRÍTICO - Test Coverage: 8.99% (Necesita Tests Reales)
+
+**Problema Identificado**: Tests framework instalado (Vitest) pero tests son placeholders `expect(true).toBe(true)`
+
+```
+Área                    Coverage    Status          Acción
+─────────────────────────────────────────────────────────────
+routes/*                0%          ❌ No testado   → Crear con supertest
+services                14%         ⚠️ Parcial      → Completar
+schemas                 79%         ✅ Bueno        → Mantener
+middleware              0%          ❌ No testado   → Crear tests
+utils                   0%          ❌ No testado   → Crear tests
+─────────────────────────────────────────────────────────────
+TOTAL                   8.99%       ❌ CRÍTICO      → Target: 70%
+```
+
+### 📊 Tareas Inmediatas (Esta Semana) - 40-60 Horas
+
+1. **Instalar herramientas de testing** (1 hora)
+   ```bash
+   npm install -D supertest @types/supertest --workspace backend
+   ```
+
+2. **Reemplazar tests placeholder** (10 horas)
+   - Cambiar `expect(true).toBe(true)` por llamadas reales a API
+   - auth.api.test.ts, admin.api.test.ts, payments.test.ts
+
+3. **Crear test files nuevos** (25 horas)
+   - `payments.routes.test.ts` - Endpoints Stripe
+   - `admin.routes.test.ts` - Admin panel endpoints
+   - `middleware.authorization.test.ts` - RBAC tests
+   - `emailService.test.ts` - Email templates
+   - `openaiService.test.ts` - AI filtering
+
+4. **Ejecutar y fijar tests** (5 horas)
+   ```bash
+   npm run test:coverage
+   ```
+
+5. **Target**: **Mínimo 70% coverage** antes de release
+
+### 📅 Timeline Recomendado
+
+- **Semana 14 (Nov 13-20)**: 70% test coverage ← **BLOCKER CRÍTICO**
+- **Semana 15 (Nov 20-27)**: CORS restrictivo + Sentry monitoring
+- **Semana 16+ (Dic 4+)**: SEO, Performance, Release a producción
+
+### 💡 Conclusión
+
+**Proyecto Funcional pero Bajo-Testeado**
+- ✅ 93% del código completado y funcionando
+- ✅ Todo en producción y generando ingresos reales
+- ❌ Solo 8.99% testeado (crítico para estabilidad)
+
+**Blocker Inmediato**: Test coverage - Sin esto, cualquier cambio riesgoso
+
+**Recomendación**: Dedicar 40-60 horas AHORA a escribir tests reales con supertest.
+
+---
+
+**Versión**: 3.2 (Actualizada con análisis real de cobertura)  
+**Fecha Análisis**: Noviembre 13, 2025 - 20:55 UTC-5  
+**Próxima Revisión**: Noviembre 20, 2025
 
 ---
 

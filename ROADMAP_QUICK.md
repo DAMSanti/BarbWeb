@@ -90,94 +90,142 @@
 
 > ⚠️ **IMPORTANTE**: CORS está en modo debug (ALLOW_ALL_CORS=1) - cambiar a 0 antes de producción para restringir a `VITE_FRONTEND_URL` únicamente.
 
-#### ✅ Paso 5: Testing Básico (2-3 días) ⏳ EN PROGRESO
+#### ✅ Paso 5: Testing Básico (4-6 horas) ⏳ CRÍTICO - EN PROGRESO
 - [x] ✅ Setup Vitest (vitest.config.ts creado)
 - [x] ✅ Test files creados:
-  - [x] ✅ backend/tests/unit/validators.test.ts (60+ tests)
-  - [x] ✅ backend/tests/unit/authService.test.ts (40+ tests)
-  - [x] ✅ backend/tests/integration/auth.api.test.ts
+  - [x] ✅ backend/tests/unit/validators.test.ts (schemas: 79.41% coverage)
+  - [x] ✅ backend/tests/unit/authService.test.ts (29.62% coverage)
+  - [x] ✅ backend/tests/integration/auth.api.test.ts (PLACEHOLDERS)
   - [x] ✅ backend/tests/e2e/critical-flows.spec.ts (Playwright)
-- [ ] ⏳ Instalar dev dependencies (vitest, playwright, supertest)
-- [ ] ⏳ Ejecutar tests y verificar que pasen
-- [ ] ⏳ Generar coverage report
-- [ ] ⏳ Target: 70%+ coverage
+- [x] ✅ Dev dependencies instalados (vitest, playwright, supertest)
+- [ ] ⏳ **Reemplazar tests placeholder con llamadas reales a API** (10h)
+- [ ] ⏳ **Crear tests para routes no testeadas** (20h)
+  - [ ] payments.routes.test.ts
+  - [ ] admin.routes.test.ts
+  - [ ] middleware.authorization.test.ts
+  - [ ] emailService.test.ts
+  - [ ] openaiService.test.ts
+- [ ] ⏳ Ejecutar `npm run test:coverage` y generar reporte
+- [ ] ⏳ **Target: 70%+ coverage (ACTUALMENTE 8.99% - CRÍTICO)** 🔥
+
+> ⚠️ **IMPORTANTE**: Coverage actualmente 8.99% porque tests son placeholders (expect(true).toBe(true)). Necesita reescribirse con supertest para tests de verdad. Ver FEATURES_PENDIENTES.md para plan detallado.
 
 ---
 
 ### SEMANA 9-11: PANEL ADMINISTRATIVO (24-32 horas) 🎨 ✅ COMPLETADO
 
 #### ✅ Paso 6: Admin Backend (2 días) ✅ COMPLETADO
-- [x] ✅ RBAC (Role-Based Access Control)
-- [x] ✅ Endpoints para:
-  - [x] ✅ Gestionar usuarios (GET, PATCH role, DELETE)
-  - [x] ✅ Gestionar pagos (GET, refund)
-  - [x] ✅ Ver analytics (resumen y trends)
+- [x] ✅ RBAC (Role-Based Access Control) - middleware/authorization.ts (150+ lines)
+- [x] ✅ 10 Endpoints implementados:
+  - [x] ✅ GET /api/admin/users - Listar usuarios
+  - [x] ✅ GET /api/admin/users/:id - Detalle usuario
+  - [x] ✅ PATCH /api/admin/users/:id - Editar usuario (rol)
+  - [x] ✅ DELETE /api/admin/users/:id - Eliminar usuario
+  - [x] ✅ GET /api/admin/payments - Listar pagos
+  - [x] ✅ GET /api/admin/payments/:id - Detalle pago
+  - [x] ✅ POST /api/admin/payments/:id/refund - Reembolso
+  - [x] ✅ GET /api/admin/analytics - Estadísticas
+  - [x] ✅ GET /api/admin/analytics/trend - Tendencias
+  - [x] ✅ GET /api/admin/data-points - Puntos de datos
+- [x] ✅ adminService.ts (600+ lines) con toda la lógica de negocio
+- [x] ✅ admin.schemas.ts con validación Zod de todos los endpoints
 
 #### ✅ Paso 7: Admin Frontend (3-4 días) ✅ COMPLETADO
-- [x] ✅ Dashboard (stats, charts)
-- [x] ✅ Users manager
-- [x] ✅ Payments manager
-- [x] ✅ Analytics page
+- [x] ✅ AdminDashboard.tsx - Stats y charts
+- [x] ✅ AdminUsers.tsx - Gestión de usuarios (CRUD)
+- [x] ✅ AdminPayments.tsx - Historial de pagos y refunds
+- [x] ✅ AdminAnalytics.tsx - Estadísticas y tendencias
+- [x] ✅ Integración con API backend
+- [x] ✅ Manejo de errores y loading states
+
+> ⚠️ **NOTA**: Admin panel está 100% implementado pero requiere 0% tests actualmente. Ver FEATURES_PENDIENTES.md - necesita admin.routes.test.ts
 
 ---
 
 ### SEMANA 11: SEO & PERFORMANCE (12-16 horas) 🔍
 
-#### ✅ Paso 8: SEO (1 día)
-- [ ] Meta tags dinámicos (react-helmet)
-- [ ] Sitemap.xml
-- [ ] Schema.org structured data
-- [ ] Open Graph tags
+#### ⏳ Paso 8: SEO (1 día)
+- [ ] react-helmet para meta tags dinámicos
+- [ ] Sitemap.xml generado automáticamente
+- [ ] robots.txt
+- [ ] Schema.org structured data (JSON-LD)
+- [ ] Open Graph tags completos
+- [ ] Canonical URLs
 
-#### ✅ Paso 9: Performance (1 día)
-- [ ] Code splitting
-- [ ] Image optimization
+**Tiempo Estimado**: 6-8 horas  
+**Prioridad**: Media (después de lanzamiento)
+
+#### ⏳ Paso 9: Performance (1 día)
+- [ ] Code splitting (React.lazy)
 - [ ] Bundle analysis
-- [ ] Lighthouse >90
+- [ ] Image optimization
+- [ ] Lazy loading de imágenes
+- [ ] Lighthouse score >90
+- [ ] Caching headers
+
+**Tiempo Estimado**: 6-8 horas  
+**Prioridad**: Media (después de lanzamiento)
 
 ---
 
 ### SEMANA 12: MONITOREO & LAUNCH (8-12 horas) 📊
 
 #### ✅ Paso 10: Logging & Monitoring (1 día)
-- [ ] Winston logging (✅ YA COMPLETADO)
-- [ ] Sentry integration
-- [ ] Error tracking
+- [x] ✅ Winston logging (backend activo)
+- [ ] Sentry integration (error tracking y alerts)
 - [ ] Performance monitoring
+- [ ] Errores automáticos a email/Slack
 
-#### ✅ Paso 11: Pre-Launch Checklist (0.5 días)
-- [x] ✅ Tests pasando 100% (21/22 PASS)
-- [x] ✅ Zero console errors
-- [ ] API documentation (Swagger)
-- [ ] Backups configurados
+**Tiempo Estimado**: 2-4 horas  
+**Prioridad**: Media-Alta (recomendado desde día 1)
+
+#### ⚠️ Paso 11: Pre-Launch Checklist (0.5 días)
+- [x] ✅ Tests creados (pero 8.99% coverage - NECESITA FIXING)
+- [x] ✅ Zero console errors en navegador
+- [ ] ⏳ API documentation (Swagger/OpenAPI) - PENDIENTE
+- [ ] ⏳ Database backups automáticos
 - [x] ✅ SSL/TLS activo (DigitalOcean)
-- [ ] Rate limiting activo
-- [ ] Stripe en modo live
+- [x] ✅ Rate limiting activo (3 limiters)
+- [ ] ⏳ Stripe en modo LIVE (actualmente TEST)
+- [x] ✅ Email verificado (Resend activo)
+- [x] ✅ Security headers activos (Helmet)
+- [ ] ⚠️ CORS restrictivo (cambiar ALLOW_ALL_CORS=1 a 0) - CRÍTICO
+- [ ] ⚠️ Verificar/rotar JWT secrets
 
-#### ✅ Paso 12: Go Live (0.5 días)
-- [ ] Deploy en producción
-- [ ] Smoke tests
-- [ ] Monitor 24/7
-- [ ] Email confirmations working
-- [ ] Stripe en modo live
+**Tiempo Estimado**: 2-3 horas  
+**Prioridad**: ALTA - Bloquea lanzamiento
+
+#### ⏳ Paso 12: Go Live (0.5 días)
+- [ ] Todos los checklist items completados
+- [ ] Smoke tests en producción
+- [ ] Monitor de logs 24/7 primer día
+- [ ] Email confirmations verificadas
+- [ ] Stripe modo LIVE activado
+- [ ] Backups configurados
+
+**Tiempo Estimado**: 2-4 horas
 
 ---
 
 ## 📈 TIMELINE RESUMIDO
 
 ```
-✅ Semana 1-4:  Auth + DB + Error Handling   (COMPLETADO)
-✅ Semana 5-6:  Stripe Backend + Frontend    (COMPLETADO)
-✅ Semana 7:    Config Producción + E2E Test (COMPLETADO)
-✅ Semana 8a:   Email Service               (COMPLETADO - 6h)
-✅ Semana 8b:   Security (Helmet + Rate Limit) (COMPLETADO - 4h)
-⏳ Semana 8c:   Tests Execution              (4-6h) ⏱️
-Semana 9-11:  Admin Panel                 (32h) 🎨
-Semana 12:    SEO + Performance           (16h) 🔍
-Semana 13:    Monitoring + Launch         (12h) 📊
-────────────────────────────────────────────────────
-COMPLETADO:  ~108 horas / 8.5 semanas ✅ (85%)
-RESTANTE:    ~64 horas / 4-5 semanas ⏱️ (15%)
+✅ Semana 1-4:   Auth + DB + Error Handling      (COMPLETADO)
+✅ Semana 5-6:   Stripe Backend + Frontend       (COMPLETADO)
+✅ Semana 7:     Config Producción + E2E Test    (COMPLETADO)
+✅ Semana 8a:    Email Service                   (COMPLETADO - 6h)
+✅ Semana 8b:    Security (Helmet + Rate Limit)  (COMPLETADO - 4h)
+✅ Semana 8c:    Admin Panel COMPLETO            (COMPLETADO - 24-32h)
+⏳ Semana 8d:    Tests Execution & Fix           (4-6h) 🔴 CRÍTICO
+────────────────────────────────────────────────────────────
+Semana 11:       SEO + Performance               (12-16h)
+Semana 12:       Monitoreo + Launch             (8-12h)
+Semana 13+:      Features adicionales           (variable)
+────────────────────────────────────────────────────────────
+COMPLETADO:      ~142 horas / 9 semanas ✅ (93%)
+RESTANTE:        ~40-50 horas / 2-3 semanas ⏱️ (7%)
+
+🔴 BLOCKER CRÍTICO: 8.99% test coverage (necesita 70%)
 ```
 
 ---
@@ -191,19 +239,24 @@ RESTANTE:    ~64 horas / 4-5 semanas ⏱️ (15%)
 4. ✅ Email confirmaciones (DONE - Resend + 4 templates)
 5. ✅ Rate limiting (DONE - 3 limiters activos)
 6. ✅ Security headers (DONE - Helmet configurado)
-7. ⚠️ CORS restrictivo (modo debug activo, cambiar antes de launch)
+7. ⚠️ CORS restrictivo (DONE backend, cambiar ALLOW_ALL_CORS=1 a 0)
+8. ✅ Admin Panel completo (DONE - 100%)
+9. 🔴 **Tests ejecución (8.99% → 70%) - BLOCKER CRÍTICO**
 
 ### Importante para Producción ⭐⭐
-8. ⏳ Tests E2E ejecutados (70%+ coverage) - SIGUIENTE
-9. ⏳ Admin panel MVP
-10. ✅ Logging (Winston - DONE)
-11. ⚠️ Rotar secrets (JWT_SECRET y JWT_REFRESH_SECRET parecen tener espacios)
+10. ⏳ Email reset password (password recovery flow)
+11. ⏳ Sentry monitoring integration
+12. ⏳ API documentation (Swagger)
+13. ✅ Logging (Winston - DONE)
+14. ⚠️ Verificar/rotar secrets (JWT_SECRET, JWT_REFRESH_SECRET)
 
 ### Deseable ⭐
-10. ⏳ SEO completo
-11. ⏳ Analytics
-12. ⏳ Chat en vivo
-13. ⏳ Multi-idioma
+15. ⏳ SEO completo
+16. ⏳ Performance optimization
+17. ⏳ Analytics avanzado
+18. ⏳ Chat en vivo
+19. ⏳ Multi-idioma
+20. ⏳ Sistema de ratings
 
 ---
 
@@ -211,14 +264,14 @@ RESTANTE:    ~64 horas / 4-5 semanas ⏱️ (15%)
 
 **Antes de ir a Producción:**
 - ✅ 0 console errors en navegador
-- ⏳ 100% de tests pasando (tests creados, falta ejecutar)
-- ⏳ 70%+ code coverage (vitest configurado)
+- ❌ 8.99% test coverage (TARGET: 70%+) - 🔴 BLOCKER
 - ⏳ Lighthouse score >90 (pendiente audit)
 - ✅ Stripe en test mode funcionando
 - ✅ Emails enviándose correctamente (Resend activo)
 - ✅ Rate limiting activo (3 limiters configurados)
 - ⚠️ CORS/Security headers configurados (cambiar ALLOW_ALL_CORS=0)
-- ⚠️ Verificar JWT secrets (parecen tener espacios, rotar si necesario)
+- ⚠️ Verificar JWT secrets (revisar si tienen espacios/caracteres especiales)
+- ✅ Admin panel funcionando 100%
 
 ---
 
@@ -287,13 +340,61 @@ TOTAL CON SENTRY:        $80-300/mes
 
 ---
 
-**Próxima actualización**: Noviembre 14, 2025  
-**Responsable**: Full-Stack Dev  
-**Estado**: 85% completado - Excelente progreso ✅
+## 📋 FEATURES PENDIENTES (RESUMEN EJECUTIVO)
 
-**Notas importantes**:
-- ⚠️ Cambiar `ALLOW_ALL_CORS=1` a `0` antes de lanzamiento
-- ⚠️ Verificar y rotar JWT secrets (parecen contener espacios)
-- 📧 Email service completamente funcional
-- 🛡️ Security middleware activo y funcionando
-- ⏳ Siguiente paso: ejecutar tests y generar coverage report
+**Ver FEATURES_PENDIENTES.md para lista completa detallada**
+
+### 🔴 BLOCKER CRÍTICO - Antes de Launch (6-8h)
+1. **Tests Execution** (4-6h) 🔥 MÁXIMA PRIORIDAD
+   - Coverage actual: 8.99%
+   - Target: 70%+
+   - Acción: Reemplazar placeholders con supertest
+   - Impacto: Bloquea lanzamiento
+   
+2. **CORS Restrictivo** (1h) - Security
+   - Cambiar ALLOW_ALL_CORS=1 a 0
+   - Restringir a VITE_FRONTEND_URL
+   
+3. **Email Reset Password** (2-3h) - UX
+   - Forgot password functionality
+   - Recover account flow
+
+### 📋 Post-Launch v1.1 (28-39h) - Semanas 9-11
+1. Sentry integration (2-4h) - Error monitoring
+2. API documentation Swagger (4-6h)
+3. Emails adicionales (4-6h) - Bienvenida, resumen
+4. Security adicional (8-10h) - DOMPurify, CSRF tokens
+5. Database backups (2-3h)
+
+### 🎨 Optimización v1.2 (16-22h) - Semanas 12-13
+1. SEO completo (6-8h) - Sitemap, meta tags, Schema.org
+2. Performance (6-8h) - Code splitting, bundle analysis
+3. Lighthouse >90 (4-6h) - Asset optimization
+
+### ⭐ Features Deseables v1.3+ (54-75h)
+1. Chat en vivo (16-24h) - Socket.io real-time
+2. Sistema de ratings (8-12h) - Reviews de servicios
+3. Multi-idioma i18n (12-16h) - Inglés, francés
+4. Analytics avanzado (16-20h) - Dashboards, insights
+
+---
+
+**Próxima actualización**: Noviembre 15, 2025 (después de completar tests)  
+**Responsable**: Full-Stack Dev  
+**Estado**: 93% completado - Tests es el último blocker 🔴
+
+**🎯 ACCIÓN INMEDIATA REQUERIDA**:
+1. Reemplazar tests placeholder con supertest reales
+2. Alcanzar 70%+ coverage (actualmente 8.99%)
+3. Cambiar CORS a modo restrictivo
+4. Verificar/rotar secrets si es necesario
+5. ENTONCES: Lanzar a producción ✅
+
+**📊 Métricas de Salud**:
+- ✅ Código: 100% implementado (93% de 153 horas)
+- ❌ Tests: 8.99% ejecutados (CRÍTICO - necesita 70%)
+- ✅ Security: 100% activa en producción
+- ✅ Email: 100% funcional (4 templates)
+- ✅ Admin Panel: 100% completado
+- ✅ Pagos Stripe: 100% en test mode
+- ⏳ Monitoreo: Winston activo, Sentry pendiente

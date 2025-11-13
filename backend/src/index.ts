@@ -101,6 +101,12 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info(`✔️ Validation: ✅ Zod schemas ready`)
 })
 
+// Handle server errors
+server.on('error', (error: any) => {
+  logger.error('Server error:', error)
+  process.exit(1)
+})
+
 // Initialize database asynchronously (non-blocking)
 ;(async () => {
   try {
@@ -116,5 +122,16 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     logger.error('⚠️ Error during async database initialization:', error.message)
   }
 })()
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error: any) => {
+  logger.error('Uncaught Exception:', error)
+  process.exit(1)
+})
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason: any, promise: any) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason)
+})
 
 export default app

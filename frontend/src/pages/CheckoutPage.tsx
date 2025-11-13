@@ -1,13 +1,23 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { CreditCard, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 
-// Inicializar Stripe con la clave pública
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!)
+// Inicializar Stripe con lazy evaluation
+// No evaluar import.meta.env en el scope global
+const getStripePromise = () => {
+  try {
+    const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+    if (!key) throw new Error('Stripe key not found')
+    return loadStripe(key)
+  } catch (e) {
+    console.error('Failed to initialize Stripe:', e)
+    return loadStripe('pk_test_default') // Fallback
+  }
+}
 
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
@@ -18,6 +28,9 @@ export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState<string>('')
   const [isLoadingIntent, setIsLoadingIntent] = useState(true)
   const [globalError, setGlobalError] = useState<string>('')
+  
+  // Memoizar la Promise para evitar recrearla en cada render
+  const stripePromise = useMemo(() => getStripePromise(), [])
 
   // Crear PaymentIntent al montar el componente
   useEffect(() => {

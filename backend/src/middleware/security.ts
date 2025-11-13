@@ -22,7 +22,7 @@ export const helmetConfig = helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", 'https://js.stripe.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: ["'self'", 'https://api.stripe.com', 'https://js.stripe.com'],
       frameSrc: ["'self'", 'https://js.stripe.com', 'https://hooks.stripe.com'],

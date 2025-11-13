@@ -65,19 +65,24 @@ export default function Header() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 border border-amber-700 transition-all duration-200"
+                    style={{
+                      backgroundColor: '#d97706',
+                      borderColor: '#b45309',
+                      color: '#000000'
+                    }}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:opacity-90 border transition-all duration-200"
                   >
-                    <User size={18} className="text-black" />
-                    <span className="text-sm font-semibold text-black">{user.name || user.email}</span>
-                    <ChevronDown size={16} className={`text-black transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    <User size={18} style={{ color: '#000000' }} />
+                    <span className="text-sm font-semibold" style={{ color: '#000000' }}>{user.name || user.email}</span>
+                    <ChevronDown size={16} style={{ color: '#000000', transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} />
                   </button>
 
                   {/* Dropdown Menu - Dark Theme */}
                   {dropdownOpen && (
-                    <div className="absolute right-0 mt-3 w-56 bg-gradient-to-b from-neutral-900 to-black rounded-xl shadow-2xl border border-neutral-800 py-2 z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-3 w-56 bg-black rounded-xl shadow-2xl border border-neutral-700 py-2 z-50 overflow-hidden">
                       {/* Header del dropdown */}
-                      <div className="px-4 py-3 border-b border-neutral-800 bg-black bg-opacity-70">
-                        <p className="text-xs text-neutral-500 font-semibold uppercase tracking-wider">Cuenta</p>
+                      <div className="px-4 py-3 border-b border-neutral-700 bg-black">
+                        <p className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">Cuenta</p>
                       </div>
 
                       {/* Mi Cuenta */}

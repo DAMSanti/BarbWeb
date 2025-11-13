@@ -136,4 +136,9 @@ export async function initializeDatabase() {
 }
 
 // Export default singleton instance
-export default getPrismaClient()
+// Do NOT auto-initialize Prisma client at import time. Expose the getter so callers
+// can create the client lazily (after build/runtime setup completes).
+// This avoids crashes during module load if the generated client is missing.
+// Export default intentionally omitted to prevent unintended eager initialization.
+
+export default getPrismaClient

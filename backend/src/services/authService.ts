@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import { PrismaClient } from '@prisma/client'
+import { getPrismaClient } from '../db/init.js'
 import { AuthenticationError, ConflictError } from '../utils/errors.js'
 
-const prisma = new PrismaClient()
+const prisma = getPrismaClient()
 
 // Types
 export interface JWTPayload {

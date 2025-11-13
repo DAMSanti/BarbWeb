@@ -146,11 +146,11 @@ export default function AdminPayments() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {payments.map((payment) => {
+                {payments.map((payment: any) => {
                   const colors = getStatusColor(payment.status)
                   return (
                     <tr key={payment.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-900">{payment.userEmail}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">{payment.user?.email || payment.userEmail}</td>
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">${payment.amount.toFixed(2)}</td>
                       <td className="px-6 py-4 text-sm">
                         <span

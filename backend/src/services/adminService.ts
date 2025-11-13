@@ -491,26 +491,66 @@ export const getAnalyticsTrend = async (groupBy: 'day' | 'week' | 'month', start
     },
   })
 
-  // Group by date
-  const grouped: Record<string, { count: number; total: number }> = {}
+  // Get users created data for trend
+  const users = await prisma.user.findMany({
+    select: {
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  })
 
+  // Group by date
+  const grouped: Record<string, { revenue: number; payments: number; users: number }> = {}
+
+  // Add payment data
   payments.forEach((p) => {
     const date = new Date(p.createdAt)
     let key = date.toISOString().split('T')[0] // YYYY-MM-DD
 
     if (!grouped[key]) {
-      grouped[key] = { count: 0, total: 0 }
+      grouped[key] = { revenue: 0, payments: 0, users: 0 }
     }
 
-    grouped[key].count += 1
-    grouped[key].total += p.amount.toNumber()
+    grouped[key].revenue += p.amount.toNumber()
+    grouped[key].payments += 1
+  })
+
+  // Add user data
+  users.forEach((u) => {
+    const date = new Date(u.createdAt)
+    let key = date.toISOString().split('T')[0] // YYYY-MM-DD
+
+    if (!grouped[key]) {
+      grouped[key] = { revenue: 0, payments: 0, users: 0 }
+    }
+
+    grouped[key].users += 1
   })
 
   const trend = Object.entries(grouped).map(([date, data]) => ({
     date,
-    ...data,
-    average: data.total / data.count,
+    revenue: data.revenue,
+    payments: data.payments,
+    users: data.users,
   }))
+
+  // Calculate summary
+  const totalRevenue = trend.reduce((sum, item) => sum + item.revenue, 0)
+  const totalPayments = trend.reduce((sum, item) => sum + item.payments, 0)
+  const totalUsers = trend.reduce((sum, item) => sum + item.users, 0)
+  const averagePayment = totalPayments > 0 ? totalRevenue / totalPayments : 0
+
+  // Get active users (total unique users)
+  const activeUsers = await prisma.user.count()
+
+  const summary = {
+    totalRevenue,
+    totalPayments,
+    averagePayment,
+    activeUsers,
+  }
 
   logger.info('[admin] getAnalyticsTrend', {
     groupBy,
@@ -519,7 +559,7 @@ export const getAnalyticsTrend = async (groupBy: 'day' | 'week' | 'month', start
     dataPoints: trend.length,
   })
 
-  return trend
+  return { trend, summary }
 }
 
 export default {

@@ -35,7 +35,9 @@ export default function AdminAnalytics() {
           headers: { Authorization: `Bearer ${tokens?.accessToken}` },
         })
 
-        setData(response.data.data)
+        // Handle response structure: { success, data: { trend, summary } }
+        const responseData = response.data.data
+        setData(responseData)
       } catch (err: any) {
         setError(err.response?.data?.error || err.message)
       } finally {

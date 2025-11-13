@@ -36,10 +36,10 @@ export default function Header() {
   return (
     <>
       <header className="site-header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="site-header-inner flex justify-between items-center h-16">
-            {/* Logo */}
-            <Link to="/" className="logo-link flex items-center space-x-3">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="site-header-inner flex items-center h-16 gap-8">
+            {/* Logo - Left */}
+            <Link to="/" className="logo-link flex items-center space-x-3 flex-shrink-0">
               <div className="logo-mark w-10 h-10 rounded-lg flex items-center justify-center shadow-md">
                 <Scale className="logo-mark-icon" size={24} />
               </div>
@@ -49,7 +49,7 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Navigation - Centered */}
+            {/* Navigation - Center */}
             <nav className="main-nav hidden md:flex space-x-8 flex-1 justify-center">
               <Link to="/" className="header-link font-medium">
                 Inicio
@@ -59,8 +59,8 @@ export default function Header() {
               </Link>
             </nav>
 
-            {/* Auth Actions */}
-            <div className="header-contact hidden lg:flex items-center space-x-6">
+            {/* Auth Actions - Right */}
+            <div className="header-contact hidden lg:flex items-center space-x-6 flex-shrink-0">
               {isAuthenticated && user ? (
                 <div className="relative" ref={dropdownRef}>
                   <button

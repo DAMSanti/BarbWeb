@@ -230,7 +230,7 @@ export default function MinimalistLayout() {
         .minimalist-feature-icon {
           width: 60px;
           height: 60px;
-          background: linear-gradient(135deg, var(--primary-500, #d4af37), var(--accent-500, #d946ef));
+          background: linear-gradient(135deg, var(--primary-500, #d4af37), #8b2e1f);
           border-radius: 12px;
           display: flex;
           align-items: center;

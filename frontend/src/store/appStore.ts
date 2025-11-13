@@ -19,7 +19,6 @@ interface AppState {
   // Consultation state
   consultations: ConsultationRequest[]
   selectedCategory: LegalCategory | null
-  stripePublishableKey: string
   
   // Auth state
   user: User | null
@@ -51,7 +50,6 @@ export const useAppStore = create<AppState>()(
       // Initial consultation state
       consultations: [],
       selectedCategory: null,
-      stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_default',
       
       // Initial auth state
       user: null,

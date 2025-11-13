@@ -18,5 +18,26 @@ echo "--- /workspace/backend ---"
 ls -la /workspace/backend || true
 echo "======================================"
 
-echo "Starting application: node dist/index.js"
-node dist/index.js
+echo "Starting application: node --trace-warnings dist/index.js"
+# Run node with trace warnings and capture exit code; redirect stderr to stdout so DO logs show everything
+node --trace-warnings dist/index.js 2>&1
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+	echo "--------------------------------------"
+	echo "⚠️  Application exited with code: $exit_code"
+	echo "🔎 Dumping recent log files from ./logs to help debugging:"
+	if [ -d ./logs ]; then
+		for f in ./logs/*.log; do
+			if [ -f "$f" ]; then
+				echo "\n--- $f (last 200 lines) ---"
+				tail -n 200 "$f" || true
+			fi
+		done
+	else
+		echo "No ./logs directory found"
+	fi
+	echo "--------------------------------------"
+fi
+
+exit $exit_code

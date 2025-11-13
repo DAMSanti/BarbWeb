@@ -7,7 +7,7 @@ import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 
 // Inicializar Stripe con la clave pública
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHED_KEY!)
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY!)
 
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()

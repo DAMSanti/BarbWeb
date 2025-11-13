@@ -29,20 +29,25 @@ echo "📦 [3/6] Installing backend dependencies..."
 cd /workspace/backend
 npm install --legacy-peer-deps || npm install
 
-# Step 5: Generate Prisma client
+# Step 5: Compile TypeScript to JavaScript
 echo ""
-echo "🔄 [4/6] Generating Prisma client..."
+echo "🔨 [4/6] Compiling TypeScript..."
+cd /workspace/backend
+npm run build || npx tsc
+
+# Step 6: Generate Prisma client
+echo ""
+echo "🔄 [5/6] Generating Prisma client..."
 cd /workspace/backend
 # Set a temporary DATABASE_URL if not already set (for schema generation ONLY during build)
 export DATABASE_URL="${DATABASE_URL:-postgresql://tempuser:temppass@localhost:5432/tempdb}"
-# Use prisma CLI directly if available, fallback to npx
-prisma generate --schema /workspace/backend/prisma/schema.prisma 2>&1 || npx prisma generate 2>&1 || echo "⚠️  Prisma generation had issues but continuing..."
+npx prisma generate || echo "⚠️  Prisma generation skipped"
 # Unset temp DATABASE_URL so runtime uses the real one
 unset DATABASE_URL
 
-# Step 6: Push database schema
+# Step 7: Push database schema
 echo ""
-echo "💾 [5/6] Pushing database schema..."
+echo "💾 [6/6] Pushing database schema..."
 npx prisma db push --skip-generate --accept-data-loss || echo "⚠️  Database push failed or skipped"
 
 echo ""

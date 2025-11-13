@@ -35,7 +35,7 @@ npm install --legacy-peer-deps || npm install
 echo ""
 echo "🔄 [4/6] Generating Prisma client..."
 cd /workspace/backend
-npx prisma generate --verbose || npx prisma generate
+npx prisma generate --schema=./prisma/schema.prisma
 
 # Step 6: Push database schema
 echo ""

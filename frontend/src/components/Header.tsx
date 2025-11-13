@@ -65,25 +65,25 @@ export default function Header() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 border border-slate-600 transition-all duration-200"
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 border border-amber-700 transition-all duration-200"
                   >
-                    <User size={18} className="text-amber-400" />
-                    <span className="text-sm font-semibold text-slate-100">{user.name || user.email}</span>
-                    <ChevronDown size={16} className={`text-slate-400 transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    <User size={18} className="text-black" />
+                    <span className="text-sm font-semibold text-black">{user.name || user.email}</span>
+                    <ChevronDown size={16} className={`text-black transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   {/* Dropdown Menu - Dark Theme */}
                   {dropdownOpen && (
-                    <div className="absolute right-0 mt-3 w-56 bg-gradient-to-b from-slate-900 to-slate-950 rounded-xl shadow-2xl border border-slate-700 py-2 z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-3 w-56 bg-gradient-to-b from-neutral-900 to-black rounded-xl shadow-2xl border border-neutral-800 py-2 z-50 overflow-hidden">
                       {/* Header del dropdown */}
-                      <div className="px-4 py-3 border-b border-slate-700 bg-slate-800 bg-opacity-50">
-                        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Cuenta</p>
+                      <div className="px-4 py-3 border-b border-neutral-800 bg-black bg-opacity-70">
+                        <p className="text-xs text-neutral-500 font-semibold uppercase tracking-wider">Cuenta</p>
                       </div>
 
                       {/* Mi Cuenta */}
                       <button
                         onClick={handleSettings}
-                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-slate-800 text-slate-200 hover:text-amber-400 transition-colors"
+                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-neutral-800 text-neutral-200 hover:text-amber-400 transition-colors"
                       >
                         <Settings size={18} />
                         <span className="text-sm font-medium">Mi Cuenta</span>
@@ -95,7 +95,7 @@ export default function Header() {
                           <Link
                             to="/admin"
                             onClick={() => setDropdownOpen(false)}
-                            className="flex items-center space-x-3 px-4 py-3 hover:bg-slate-800 text-slate-200 hover:text-amber-400 transition-colors"
+                            className="flex items-center space-x-3 px-4 py-3 hover:bg-neutral-800 text-neutral-200 hover:text-amber-400 transition-colors"
                           >
                             <Shield size={18} />
                             <span className="text-sm font-medium">Administración</span>
@@ -104,12 +104,12 @@ export default function Header() {
                       )}
 
                       {/* Divider */}
-                      <div className="border-t border-slate-700 my-2"></div>
+                      <div className="border-t border-neutral-800 my-2"></div>
 
                       {/* Salir */}
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-red-950 hover:bg-opacity-50 text-red-400 hover:text-red-300 transition-colors"
+                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-neutral-800 text-red-400 hover:text-red-300 transition-colors"
                       >
                         <LogOut size={18} />
                         <span className="text-sm font-medium">Salir</span>

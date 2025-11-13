@@ -34,6 +34,19 @@ echo ""
 echo "📦 [3b/6] Ensuring TypeScript and @types/node are installed for build..."
 npm install --legacy-peer-deps --no-save typescript @types/node || npm install --no-save typescript @types/node
 
+# Diagnostic information to help with build-time errors
+echo ""
+echo "🔍 [3c/6] Environment and tool versions"
+echo "node: $(node --version 2>/dev/null || echo 'node not found')"
+echo "npm: $(npm --version 2>/dev/null || echo 'npm not found')"
+echo "tsc: $(npx -y tsc --version 2>/dev/null || echo 'tsc not found')"
+echo "DATABASE_URL present?"
+if [ -n "$DATABASE_URL" ]; then
+	echo "  ✅ yes (will be used for prisma db push)"
+else
+	echo "  ❌ no (prisma db push will be skipped)"
+fi
+
 # Step 5: Compile TypeScript to JavaScript
 echo ""
 echo "🔨 [4/6] Compiling TypeScript..."
@@ -44,16 +57,17 @@ npm run build || npx tsc
 echo ""
 echo "🔄 [5/6] Generating Prisma client..."
 cd /workspace/backend
-# Set a temporary DATABASE_URL if not already set (for schema generation ONLY during build)
-export DATABASE_URL="${DATABASE_URL:-postgresql://tempuser:temppass@localhost:5432/tempdb}"
-npx prisma generate || echo "⚠️  Prisma generation skipped"
-# Unset temp DATABASE_URL so runtime uses the real one
-unset DATABASE_URL
+# Generate prisma client using explicit schema path
+npx prisma generate --schema=./prisma/schema.prisma || echo "⚠️  Prisma generate failed or skipped"
 
-# Step 7: Push database schema
+# Step 7: Push database schema (only if DATABASE_URL available at build time)
 echo ""
-echo "💾 [6/6] Pushing database schema..."
-npx prisma db push --skip-generate --accept-data-loss || echo "⚠️  Database push failed or skipped"
+echo "💾 [6/6] Pushing database schema (only if DATABASE_URL was set)..."
+if [ -n "$DATABASE_URL" ]; then
+	npx prisma db push --skip-generate --accept-data-loss || echo "⚠️  Database push failed or skipped"
+else
+	echo "Skipping prisma db push because DATABASE_URL was not set during build."
+fi
 
 echo ""
 echo "✅ Build completed successfully!"

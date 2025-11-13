@@ -63,10 +63,10 @@
 ### SEMANA 8: SEGURIDAD Y VALIDACIÓN (16-20 horas) 🛡️
 
 #### ✅ Paso 4: Rate Limiting & Security (1 día)
- - [x] `express-rate-limit` (verificado)
- - [x] `helmet.js` (security headers) (verificado)
+ - [x] ✅ `express-rate-limit` (verificado)
+ - [x] ✅ `helmet.js` (security headers) (verificado)
  - [ ] CORS restrictivo
- - [ ] Input validation con Zod (✅ YA COMPLETADO)
+ - [x] ✅ Input validation con Zod (✅ YA COMPLETADO)
 
 > Nota: `express-rate-limit` y `helmet` verificados en producción (cabeceras Helmet presentes y cabeceras X-RateLimit observadas). Fecha verificación: Nov 13, 2025.
 

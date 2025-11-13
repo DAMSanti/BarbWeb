@@ -22,10 +22,6 @@ const htmlContent = `<!DOCTYPE html>
   <link rel="icon" type="image/svg+xml" href="/barbweb2/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bufete Jurídico - Consultas Legales</title>
-  <script>
-    // Set base URL for React Router
-    window.__BASE_URL__ = '/barbweb2/';
-  </script>
 </head>
 <body>
   <div id="root"></div>

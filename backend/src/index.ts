@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.js'
 import paymentRoutes from './routes/payments.js'
 import webhookRoutes from './routes/webhooks.js'
 import adminRoutes from './routes/admin.js'
+import sitemapRoutes from './routes/sitemap.js'
 import { initializeDatabase } from './db/init.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 import { initializeSecurityMiddleware, authLimiter, paymentLimiter } from './middleware/security.js'
@@ -46,6 +47,9 @@ app.get('/', (req, res) => {
     status: 'running',
   })
 })
+
+// SEO Routes (Sitemap, Robots.txt)
+app.use('/', sitemapRoutes)
 
 // Rutas de la API - ANTES que las rutas estáticas
 app.use('/api', apiRoutes)

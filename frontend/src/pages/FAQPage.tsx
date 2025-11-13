@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, Lightbulb, AlertCircle, CheckCircle } from 'lucide-react'
+import { SEO, schemaPresets } from '../components/SEO'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { LegalCategory } from '../types'
 import { useAppStore } from '../store/appStore'
@@ -17,6 +18,21 @@ interface AutoResponse {
   complexity: 'simple' | 'medium' | 'complex'
 }
 
+const faqSchema = schemaPresets.faq([
+  {
+    question: '¿Cuánto tiempo tarda en responder un abogado?',
+    answer: 'Nuestros abogados responden en un promedio de 5-15 minutos. Algunas consultas complejas pueden tardar más.',
+  },
+  {
+    question: '¿Es confidencial mi consulta?',
+    answer: 'Sí, todas las consultas son completamente confidenciales y están protegidas por secreto profesional.',
+  },
+  {
+    question: '¿Puedo hablar directamente con el abogado?',
+    answer: 'Sí, después de la consulta inicial puedes solicitar una llamada o videollamada con el abogado.',
+  },
+])
+
 export default function FAQPage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAppStore()
@@ -26,6 +42,17 @@ export default function FAQPage() {
   const [showAutoResponse, setShowAutoResponse] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  return (
+    <>
+      <SEO
+        title="Preguntas Frecuentes - Consultas Legales"
+        description="Encuentra respuestas a tus preguntas legales más frecuentes. Consultas sobre derecho civil, laboral, mercantil y más."
+        image="https://barbweb.com/og-faq.png"
+        url="https://barbweb.com/faq"
+        schema={faqSchema}
+      />
+      {/* ... resto del componente ... */}
 
   // Verificar conexión con backend al montar (para logs)
   useEffect(() => {

@@ -1,0 +1,27 @@
+# Robots.txt for Barbara & Abogados
+# Specifies which search engines can crawl and index the site
+
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# Disallow admin and API endpoints
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout
+Disallow: /*.json$
+Disallow: /.env*
+
+# Specific rules for Google
+User-agent: Googlebot
+Allow: /
+
+# Specific rules for Bing
+User-agent: Bingbot
+Allow: /
+
+# Rate limiting - 1 second between requests
+Crawl-delay: 1
+
+# Location of sitemap
+Sitemap: https://barbweb.com/sitemap.xml

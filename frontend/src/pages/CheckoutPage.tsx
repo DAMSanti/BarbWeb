@@ -6,6 +6,7 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 import { getApiUrl } from '../services/backendApi'
+import { SEO } from '../components/SEO'
 
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
@@ -165,8 +166,15 @@ export default function CheckoutPage() {
   // Success Screen
   if (paymentSuccess) {
     return (
-      <div className="relative min-h-screen flex items-center justify-center py-12 px-4">
-        <ChessboardBackground
+      <>
+        <SEO
+          title="Pago Completado - Barbara & Abogados"
+          description="Tu pago ha sido procesado exitosamente. Tu consulta legal será respondida pronto."
+          image="https://barbweb.com/og-default.png"
+          url="https://barbweb.com/checkout"
+        />
+        <div className="relative min-h-screen flex items-center justify-center py-12 px-4">
+          <ChessboardBackground
           imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
           opacity={0.1}
           blurAmount={15}
@@ -205,6 +213,7 @@ export default function CheckoutPage() {
           </button>
         </div>
       </div>
+      </>
     )
   }
 
@@ -224,8 +233,26 @@ export default function CheckoutPage() {
   const containerMaxWidth = 'max-w-3xl'
 
   return (
-    <div className="min-h-screen py-12">
-      <ChessboardBackground
+    <>
+      <SEO
+        title="Checkout - Consulta Legal"
+        description="Completa tu pago seguro para tu consulta legal con abogados expertos."
+        image="https://barbweb.com/og-default.png"
+        url="https://barbweb.com/checkout"
+        schema={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: 'Consulta Legal Online',
+          description: 'Consulta legal profesional con abogados expertos',
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'EUR',
+            price: consultation?.price.toString() || '0'
+          }
+        }}
+      />
+      <div className="min-h-screen py-12">
+        <ChessboardBackground
         imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
         opacity={0.1}
         blurAmount={15}
@@ -356,6 +383,7 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 
@@ -584,5 +612,6 @@ function CheckoutForm({
         🔒 Tus datos de pago están seguros. Procesado por Stripe con encriptación SSL de 256 bits.
       </p>
     </form>
+    </>
   )
 }

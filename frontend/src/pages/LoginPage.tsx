@@ -5,6 +5,7 @@ import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 import { backendApi } from '../services/backendApi.js'
 import { useErrorHandler } from '../hooks/useErrorHandler.js'
+import { SEO } from '../components/SEO'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -92,6 +93,12 @@ export default function LoginPage() {
 
   return (
     <div className="w-full overflow-hidden relative min-h-screen">
+      <SEO
+        title="Iniciar Sesión - Barbara & Abogados"
+        description="Inicia sesión en tu cuenta de Barbara & Abogados para acceder a tus consultas."
+        image="https://barbweb.com/og-default.png"
+        url="https://barbweb.com/login"
+      />
       <ChessboardBackground
         imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
         opacity={0.1}

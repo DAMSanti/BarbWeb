@@ -5,6 +5,7 @@ import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 import { backendApi } from '../services/backendApi.js'
 import { useErrorHandler } from '../hooks/useErrorHandler.js'
+import { SEO } from '../components/SEO'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -119,6 +120,12 @@ export default function RegisterPage() {
 
   return (
     <div className="w-full overflow-hidden relative min-h-screen">
+      <SEO
+        title="Crear Cuenta - Barbara & Abogados"
+        description="Crea tu cuenta en Barbara & Abogados. Acceso inmediato a consultas legales de expertos."
+        image="https://barbweb.com/og-default.png"
+        url="https://barbweb.com/register"
+      />
       <ChessboardBackground
         imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
         opacity={0.1}

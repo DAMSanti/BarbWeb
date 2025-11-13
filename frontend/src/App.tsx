@@ -7,6 +7,11 @@ import FAQPage from './pages/FAQPage'
 import CheckoutPage from './pages/CheckoutPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import AdminLayout from './layouts/AdminLayout'
+import AdminDashboard from './pages/AdminDashboard'
+import AdminUsers from './pages/AdminUsers'
+import AdminPayments from './pages/AdminPayments'
+import AdminAnalytics from './pages/AdminAnalytics'
 import PrivateRoute from './components/PrivateRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { applyThemeVariables } from './theme/themeVariables'
@@ -97,6 +102,21 @@ function AppContent() {
               </PrivateRoute>
             }
           />
+
+          {/* Admin routes */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute requiredRole="admin">
+                <AdminLayout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="payments" element={<AdminPayments />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+          </Route>
         </Routes>
       </main>
       <Footer />

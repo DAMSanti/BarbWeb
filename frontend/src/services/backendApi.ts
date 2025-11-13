@@ -6,7 +6,7 @@ import { useAppStore } from '../store/appStore.js'
 // En producción, el frontend se sirve desde /barbweb2/ en el mismo dominio que la API
 // Usar una URL relativa (sin dominio) para que funcione tanto en local como en producción
 // LAZY EVALUATION: No evaluar import.meta.env en el scope global
-const getApiUrl = (): string => {
+export const getApiUrl = (): string => {
   try {
     return import.meta.env.VITE_API_URL || (
       typeof window !== 'undefined' && window.location.origin.includes('ondigitalocean.app')

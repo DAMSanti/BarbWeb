@@ -92,24 +92,29 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 })
 
 // Start server
-app.listen(PORT, '0.0.0.0', async () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info(`✅ Server running on http://0.0.0.0:${PORT}`)
   logger.info(`🔗 CORS enabled for all origins`)
   logger.info(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
   logger.info(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
   logger.info(`📝 Logging: ✅ Winston logger configured`)
   logger.info(`✔️ Validation: ✅ Zod schemas ready`)
-  
-  // Initialize database
-  logger.info('🔄 Initializing database tables...')
-  const dbReady = await initializeDatabase()
-  if (!dbReady) {
-    logger.error('❌ Failed to initialize database')
-    process.exit(1)
-  }
-  
-  logger.info(`💾 Database: ✅ Connected and initialized`)
-  logger.info(`📁 Serving frontend from: ${frontendPath}`)
 })
+
+// Initialize database asynchronously (non-blocking)
+;(async () => {
+  try {
+    logger.info('🔄 Initializing database tables...')
+    const dbReady = await initializeDatabase()
+    if (dbReady) {
+      logger.info(`💾 Database: ✅ Connected and initialized`)
+      logger.info(`📁 Serving frontend from: ${frontendPath}`)
+    } else {
+      logger.warn('⚠️ Database initialization returned false, but server continues')
+    }
+  } catch (error: any) {
+    logger.error('⚠️ Error during async database initialization:', error.message)
+  }
+})()
 
 export default app

@@ -21,8 +21,11 @@ services:
         value: https://${APP_DOMAIN}
       - key: VITE_STRIPE_PUBLISHABLE_KEY
         value: ${VITE_STRIPE_PUBLISHABLE_KEY}
+      - key: VITE_GOOGLE_CLIENT_ID
+        value: ${VITE_GOOGLE_CLIENT_ID}
+      - key: VITE_MICROSOFT_CLIENT_ID
+        value: ${VITE_MICROSOFT_CLIENT_ID}
     http_port: 3000
-    cors:
       allow_origins:
         - prefix: https://
       allow_methods:

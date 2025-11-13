@@ -40,8 +40,26 @@ try {
   fs.writeFileSync(path.join(distDir, 'index.css'), result.css);
   console.log(`✅ CSS generated: ${(result.css.length / 1024).toFixed(2)}KB`);
 
-  // Step 2: Bundle JavaScript with esbuild
+  // Step 2: Define environment variables for esbuild
+  console.log('🔐 Preparing environment variables...');
+  const envVars = {
+    VITE_STRIPE_PUBLISHABLE_KEY: process.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51OKuXmIH4F5G2x4nKL5mN6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6',
+    VITE_API_URL: process.env.VITE_API_URL || 'http://localhost:3000',
+    VITE_GOOGLE_CLIENT_ID: process.env.VITE_GOOGLE_CLIENT_ID || '',
+    VITE_MICROSOFT_CLIENT_ID: process.env.VITE_MICROSOFT_CLIENT_ID || '',
+  };
+  
+  console.log('  ✓ VITE_STRIPE_PUBLISHABLE_KEY:', envVars.VITE_STRIPE_PUBLISHABLE_KEY.substring(0, 15) + '...');
+  console.log('  ✓ VITE_API_URL:', envVars.VITE_API_URL);
+
+  // Step 3: Bundle JavaScript with esbuild
   console.log('📦 Bundling JavaScript...');
+  const define = {};
+  Object.entries(envVars).forEach(([key, value]) => {
+    define[`process.env.${key}`] = JSON.stringify(value);
+    define[`import.meta.env.${key}`] = JSON.stringify(value);
+  });
+
   await esbuild.build({
     entryPoints: [path.join(srcDir, 'main.tsx')],
     bundle: true,
@@ -52,6 +70,7 @@ try {
     minify: true,
     sourcemap: false,
     external: ['node_modules'],
+    define,
   });
   console.log('✅ JavaScript bundled');
 

@@ -7,31 +7,31 @@ import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 import { getApiUrl } from '../services/backendApi'
 
-// Inicializar Stripe con lazy evaluation
-// No evaluar import.meta.env en el scope global
-const getStripePromise = () => {
-  try {
-    const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-    if (!key) throw new Error('Stripe key not found')
-    return loadStripe(key)
-  } catch (e) {
-    console.error('Failed to initialize Stripe:', e)
-    return loadStripe('pk_test_default') // Fallback
-  }
-}
-
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
   const navigate = useNavigate()
-  const { consultations, tokens } = useAppStore()
+  const { consultations, tokens, isAuthInitialized, isAuthenticated, user } = useAppStore()
+
+  // Lazily load Stripe promise
+  const stripePromise = useMemo(() => {
+    try {
+      const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+      if (!key || key === 'pk_test_your_stripe_key') {
+        console.warn('Stripe key not configured properly, using test key')
+        return loadStripe('pk_test_51OKuXmIH4F5G2x4nKL5mN6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6')
+      }
+      console.log('[CheckoutPage] Loading Stripe with key:', key.substring(0, 20) + '...')
+      return loadStripe(key)
+    } catch (e) {
+      console.error('[CheckoutPage] Failed to initialize Stripe:', e)
+      return loadStripe('pk_test_51OKuXmIH4F5G2x4nKL5mN6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6')
+    }
+  }, [])
 
   const consultation = consultations.find((c) => c.id === consultationId)
   const [clientSecret, setClientSecret] = useState<string>('')
   const [isLoadingIntent, setIsLoadingIntent] = useState(true)
   const [globalError, setGlobalError] = useState<string>('')
-  
-  // Memoizar la Promise para evitar recrearla en cada render
-  const stripePromise = useMemo(() => getStripePromise(), [])
 
   // Crear PaymentIntent al montar el componente
   useEffect(() => {
@@ -42,20 +42,34 @@ export default function CheckoutPage() {
         setIsLoadingIntent(true)
         setGlobalError('')
 
-        console.log('[Checkout] Creating payment intent', {
-          consultationId,
-          amount: consultation.price * 1.21,
-          apiUrl: getApiUrl(),
+        const token = tokens?.accessToken
+        console.log('[Checkout] Auth state:', {
+          hasToken: !!token,
+          tokenLength: token?.length || 0,
+          tokenPrefix: token?.substring(0, 30) || 'none',
+          isAuthInitialized: isAuthInitialized,
+          isAuthenticated: isAuthenticated,
+          userId: user?.id,
         })
 
-        const token = tokens?.accessToken
         if (!token) {
-          setGlobalError('Por favor, inicia sesión para continuar con el pago')
+          const errorMsg = 'No hay token disponible. Por favor, inicia sesión de nuevo.'
+          setGlobalError(errorMsg)
+          console.error('[Checkout] No token available:', {
+            isAuthenticated,
+            isAuthInitialized,
+          })
+          setTimeout(() => navigate('/login'), 3000)
           setIsLoadingIntent(false)
           return
         }
 
-        console.log('[Checkout] Token found:', token?.substring(0, 20) + '...')
+        console.log('[Checkout] Creating payment intent', {
+          consultationId,
+          amount: consultation.price * 1.21,
+          apiUrl: getApiUrl(),
+          tokenLength: token.length,
+        })
 
         const response = await fetch(`${getApiUrl()}/api/payments/create-payment-intent`, {
           method: 'POST',
@@ -72,27 +86,52 @@ export default function CheckoutPage() {
         })
 
         console.log('[Checkout] Response status:', response.status)
-        const data = await response.json()
-        console.log('[Checkout] Response data:', data)
-
+        
         if (!response.ok) {
+          const responseText = await response.text()
+          console.error('[Checkout] Response error body:', responseText)
+          
+          let errorMsg = `Error ${response.status}`
+          try {
+            const errorData = JSON.parse(responseText)
+            errorMsg = errorData.error || errorData.message || errorMsg
+          } catch (e) {
+            // Response is not JSON
+            errorMsg = responseText || errorMsg
+          }
+
           if (response.status === 401) {
             setGlobalError('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.')
+            console.error('[Checkout] Unauthorized - redirecting to login')
             setTimeout(() => navigate('/login'), 2000)
             return
           }
-          throw new Error(data.error || 'Error al crear la intención de pago')
+
+          throw new Error(errorMsg)
         }
+
+        const data = await response.json()
+        console.log('[Checkout] Response data:', {
+          success: data.success,
+          hasClientSecret: !!data.clientSecret,
+          paymentIntentId: data.paymentIntentId,
+        })
 
         if (data.success && data.clientSecret) {
           setClientSecret(data.clientSecret)
-          console.log('[Checkout] Payment intent created', { paymentIntentId: data.paymentIntentId })
+          console.log('[Checkout] Payment intent created successfully')
         } else {
-          throw new Error('No se recibió client secret del servidor')
+          throw new Error(data.error || 'No se recibió client secret del servidor')
         }
       } catch (err: any) {
-        console.error('[Checkout] Error creating payment intent', err)
-        setGlobalError(err.message || 'Error al cargar el formulario de pago')
+        console.error('[Checkout] Error creating payment intent', {
+          message: err.message,
+          error: err,
+          stack: err.stack,
+        })
+        setGlobalError(
+          err.message || 'Error al cargar el formulario de pago. Intenta de nuevo.'
+        )
       } finally {
         setIsLoadingIntent(false)
       }
@@ -266,6 +305,12 @@ export default function CheckoutPage() {
                   <div>
                     <p className="text-red-700 font-semibold">Error al procesar el pago</p>
                     <p className="text-red-600 text-sm mt-1">{globalError}</p>
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-3 text-red-700 font-semibold hover:text-red-800 underline"
+                    >
+                      Reintentar
+                    </button>
                   </div>
                 </div>
               )}
@@ -453,6 +498,7 @@ function CheckoutForm({
               placeholder="Juan García"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-gray-900 placeholder-gray-400"
               required
+              disabled={isProcessing}
             />
           </div>
           <div>
@@ -467,6 +513,7 @@ function CheckoutForm({
               placeholder="juan@example.com"
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 text-gray-900 placeholder-gray-400"
               required
+              disabled={isProcessing}
             />
           </div>
         </div>

@@ -4,6 +4,10 @@ import cors from 'cors'
 import { Express } from 'express'
 import { logger } from '../utils/logger.js'
 
+// When @types/node isn't available in some build environments, provide a minimal
+// declaration so TypeScript doesn't fail on references to `process.env`.
+declare const process: { env: Record<string, string | undefined> }
+
 /**
  * SECURITY MIDDLEWARE CONFIGURATION
  * Includes: Helmet (security headers), CORS, and Rate Limiting
@@ -50,32 +54,44 @@ const getFrontendUrl = (): string => {
   return process.env.VITE_FRONTEND_URL || 'http://localhost:5173'
 }
 
-export const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    const allowedOrigins = [
-      getFrontendUrl(),
-      'http://localhost:5173', // Desarrollo local
-      'http://localhost:3000', // Alternativa desarrollo
-    ]
+// Build CORS options at runtime so we can include diagnostics and a debug allow-all flag
+const buildCorsOptions = () => {
+  const frontendUrl = getFrontendUrl()
+  const allowedOrigins = [
+    frontendUrl,
+    'http://localhost:5173', // Desarrollo local
+    'http://localhost:3000', // Alternativa desarrollo
+  ]
 
-    // Permitir sin origin (requests locales, mobile apps, etc.)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true)
-    } else {
-      logger.warn(`CORS blocked request from origin: ${origin}`)
-      callback(new Error('Not allowed by CORS'))
+  // If ALLOW_ALL_CORS=1 is set, allow any origin (temporary debug mode)
+  if (process.env.ALLOW_ALL_CORS === '1') {
+    logger.warn('⚠️ ALLOW_ALL_CORS=1 enabled — backend will accept requests from any origin (debug mode)')
+    return {
+      origin: true,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'stripe-signature'],
+      maxAge: 86400,
+      optionsSuccessStatus: 200,
     }
-  },
-  credentials: true, // Permitir cookies/auth headers
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'stripe-signature',
-  ],
-  maxAge: 86400, // 24 horas en segundos
-  optionsSuccessStatus: 200,
+  }
+
+  return {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Permitir sin origin (requests locales, mobile apps, etc.)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        logger.warn(`CORS blocked request from origin: ${origin}`)
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'stripe-signature'],
+    maxAge: 86400,
+    optionsSuccessStatus: 200,
+  }
 }
 
 // ============================================================================
@@ -139,6 +155,8 @@ export const initializeSecurityMiddleware = (app: Express): void => {
   app.use(helmetConfig)
 
   // 2. CORS - Cross-origin requests
+  const corsOptions = buildCorsOptions()
+  logger.info(`✅ CORS allowed origins: ${JSON.stringify(corsOptions === null ? 'none' : getFrontendUrl())}`)
   app.use(cors(corsOptions))
 
   // 3. Global Rate Limiting

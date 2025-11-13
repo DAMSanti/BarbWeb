@@ -99,7 +99,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
 
     // Check if payment already exists
   const existingPayment = await getPrismaClient().payment.findFirst({
-      where: { stripePaymentId: paymentIntent.id },
+      where: { stripeSessionId: paymentIntent.id },
     })
 
     if (existingPayment) {
@@ -110,13 +110,15 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     }
 
     // Create payment record
-  const payment = await getPrismaClient().payment.create({
+    const payment = await getPrismaClient().payment.create({
       data: {
         userId,
-        stripePaymentId: paymentIntent.id,
+        stripeSessionId: paymentIntent.id,
         amount: paymentIntent.amount / 100,
         status: 'completed',
-        consultationDetails: 'Consulta legal - Pago procesado vía Stripe',
+        consultationSummary: 'Consulta legal - Pago procesado vía Stripe',
+        question: 'Consulta por pago directo',
+        category: 'Otros',
       },
     })
 
@@ -224,7 +226,7 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
   try {
     if (charge.payment_intent && typeof charge.payment_intent === 'string') {
   const payment = await getPrismaClient().payment.findFirst({
-        where: { stripePaymentId: charge.payment_intent },
+        where: { stripeSessionId: charge.payment_intent },
       })
 
       if (payment) {

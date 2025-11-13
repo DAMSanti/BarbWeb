@@ -4,14 +4,14 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { EmailSchema, PasswordSchema, NameSchema, UUIDSchema } from '../src/schemas/common.schemas'
+import { EmailSchema, PasswordSchema, NameSchema, UUIDSchema } from '../../src/schemas/common.schemas'
 import {
   RegisterSchema,
   LoginSchema,
   RefreshTokenSchema,
-} from '../src/schemas/auth.schemas'
-import { CreatePaymentIntentSchema } from '../src/schemas/payment.schemas'
-import { CreateFAQSchema, FilterQuestionSchema } from '../src/schemas/faq.schemas'
+} from '../../src/schemas/auth.schemas'
+import { CreatePaymentIntentSchema } from '../../src/schemas/payment.schemas'
+import { CreateFAQSchema, FilterQuestionSchema } from '../../src/schemas/faq.schemas'
 
 describe('Common Schemas Validation', () => {
   describe('EmailSchema', () => {
@@ -280,7 +280,7 @@ describe('FAQ Schemas Validation', () => {
       }
       const result = FilterQuestionSchema.safeParse(data)
       if (result.success) {
-        expect(result.data.question).toBe('What are my legal rights?')
+        expect(result.data.body.question).toBe('What are my legal rights?')
       }
     })
   })

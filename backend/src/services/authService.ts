@@ -321,6 +321,15 @@ export const verifyJWT = (token: string): JWTPayload | null => {
   }
 }
 
+// Verify JWT token with custom secret (for refresh tokens, etc)
+export const verifyJWTWithSecret = (token: string, secret: string): any => {
+  try {
+    return jwt.verify(token, secret)
+  } catch {
+    return null
+  }
+}
+
 // Link OAuth account to existing user (for logged in users)
 export const linkOAuthAccount = async (
   userId: string,

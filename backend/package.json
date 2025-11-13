@@ -9,10 +9,14 @@
     "npm": "10.x"
   },
   "scripts": {
-  "dev": "node --loader ts-node/esm src/index.ts",
-  "build": "tsc",
-  "start": "sh start.sh",
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "build": "tsc",
+    "start": "sh start.sh",
     "preview": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
     "db:init": "node --loader ts-node/esm prisma/init-db.ts || echo 'DB already initialized'",
     "db:push": "prisma db push --skip-generate --accept-data-loss",
     "db:seed": "node --loader ts-node/esm prisma/seed.ts",
@@ -32,7 +36,6 @@
     "@prisma/client": "^5.7.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
-    "@types/node": "^20.10.4",
     "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -49,12 +52,16 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^24.10.1",
     "@types/passport": "^1.0.16",
     "@types/passport-google-oauth20": "^2.0.14",
+    "@vitest/coverage-v8": "^4.0.8",
     "prisma": "^5.7.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.8"
   }
 }

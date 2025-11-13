@@ -117,11 +117,13 @@ router.post(
         try {
           await getPrismaClient().payment.create({
             data: {
-              userId,
+              userId: String(userId),
               stripeSessionId: paymentIntentId,
               amount: paymentIntent.amount / 100,
               status: 'completed',
               consultationSummary: 'Consulta legal completada',
+              question: 'Consulta legal',
+              category: 'General',
             },
           })
 

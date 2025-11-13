@@ -114,19 +114,31 @@ try {
     process.exit(1)
   })
 
+  // Set server timeout to 30 seconds
+  server.setTimeout(30000)
+
   // Initialize database asynchronously (non-blocking)
   ;(async () => {
     try {
       logger.info('🔄 Initializing database tables...')
-      const dbReady = await initializeDatabase()
+      // Add timeout for database initialization (20 seconds)
+      const dbInitPromise = initializeDatabase()
+      const timeoutPromise = new Promise<boolean>((_, reject) =>
+        setTimeout(() => reject(new Error('Database initialization timeout')), 20000)
+      )
+      
+      const dbReady = await Promise.race([dbInitPromise, timeoutPromise])
       if (dbReady) {
         logger.info(`💾 Database: ✅ Connected and initialized`)
         logger.info(`📁 Serving frontend from: ${frontendPath}`)
       } else {
         logger.warn('⚠️ Database initialization returned false, but server continues')
+        logger.info(`📁 Serving frontend from: ${frontendPath}`)
       }
     } catch (error: any) {
       logger.error('⚠️ Error during async database initialization:', error.message)
+      logger.warn('⚠️ Server will continue without database. Requests will fail if DB is required.')
+      logger.info(`📁 Serving frontend from: ${frontendPath}`)
     }
   })()
 
@@ -139,6 +151,24 @@ try {
   // Handle unhandled promise rejections
   process.on('unhandledRejection', (reason: any, promise: any) => {
     logger.error('Unhandled Rejection at:', promise, 'reason:', reason)
+    // Don't exit on unhandled rejections, just log them
+  })
+
+  // Graceful shutdown handling
+  process.on('SIGTERM', () => {
+    logger.info('SIGTERM received, shutting down gracefully...')
+    server.close(() => {
+      logger.info('Server closed')
+      process.exit(0)
+    })
+  })
+
+  process.on('SIGINT', () => {
+    logger.info('SIGINT received, shutting down gracefully...')
+    server.close(() => {
+      logger.info('Server closed')
+      process.exit(0)
+    })
   })
 } catch (startupError: any) {
   console.error('🚨 FATAL ERROR during startup:', startupError)

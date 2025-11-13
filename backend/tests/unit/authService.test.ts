@@ -9,7 +9,8 @@ import {
   verifyPassword,
   generateTokens,
   verifyJWT,
-} from '../src/services/authService'
+  verifyJWTWithSecret,
+} from '../../src/services/authService'
 
 describe('Password Hashing', () => {
   describe('hashPassword', () => {
@@ -196,7 +197,8 @@ describe('Token Expiration', () => {
     }
 
     const tokens = generateTokens(payload)
-    const decoded = verifyJWT(tokens.refreshToken)
+    // Use the refresh secret to verify the refresh token
+    const decoded = verifyJWTWithSecret(tokens.refreshToken, process.env.JWT_REFRESH_SECRET || 'refresh-secret')
 
     // jwt.sign({ expiresIn: '7d' }) adds exp claim
     expect(decoded?.exp).toBeDefined()

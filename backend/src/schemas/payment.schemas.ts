@@ -3,7 +3,7 @@ import { UUIDSchema } from './common.schemas.js'
 
 export const CreatePaymentIntentSchema = z.object({
   body: z.object({
-    amount: z.number().positive('El monto debe ser positivo').max(10000, 'Monto máximo $10,000'),
+    amount: z.number().min(10, 'El monto mínimo es $10').max(10000, 'Monto máximo $10,000'),
     consultationId: z.string().optional(),
     description: z.string().optional(),
   }),

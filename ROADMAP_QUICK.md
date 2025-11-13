@@ -43,9 +43,9 @@
 - [x] ✅ Ingresar tarjeta test: 4242 4242 4242 4242
 - [x] ✅ Confirmar pago
 - [x] ✅ Verificar success screen
-- [ ] Verificar en Stripe Dashboard: Payment Intent creado
-- [ ] Verificar en DB: `SELECT * FROM payments`
-- [ ] Probar refund desde Stripe Dashboard
+- [x] ✅ Verificar en Stripe Dashboard: Payment Intent creado
+- [x] ✅ Verificar en DB: `SELECT * FROM payments`
+- [x] ✅ Probar refund desde Stripe Dashboard
 
 #### ✅ Paso 3: Email Service Integration (4-6 horas) 📧
 - [ ] Instalar SendGrid o Resend

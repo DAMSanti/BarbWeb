@@ -33,10 +33,12 @@ npm install --legacy-peer-deps || npm install
 echo ""
 echo "🔄 [4/6] Generating Prisma client..."
 cd /workspace/backend
-# Set a temporary DATABASE_URL if not already set (for schema generation)
-export DATABASE_URL="${DATABASE_URL:-postgresql://temp:temp@localhost/temp}"
+# Set a temporary DATABASE_URL if not already set (for schema generation ONLY during build)
+export DATABASE_URL="${DATABASE_URL:-postgresql://tempuser:temppass@localhost:5432/tempdb}"
 # Use prisma CLI directly if available, fallback to npx
 prisma generate --schema /workspace/backend/prisma/schema.prisma 2>&1 || npx prisma generate 2>&1 || echo "⚠️  Prisma generation had issues but continuing..."
+# Unset temp DATABASE_URL so runtime uses the real one
+unset DATABASE_URL
 
 # Step 6: Push database schema
 echo ""

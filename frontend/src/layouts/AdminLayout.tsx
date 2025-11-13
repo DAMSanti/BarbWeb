@@ -1,12 +1,32 @@
 import { useState } from 'react'
-import { Outlet, useLocation, Link } from 'react-router-dom'
-import { Menu, X, BarChart3, Users, CreditCard, TrendingUp, LogOut } from 'lucide-react'
+import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom'
+import { Menu, X, BarChart3, Users, CreditCard, TrendingUp, LogOut, AlertCircle } from 'lucide-react'
 import { useAppStore } from '../store/appStore'
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const location = useLocation()
-  const { logout } = useAppStore()
+  const navigate = useNavigate()
+  const { logout, user } = useAppStore()
+
+  // Verificar si el usuario es admin
+  if (!user || user.role !== 'admin') {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <AlertCircle size={64} className="mx-auto text-red-600 mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
+          <p className="text-gray-600 mb-6">No tienes permisos para acceder al panel administrativo.</p>
+          <button
+            onClick={() => navigate('/')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Ir al Inicio
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   const menuItems = [
     { path: '/admin', label: 'Dashboard', icon: BarChart3 },
@@ -19,6 +39,7 @@ export default function AdminLayout() {
 
   const handleLogout = () => {
     logout()
+    navigate('/login')
   }
 
   return (

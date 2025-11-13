@@ -16,6 +16,7 @@ import PrivateRoute from './components/PrivateRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { applyThemeVariables } from './theme/themeVariables'
 import { useAppStore } from './store/appStore'
+import { getApiUrl } from './services/backendApi'
 
 function AppContent() {
   const [searchParams] = useSearchParams()
@@ -54,25 +55,36 @@ function AppContent() {
   // Fetch user info from backend when we have tokens
   useEffect(() => {
     if (tokens?.accessToken) {
-      fetch('https://back-jqdv9.ondigitalocean.app/auth/me', {
+      fetch(`${getApiUrl()}/auth/me`, {
         headers: {
           'Authorization': `Bearer ${tokens.accessToken}`,
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`Failed to fetch user: ${res.status}`)
+          }
+          return res.json()
+        })
         .then((data) => {
           if (data.user) {
             // Update user info in store
-            const { setUser } = useAppStore.getState()
+            const { setUser, setIsAuthenticated } = useAppStore.getState()
             setUser({
               id: data.user.userId || data.user.id || '',
               email: data.user.email,
               name: data.user.name,
               role: data.user.role || 'user',
             })
+            setIsAuthenticated(true)
           }
         })
-        .catch((err) => console.error('Failed to fetch user:', err))
+        .catch((err) => {
+          console.error('Failed to fetch user:', err)
+          // Si falla, limpiar tokens
+          const { logout } = useAppStore.getState()
+          logout()
+        })
     }
   }, [tokens])
 

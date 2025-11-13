@@ -2,12 +2,18 @@
 set -e
 
 echo "📦 Step 1: Installing dependencies..."
-npm ci
+npm ci --prefer-offline --no-audit
 
-echo "🎨 Step 2: Building frontend with esbuild..."
-npm run build:frontend
+echo "🎨 Step 2: Building frontend..."
+cd frontend
+npm ci --prefer-offline --no-audit
+npm run build
+cd ..
 
 echo "🔨 Step 3: Building backend..."
-npm run build:backend
+cd backend
+npm ci --prefer-offline --no-audit
+npm run build
+cd ..
 
 echo "✅ Build completed successfully!"

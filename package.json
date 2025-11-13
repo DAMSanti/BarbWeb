@@ -6,6 +6,10 @@
     "frontend",
     "backend"
   ],
+  "engines": {
+    "node": "18.x",
+    "npm": "10.x"
+  },
   "scripts": {
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "npm run build --workspace frontend",

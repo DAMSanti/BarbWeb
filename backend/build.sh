@@ -15,10 +15,10 @@ echo "📦 [1/6] Installing root dependencies..."
 cd /workspace
 npm install --legacy-peer-deps || npm install
 
-# Step 2: Install Prisma in root (required for CLI)
+# Step 2: Install Prisma and PostgreSQL connector in root
 echo ""
-echo "📦 [1b/6] Installing Prisma globally for CLI..."
-npm install --legacy-peer-deps prisma@latest || npm install prisma@latest
+echo "📦 [1b/6] Installing Prisma and PostgreSQL connector..."
+npm install --legacy-peer-deps prisma@5.7.0 @prisma/postgresql@5.7.0 || npm install prisma@5.7.0 @prisma/postgresql@5.7.0
 
 # Step 3: Build frontend
 echo ""
@@ -35,7 +35,7 @@ npm install --legacy-peer-deps || npm install
 echo ""
 echo "🔄 [4/6] Generating Prisma client..."
 cd /workspace/backend
-npx prisma generate
+npx prisma generate --verbose || npx prisma generate
 
 # Step 6: Push database schema
 echo ""

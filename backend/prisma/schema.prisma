@@ -118,3 +118,18 @@ model CustomAgent {
   @@index([userId])
   @@map("custom_agents")
 }
+
+// Email Verification Token model - Para verificación de email
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique // Hash del token para almacenar de forma segura
+  expiresAt DateTime // Expira después de 24 horas
+  
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@map("email_verification_tokens")
+}

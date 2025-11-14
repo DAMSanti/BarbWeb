@@ -578,6 +578,40 @@ export async function sendWelcomeEmail(
 }
 
 /**
+ * Enviar email de verificación de cuenta
+ */
+export async function sendEmailVerificationEmail(
+  to: string,
+  data: {
+    clientName: string;
+    verificationLink: string;
+    expiresInMinutes: number;
+  }
+) {
+  try {
+    logger.info('Sending email verification', { to });
+
+    const { data: result, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [to],
+      subject: '✉️ Verifica tu email - Barbara & Abogados',
+      html: getEmailVerificationTemplate(data),
+    });
+
+    if (error) {
+      logger.error('Error sending email verification', { error, to });
+      throw error;
+    }
+
+    logger.info('Email verification sent successfully', { to, emailId: result?.id });
+    return result;
+  } catch (error) {
+    logger.error('Failed to send email verification', { error, to });
+    throw error;
+  }
+}
+
+/**
  * Enviar resumen de consulta pagada con respuesta
  */
 export async function sendConsultationSummaryEmail(
@@ -1036,6 +1070,85 @@ function getPasswordResetTemplate(data: {
               </p>
               <p style="margin: 20px 0 0 0; color: #999999; font-size: 12px;">
                 © 2025 Barbara & Abogados. Tu seguridad es nuestra prioridad.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+function getEmailVerificationTemplate(data: {
+  clientName: string;
+  verificationLink: string;
+  expiresInMinutes: number;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifica tu Email</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%); padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">✉️ Verifica tu Email</h1>
+            </td>
+          </tr>
+          
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                Hola <strong>${data.clientName}</strong>,
+              </p>
+              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                Te has registrado exitosamente en Barbara & Abogados. Para activar tu cuenta, verifica tu dirección de email haciendo clic en el botón de abajo.
+              </p>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${data.verificationLink}" style="display: inline-block; background-color: #0369a1; color: #ffffff; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                  Verificar Email
+                </a>
+              </div>
+              
+              <p style="margin: 0 0 20px 0; color: #555555; font-size: 14px; line-height: 1.6;">
+                O copia y pega este enlace en tu navegador:
+              </p>
+              <p style="margin: 0 0 20px 0; color: #0369a1; font-size: 12px; word-break: break-all; background-color: #f3f4f6; padding: 10px; border-radius: 4px;">
+                ${data.verificationLink}
+              </p>
+              
+              <div style="background-color: #dbeafe; padding: 16px; border-radius: 8px; border-left: 4px solid #0369a1;">
+                <p style="margin: 0; color: #0c4a6e; font-size: 13px;">
+                  <strong>⏱️ Este enlace expira en ${data.expiresInMinutes} minutos.</strong> Verifica tu email pronto para activar tu cuenta.
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-radius: 0 0 12px 12px;">
+              <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                ¿No te registraste?
+              </p>
+              <p style="margin: 0; color: #666666; font-size: 14px;">
+                Si no creaste esta cuenta, puedes ignorar este email de forma segura.
+              </p>
+              <p style="margin: 20px 0 0 0; color: #999999; font-size: 12px;">
+                © 2025 Barbara & Abogados. Tu confianza es nuestra prioridad.
               </p>
             </td>
           </tr>

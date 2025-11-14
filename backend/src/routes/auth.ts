@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express'
+import crypto from 'crypto'
 import {
   registerUser,
   loginUser,
@@ -13,6 +14,7 @@ import { exchangeGoogleCode, exchangeMicrosoftCode } from '../utils/oauthHelper.
 import { validate } from '../middleware/validation.js'
 import { asyncHandler } from '../middleware/errorHandler.js'
 import { authLimiter } from '../middleware/security.js'
+import { getPrismaClient } from '../db/init.js'
 import {
   RegisterSchema,
   LoginSchema,
@@ -66,6 +68,60 @@ router.post(
       message: 'Login successful',
       user: result.user,
       tokens: result.tokens,
+    })
+  }),
+)
+
+/**
+ * POST /auth/verify-email
+ * Verify user email with token
+ */
+router.post(
+  '/verify-email',
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { token } = req.body
+
+    if (!token) {
+      res.status(400).json({ error: 'Verification token required' })
+      return
+    }
+
+    // Hash the token to find it in DB
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+
+    // Find and verify the token
+    const prisma = getPrismaClient()
+    const verificationRecord = await prisma.emailVerificationToken.findUnique({
+      where: { token: hashedToken },
+    })
+
+    if (!verificationRecord) {
+      res.status(400).json({ error: 'Invalid or expired verification token' })
+      return
+    }
+
+    if (new Date() > verificationRecord.expiresAt) {
+      res.status(400).json({ error: 'Verification token has expired' })
+      return
+    }
+
+    // Mark user as verified
+    await prisma.user.update({
+      where: { id: verificationRecord.userId },
+      data: {
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
+      },
+    })
+
+    // Delete the used token
+    await prisma.emailVerificationToken.delete({
+      where: { id: verificationRecord.id },
+    })
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully',
     })
   }),
 )

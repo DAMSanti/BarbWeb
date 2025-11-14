@@ -36,6 +36,7 @@ export default function CheckoutPage() {
   // Crear PaymentIntent al montar el componente
   useEffect(() => {
     if (!consultation) return
+    if (clientSecret) return // No crear un nuevo intent si ya tenemos uno
 
     const createPaymentIntent = async () => {
       try {
@@ -138,7 +139,7 @@ export default function CheckoutPage() {
     }
 
     createPaymentIntent()
-  }, [consultation, consultationId])
+  }, [consultationId, tokens?.accessToken, clientSecret])
 
   const [clientName, setClientName] = useState(consultation?.clientName || '')
   const [clientEmail, setClientEmail] = useState(consultation?.clientEmail || '')

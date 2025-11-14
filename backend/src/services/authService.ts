@@ -95,21 +95,9 @@ export const registerUser = async (
     },
   })
 
-  // Send welcome with verification email (non-blocking, single email)
-  Promise.resolve()
-    .then(() =>
-      sendWelcomeWithVerificationEmail(email, {
-        clientName: name,
-        verificationLink: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationTokenString}`,
-        expiresInMinutes: 24 * 60,
-      })
-    )
-    .catch((emailError) => {
-      logger.warn('Failed to send welcome with verification email', {
-        error: emailError instanceof Error ? emailError.message : String(emailError),
-        email,
-      })
-    })
+  // NOTE: Email sending is handled by backend through a dedicated endpoint
+  // This allows for better retry logic and webhook-based sending
+  // Frontend will call a separate endpoint to trigger welcome + verification email
 
   return {
     user: {
@@ -118,6 +106,7 @@ export const registerUser = async (
       name: user.name,
       role: user.role,
       emailVerified: user.emailVerified,
+      verificationToken: verificationTokenString, // Return token to frontend so it can be used to trigger email sending
     },
     tokens,
   }

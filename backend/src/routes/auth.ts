@@ -15,6 +15,8 @@ import { validate } from '../middleware/validation.js'
 import { asyncHandler } from '../middleware/errorHandler.js'
 import { authLimiter } from '../middleware/security.js'
 import { getPrismaClient } from '../db/init.js'
+import { sendWelcomeWithVerificationEmail } from '../services/emailService.js'
+import { logger } from '../utils/logger.js'
 import {
   RegisterSchema,
   LoginSchema,
@@ -123,6 +125,55 @@ router.post(
       success: true,
       message: 'Email verified successfully',
     })
+  }),
+)
+
+/**
+ * POST /auth/send-welcome-email
+ * Send welcome + verification email to newly registered user
+ * Called by frontend after successful registration
+ */
+router.post(
+  '/send-welcome-email',
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { email, name, verificationToken } = req.body
+
+    if (!email || !name || !verificationToken) {
+      res.status(400).json({
+        error: 'Email, name, and verification token are required',
+      })
+      return
+    }
+
+    try {
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
+      
+      // Send the combined welcome + verification email
+      await sendWelcomeWithVerificationEmail(email, {
+        clientName: name,
+        verificationLink: `${frontendUrl}/verify-email?token=${verificationToken}`,
+        expiresInMinutes: 24 * 60,
+      })
+
+      logger.info('Welcome email sent successfully after registration', {
+        email,
+        name,
+      })
+
+      res.json({
+        success: true,
+        message: 'Welcome email sent successfully',
+      })
+    } catch (error) {
+      logger.error('Failed to send welcome email', {
+        error: error instanceof Error ? error.message : String(error),
+        email,
+      })
+
+      res.status(500).json({
+        error: 'Failed to send welcome email. Please try again later.',
+      })
+    }
   }),
 )
 

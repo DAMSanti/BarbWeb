@@ -92,6 +92,28 @@ export default function RegisterPage() {
       // Store tokens and user
       register(response.user, response.tokens)
       
+      // Send welcome email via webhook/backend (non-blocking)
+      if (response.user.verificationToken) {
+        try {
+          await fetch(`${import.meta.env.VITE_API_URL}/api/auth/send-welcome-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              name: formData.name,
+              verificationToken: response.user.verificationToken,
+            }),
+          }).catch(err => {
+            console.warn('Failed to send welcome email via webhook:', err)
+            // Don't block registration if email fails
+          })
+        } catch (emailError) {
+          console.warn('Error triggering welcome email:', emailError)
+        }
+      }
+      
       // Redirect to home
       navigate('/')
     } catch (err: any) {

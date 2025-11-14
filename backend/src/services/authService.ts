@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { getPrismaClient } from '../db/init.js'
 import { AuthenticationError, ConflictError } from '../utils/errors.js'
+import { sendWelcomeEmail } from './emailService.js'
+import { logger } from '../utils/logger.js'
 
 const prisma = getPrismaClient()
 
@@ -78,6 +80,20 @@ export const registerUser = async (
 
   // Store refresh token
   await storeRefreshToken(user.id, tokens.refreshToken)
+
+  // Send welcome email
+  try {
+    await sendWelcomeEmail(email, {
+      clientName: name,
+    })
+    logger.info('Welcome email sent successfully', { email })
+  } catch (emailError) {
+    logger.warn('Failed to send welcome email', {
+      error: emailError instanceof Error ? emailError.message : String(emailError),
+      email,
+    })
+    // Don't block registration if email fails
+  }
 
   return {
     user: {

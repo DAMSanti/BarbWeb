@@ -29,9 +29,10 @@ model User {
   updatedAt         DateTime   @updatedAt
 
   // Relaciones
-  payments          Payment[]
-  customAgents      CustomAgent[]
-  oauthAccounts     OAuthAccount[]
+  payments                    Payment[]
+  customAgents                CustomAgent[]
+  oauthAccounts               OAuthAccount[]
+  emailVerificationTokens     EmailVerificationToken[]
 
   @@map("users")
 }

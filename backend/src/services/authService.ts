@@ -95,36 +95,32 @@ export const registerUser = async (
     },
   })
 
-  // Send welcome email
-  try {
-    await sendWelcomeEmail(email, {
+  // Send welcome email and verification (non-blocking)
+  Promise.all([
+    sendWelcomeEmail(email, {
       clientName: name,
-    })
-    logger.info('Welcome email sent successfully', { email })
-  } catch (emailError) {
-    logger.warn('Failed to send welcome email', {
-      error: emailError instanceof Error ? emailError.message : String(emailError),
-      email,
-    })
-  }
-
-  // Send email verification
-  try {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
-    const verificationLink = `${frontendUrl}/verify-email?token=${verificationTokenString}`
-    
-    await sendEmailVerificationEmail(email, {
+    }).catch((emailError) => {
+      logger.warn('Failed to send welcome email', {
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+        email,
+      })
+    }),
+    sendEmailVerificationEmail(email, {
       clientName: name,
-      verificationLink,
+      verificationLink: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationTokenString}`,
       expiresInMinutes: 24 * 60,
-    })
-    logger.info('Email verification sent successfully', { email })
-  } catch (emailError) {
-    logger.warn('Failed to send email verification', {
-      error: emailError instanceof Error ? emailError.message : String(emailError),
+    }).catch((emailError) => {
+      logger.warn('Failed to send email verification', {
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+        email,
+      })
+    }),
+  ]).catch((error) => {
+    logger.error('Error in parallel email sending', {
+      error: error instanceof Error ? error.message : String(error),
       email,
     })
-  }
+  })
 
   return {
     user: {

@@ -532,7 +532,510 @@ function getRefundConfirmationTemplate(data: {
                 abogados.bgarcia@gmail.com
               </p>
               <p style="margin: 20px 0 0 0; color: #999999; font-size: 12px;">
+              © 2025 Barbara & Abogados. Gracias por tu confianza.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+  `;
+}
+
+/**
+ * Enviar email de bienvenida (post-registro)
+ */
+export async function sendWelcomeEmail(
+  to: string,
+  data: {
+    clientName: string;
+  }
+) {
+  try {
+    logger.info('Sending welcome email', { to });
+
+    const { data: result, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [to],
+      subject: '👋 Bienvenido a Barbara & Abogados',
+      html: getWelcomeTemplate(data),
+    });
+
+    if (error) {
+      logger.error('Error sending welcome email', { error, to });
+      throw error;
+    }
+
+    logger.info('Welcome email sent successfully', { to, emailId: result?.id });
+    return result;
+  } catch (error) {
+    logger.error('Failed to send welcome email', { error, to });
+    throw error;
+  }
+}
+
+/**
+ * Enviar resumen de consulta pagada con respuesta
+ */
+export async function sendConsultationSummaryEmail(
+  to: string,
+  data: {
+    clientName: string;
+    category: string;
+    question: string;
+    lawyerResponse: string;
+    paymentId: string;
+    amount: number;
+    currency: string;
+  }
+) {
+  try {
+    logger.info('Sending consultation summary email', { to, paymentId: data.paymentId });
+
+    const { data: result, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [to],
+      subject: `📋 Respuesta a tu Consulta Legal - ${data.category}`,
+      html: getConsultationSummaryTemplate(data),
+    });
+
+    if (error) {
+      logger.error('Error sending consultation summary email', { error, to });
+      throw error;
+    }
+
+    logger.info('Consultation summary email sent successfully', { to, emailId: result?.id });
+    return result;
+  } catch (error) {
+    logger.error('Failed to send consultation summary email', { error, to });
+    throw error;
+  }
+}
+
+/**
+ * Enviar factura/recibo detallado
+ */
+export async function sendInvoiceEmail(
+  to: string,
+  data: {
+    clientName: string;
+    invoiceNumber: string;
+    date: string;
+    category: string;
+    description: string;
+    amount: number;
+    currency: string;
+    taxAmount: number;
+    totalAmount: number;
+    paymentIntentId: string;
+  }
+) {
+  try {
+    logger.info('Sending invoice email', { to, invoiceNumber: data.invoiceNumber });
+
+    const { data: result, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [to],
+      subject: `📄 Factura ${data.invoiceNumber} - Barbara & Abogados`,
+      html: getInvoiceTemplate(data),
+    });
+
+    if (error) {
+      logger.error('Error sending invoice email', { error, to });
+      throw error;
+    }
+
+    logger.info('Invoice email sent successfully', { to, emailId: result?.id });
+    return result;
+  } catch (error) {
+    logger.error('Failed to send invoice email', { error, to });
+    throw error;
+  }
+}
+
+/**
+ * Enviar email de reset de contraseña
+ */
+export async function sendPasswordResetEmail(
+  to: string,
+  data: {
+    clientName: string;
+    resetLink: string;
+    expiresInMinutes: number;
+  }
+) {
+  try {
+    logger.info('Sending password reset email', { to });
+
+    const { data: result, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [to],
+      subject: '🔑 Restablecer tu Contraseña',
+      html: getPasswordResetTemplate(data),
+    });
+
+    if (error) {
+      logger.error('Error sending password reset email', { error, to });
+      throw error;
+    }
+
+    logger.info('Password reset email sent successfully', { to, emailId: result?.id });
+    return result;
+  } catch (error) {
+    logger.error('Failed to send password reset email', { error, to });
+    throw error;
+  }
+}
+
+// ============================================================================
+// EMAIL TEMPLATES
+// ============================================================================
+
+function getWelcomeTemplate(data: {
+  clientName: string;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenido</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%); padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">👋 ¡Bienvenido!</h1>
+            </td>
+          </tr>
+          
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                Hola <strong>${data.clientName}</strong>,
+              </p>
+              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                Te damos la más cordial bienvenida a <strong>Barbara & Abogados</strong>. Estamos encantados de contar contigo como parte de nuestra comunidad.
+              </p>
+              
+              <h3 style="margin: 24px 0 12px 0; color: #0369a1; font-size: 18px;">¿Qué puedes hacer ahora?</h3>
+              <ul style="margin: 0; padding-left: 20px; color: #555555; font-size: 14px; line-height: 2;">
+                <li><strong>Consultar FAQs</strong> - Explora nuestras preguntas frecuentes</li>
+                <li><strong>Realizar una consulta</strong> - Haz tu pregunta legal personalizada</li>
+                <li><strong>Contactar un abogado</strong> - Solicita asesoramiento profesional</li>
+              </ul>
+              
+              <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; border-left: 4px solid #0369a1; margin: 24px 0;">
+                <p style="margin: 0; color: #0369a1; font-size: 14px;">
+                  💡 <strong>Tip:</strong> Comienza con nuestras FAQs - muchas preguntas ya están respondidas por expertos.
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-radius: 0 0 12px 12px;">
+              <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                ¿Necesitas ayuda?
+              </p>
+              <p style="margin: 0; color: #0369a1; font-size: 14px; font-weight: bold;">
+                abogados.bgarcia@gmail.com
+              </p>
+              <p style="margin: 20px 0 0 0; color: #999999; font-size: 12px;">
+                © 2025 Barbara & Abogados. Tu confianza es nuestra prioridad.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+function getConsultationSummaryTemplate(data: {
+  clientName: string;
+  category: string;
+  question: string;
+  lawyerResponse: string;
+  paymentId: string;
+  amount: number;
+  currency: string;
+}): string {
+  const currencySymbol = data.currency === 'usd' ? '$' : '€';
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Respuesta a tu Consulta</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">📋 Respuesta a tu Consulta</h1>
+              <p style="margin: 8px 0 0 0; color: #e9d5ff; font-size: 14px;">${data.category}</p>
+            </td>
+          </tr>
+          
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                Hola <strong>${data.clientName}</strong>,
+              </p>
+              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                Aquí está la respuesta profesional de nuestro abogado a tu consulta legal:
+              </p>
+              
+              <div style="background-color: #f3e8ff; padding: 20px; border-radius: 8px; border-left: 4px solid #7c3aed; margin-bottom: 24px;">
+                <p style="margin: 0 0 12px 0; color: #5b21b6; font-size: 12px; font-weight: bold; text-transform: uppercase;">
+                  Tu Pregunta:
+                </p>
+                <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.6;">
+                  ${data.question}
+                </p>
+              </div>
+              
+              <div style="background-color: #fef3c7; padding: 20px; border-radius: 8px; border-left: 4px solid #d97706; margin-bottom: 24px;">
+                <p style="margin: 0 0 12px 0; color: #92400e; font-size: 12px; font-weight: bold; text-transform: uppercase;">
+                  Respuesta del Abogado:
+                </p>
+                <p style="margin: 0; color: #333333; font-size: 14px; line-height: 1.8; white-space: pre-wrap;">
+                  ${data.lawyerResponse}
+                </p>
+              </div>
+              
+              <div style="background-color: #dbeafe; padding: 16px; border-radius: 8px; border-left: 4px solid #0369a1; margin-bottom: 24px;">
+                <p style="margin: 0; color: #0c4a6e; font-size: 12px;">
+                  <strong>Referencia:</strong> Consulta ID: ${data.paymentId}
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-radius: 0 0 12px 12px;">
+              <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                ¿Necesitas más información?
+              </p>
+              <p style="margin: 0; color: #0369a1; font-size: 14px; font-weight: bold;">
+                abogados.bgarcia@gmail.com
+              </p>
+              <p style="margin: 20px 0 0 0; color: #999999; font-size: 12px;">
+                © 2025 Barbara & Abogados. Siempre a tu disposición.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+function getInvoiceTemplate(data: {
+  clientName: string;
+  invoiceNumber: string;
+  date: string;
+  category: string;
+  description: string;
+  amount: number;
+  currency: string;
+  taxAmount: number;
+  totalAmount: number;
+  paymentIntentId: string;
+}): string {
+  const currencySymbol = data.currency === 'usd' ? '$' : '€';
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factura</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">📄 Factura</h1>
+              <p style="margin: 8px 0 0 0; color: #d1fae5; font-size: 14px; font-weight: bold;">No. ${data.invoiceNumber}</p>
+            </td>
+          </tr>
+          
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                <div>
+                  <p style="margin: 0 0 8px 0; color: #666666; font-size: 12px; font-weight: bold; text-transform: uppercase;">Facturado A:</p>
+                  <p style="margin: 0; color: #333333; font-size: 14px; font-weight: bold;">${data.clientName}</p>
+                </div>
+                <div>
+                  <p style="margin: 0 0 8px 0; color: #666666; font-size: 12px; font-weight: bold; text-transform: uppercase;">Fecha de Factura:</p>
+                  <p style="margin: 0; color: #333333; font-size: 14px;">${data.date}</p>
+                </div>
+              </div>
+              
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 24px;">
+                <thead>
+                  <tr style="background-color: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                    <th style="padding: 12px; text-align: left; color: #374151; font-size: 12px; font-weight: bold;">DESCRIPCIÓN</th>
+                    <th style="padding: 12px; text-align: right; color: #374151; font-size: 12px; font-weight: bold;">MONTO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #333333; font-size: 14px;">
+                      ${data.description}<br>
+                      <span style="color: #666666; font-size: 12px;">Categoría: ${data.category}</span>
+                    </td>
+                    <td style="padding: 12px; text-align: right; color: #333333; font-size: 14px; font-weight: bold;">
+                      ${currencySymbol}${data.amount.toFixed(2)}
+                    </td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #666666; font-size: 14px;">IVA (21%)</td>
+                    <td style="padding: 12px; text-align: right; color: #666666; font-size: 14px;">
+                      ${currencySymbol}${data.taxAmount.toFixed(2)}
+                    </td>
+                  </tr>
+                  <tr style="background-color: #f9fafb;">
+                    <td style="padding: 12px; color: #333333; font-size: 14px; font-weight: bold;">TOTAL</td>
+                    <td style="padding: 12px; text-align: right; color: #059669; font-size: 18px; font-weight: bold;">
+                      ${currencySymbol}${data.totalAmount.toFixed(2)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <div style="background-color: #f0fdf4; padding: 16px; border-radius: 8px;">
+                <p style="margin: 0; color: #065f46; font-size: 12px;">
+                  <strong>Pago procesado a través de Stripe</strong><br>
+                  ID de Transacción: ${data.paymentIntentId}
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-radius: 0 0 12px 12px;">
+              <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                Barbara & Abogados
+              </p>
+              <p style="margin: 0; color: #0369a1; font-size: 14px;">
+                abogados.bgarcia@gmail.com
+              </p>
+              <p style="margin: 20px 0 0 0; color: #999999; font-size: 12px;">
                 © 2025 Barbara & Abogados. Gracias por tu confianza.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+function getPasswordResetTemplate(data: {
+  clientName: string;
+  resetLink: string;
+  expiresInMinutes: number;
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restablecer Contraseña</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">🔑 Restablecer Contraseña</h1>
+            </td>
+          </tr>
+          
+          <!-- Body -->
+          <tr>
+            <td style="padding: 40px;">
+              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                Hola <strong>${data.clientName}</strong>,
+              </p>
+              <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                Recibimos una solicitud para restablecer tu contraseña. Haz clic en el botón de abajo para crear una nueva contraseña.
+              </p>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${data.resetLink}" style="display: inline-block; background-color: #dc2626; color: #ffffff; padding: 14px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                  Restablecer Contraseña
+                </a>
+              </div>
+              
+              <p style="margin: 0 0 20px 0; color: #555555; font-size: 14px; line-height: 1.6;">
+                O copia y pega este enlace en tu navegador:
+              </p>
+              <p style="margin: 0 0 20px 0; color: #0369a1; font-size: 12px; word-break: break-all; background-color: #f3f4f6; padding: 10px; border-radius: 4px;">
+                ${data.resetLink}
+              </p>
+              
+              <div style="background-color: #fee2e2; padding: 16px; border-radius: 8px; border-left: 4px solid #dc2626;">
+                <p style="margin: 0; color: #991b1b; font-size: 13px;">
+                  <strong>⚠️ Importante:</strong> Este enlace expira en ${data.expiresInMinutes} minutos. Si no solicitaste este cambio, ignora este email y tu contraseña no será modificada.
+                </p>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-radius: 0 0 12px 12px;">
+              <p style="margin: 0 0 10px 0; color: #666666; font-size: 14px;">
+                ¿No solicitaste esto?
+              </p>
+              <p style="margin: 0; color: #666666; font-size: 14px;">
+                Tu contraseña está segura. Simplemente ignora este email.
+              </p>
+              <p style="margin: 20px 0 0 0; color: #999999; font-size: 12px;">
+                © 2025 Barbara & Abogados. Tu seguridad es nuestra prioridad.
               </p>
             </td>
           </tr>

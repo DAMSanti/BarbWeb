@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { getPrismaClient } from '../db/init.js'
 import { AuthenticationError, ConflictError } from '../utils/errors.js'
-import { sendWelcomeEmail, sendEmailVerificationEmail } from './emailService.js'
+import { sendWelcomeWithVerificationEmail } from './emailService.js'
 import { logger } from '../utils/logger.js'
 
 const prisma = getPrismaClient()
@@ -95,32 +95,21 @@ export const registerUser = async (
     },
   })
 
-  // Send welcome email and verification (non-blocking)
-  Promise.all([
-    sendWelcomeEmail(email, {
-      clientName: name,
-    }).catch((emailError) => {
-      logger.warn('Failed to send welcome email', {
+  // Send welcome with verification email (non-blocking, single email)
+  Promise.resolve()
+    .then(() =>
+      sendWelcomeWithVerificationEmail(email, {
+        clientName: name,
+        verificationLink: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationTokenString}`,
+        expiresInMinutes: 24 * 60,
+      })
+    )
+    .catch((emailError) => {
+      logger.warn('Failed to send welcome with verification email', {
         error: emailError instanceof Error ? emailError.message : String(emailError),
         email,
       })
-    }),
-    sendEmailVerificationEmail(email, {
-      clientName: name,
-      verificationLink: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/verify-email?token=${verificationTokenString}`,
-      expiresInMinutes: 24 * 60,
-    }).catch((emailError) => {
-      logger.warn('Failed to send email verification', {
-        error: emailError instanceof Error ? emailError.message : String(emailError),
-        email,
-      })
-    }),
-  ]).catch((error) => {
-    logger.error('Error in parallel email sending', {
-      error: error instanceof Error ? error.message : String(error),
-      email,
     })
-  })
 
   return {
     user: {

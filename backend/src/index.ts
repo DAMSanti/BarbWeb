@@ -29,12 +29,27 @@ const app = express()
 const PORT = Number(process.env.PORT || 3000)
 
 // ============================================================================
-// SECURITY MIDDLEWARE (MUST BE FIRST)
+// TRUST PROXY (MUST BE FIRST FOR DIGITALOCEAN)
+// ============================================================================
+// DigitalOcean App Platform uses a proxy/load balancer
+// We need to trust the X-Forwarded-For header for rate limiting
+app.set('trust proxy', true)
+logger.info('✅ Trust proxy enabled for DigitalOcean')
+
+// ============================================================================
+// SECURITY MIDDLEWARE
 // ============================================================================
 initializeSecurityMiddleware(app)
 
 // ============================================================================
-// BODY PARSER MIDDLEWARE
+// WEBHOOK ROUTE (BEFORE BODY PARSER - NEEDS RAW BODY)
+// ============================================================================
+// Stripe webhooks need the raw body for signature verification
+// This MUST come before express.json() middleware
+app.use('/webhooks', webhookRoutes)
+
+// ============================================================================
+// BODY PARSER MIDDLEWARE (AFTER WEBHOOKS)
 // ============================================================================
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -59,9 +74,6 @@ app.use('/auth', authRoutes)
 
 // Payment routes
 app.use('/api/payments', paymentRoutes)
-
-// Webhook routes
-app.use('/webhooks', webhookRoutes)
 
 // Admin routes (protected, requires admin role)
 app.use('/api/admin', adminRoutes)

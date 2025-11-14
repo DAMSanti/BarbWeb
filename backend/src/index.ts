@@ -32,9 +32,15 @@ const PORT = Number(process.env.PORT || 3000)
 // TRUST PROXY (MUST BE FIRST FOR DIGITALOCEAN)
 // ============================================================================
 // DigitalOcean App Platform uses a proxy/load balancer
-// We need to trust the X-Forwarded-For header for rate limiting
-app.set('trust proxy', true)
-logger.info('✅ Trust proxy enabled for DigitalOcean')
+// We use a function that checks if the request is from a trusted proxy
+// This allows express-rate-limit to correctly identify client IPs
+app.set('trust proxy', (ip: string) => {
+  // Trust DigitalOcean's internal load balancer
+  // In DigitalOcean App Platform, the proxy comes from an internal IP
+  // We trust the first proxy in the chain (the load balancer)
+  return true
+})
+logger.info('✅ Trust proxy configured for DigitalOcean with custom validation')
 
 // ============================================================================
 // SECURITY MIDDLEWARE

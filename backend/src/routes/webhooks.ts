@@ -98,39 +98,40 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     }
 
     // Check if payment already exists
-  const existingPayment = await getPrismaClient().payment.findFirst({
+    const existingPayment = await getPrismaClient().payment.findFirst({
       where: { stripeSessionId: paymentIntent.id },
     })
 
-    if (existingPayment) {
+    let payment = existingPayment
+
+    // Only create payment if it doesn't exist
+    if (!existingPayment) {
+      payment = await getPrismaClient().payment.create({
+        data: {
+          userId,
+          stripeSessionId: paymentIntent.id,
+          amount: paymentIntent.amount / 100,
+          status: 'completed',
+          consultationSummary: 'Consulta legal - Pago procesado vía Stripe',
+          question: 'Consulta por pago directo',
+          category: 'Otros',
+        },
+      })
+
+      logger.info('Pago registrado desde webhook', {
+        paymentId: payment.id,
+        paymentIntentId: paymentIntent.id,
+        userId,
+        amount: paymentIntent.amount / 100,
+      })
+    } else {
       logger.info('Pago ya registrado, ignorando duplicado', {
         paymentIntentId: paymentIntent.id,
       })
-      return
     }
 
-    // Create payment record
-    const payment = await getPrismaClient().payment.create({
-      data: {
-        userId,
-        stripeSessionId: paymentIntent.id,
-        amount: paymentIntent.amount / 100,
-        status: 'completed',
-        consultationSummary: 'Consulta legal - Pago procesado vía Stripe',
-        question: 'Consulta por pago directo',
-        category: 'Otros',
-      },
-    })
-
-    logger.info('Pago registrado desde webhook', {
-      paymentId: payment.id,
-      paymentIntentId: paymentIntent.id,
-      userId,
-      amount: paymentIntent.amount / 100,
-    })
-
-    // Get user data and payment metadata
-  const user = await getPrismaClient().user.findUnique({
+    // Always send emails (even if duplicate) because webhook fires after confirmation
+    const user = await getPrismaClient().user.findUnique({
       where: { id: userId },
     })
 

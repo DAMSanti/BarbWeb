@@ -81,6 +81,7 @@ router.post(
 
 // POST /api/payments/confirm-payment
 // Confirmar un pago (backend verification)
+// NOTE: El pago se guarda en la BD solo a través del webhook de Stripe
 router.post(
   '/confirm-payment',
   verifyToken,
@@ -112,33 +113,13 @@ router.post(
         )
       }
 
-      // If a consultationId was provided, mark it as paid
-      if (consultationId) {
-        try {
-          await getPrismaClient().payment.create({
-            data: {
-              userId: String(userId),
-              stripeSessionId: paymentIntentId,
-              amount: paymentIntent.amount / 100,
-              status: 'completed',
-              consultationSummary: 'Consulta legal completada',
-              question: 'Consulta legal',
-              category: 'General',
-            },
-          })
-
-          logger.info('Payment recorded in database', {
-            paymentIntentId,
-            userId,
-            amount: paymentIntent.amount / 100,
-          })
-        } catch (dbError) {
-          logger.warn('Failed to record payment in database', {
-            error: dbError instanceof Error ? dbError.message : String(dbError),
-            paymentIntentId,
-          })
-        }
-      }
+      // Simply confirm the payment was successful
+      // Payment record will be created by the Stripe webhook
+      logger.info('Payment confirmed by client', {
+        paymentIntentId,
+        userId,
+        amount: paymentIntent.amount / 100,
+      })
 
       res.json({
         success: true,

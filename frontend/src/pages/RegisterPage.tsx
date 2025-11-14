@@ -95,7 +95,14 @@ export default function RegisterPage() {
       // Send welcome email via webhook/backend (non-blocking)
       if (response.user.verificationToken) {
         try {
-          await fetch(`${import.meta.env.VITE_API_URL}/api/auth/send-welcome-email`, {
+          const apiUrl = import.meta.env.VITE_API_URL || 'https://back-jqdv9.ondigitalocean.app'
+          const emailEndpoint = `${apiUrl}/api/auth/send-welcome-email`
+          
+          console.log('Sending welcome email to:', formData.email)
+          console.log('API URL:', apiUrl)
+          console.log('Endpoint:', emailEndpoint)
+          
+          const emailResponse = await fetch(emailEndpoint, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -105,13 +112,20 @@ export default function RegisterPage() {
               name: formData.name,
               verificationToken: response.user.verificationToken,
             }),
-          }).catch(err => {
-            console.warn('Failed to send welcome email via webhook:', err)
-            // Don't block registration if email fails
           })
+          
+          const emailData = await emailResponse.json()
+          console.log('Welcome email response:', emailResponse.status, emailData)
+          
+          if (!emailResponse.ok) {
+            console.warn('Email sending failed:', emailData)
+          }
         } catch (emailError) {
-          console.warn('Error triggering welcome email:', emailError)
+          console.warn('Error sending welcome email:', emailError)
+          // Don't block registration if email fails
         }
+      } else {
+        console.warn('No verification token received from backend')
       }
       
       // Redirect to home

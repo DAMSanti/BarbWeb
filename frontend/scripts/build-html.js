@@ -82,7 +82,7 @@ try {
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/barbweb2/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bufete Jurídico - Consultas Legales</title>
   <style>
@@ -91,7 +91,7 @@ ${cssContent}
 </head>
 <body>
   <div id="root"></div>
-  <script type="module" src="/barbweb2/main.js"></script>
+  <script type="module" src="/main.js"></script>
 </body>
 </html>
 `;

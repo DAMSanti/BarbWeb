@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chatbot - BarbWeb (Static)</title>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;margin:0;background:#f7fafc;color:#0f172a}
+    .container{max-width:720px;margin:48px auto;padding:24px;background:#fff;border-radius:8px;box-shadow:0 6px 18px rgba(2,6,23,0.06)}
+    .messages{height:400px;overflow:auto;border:1px solid #e6eef6;padding:12px;border-radius:6px;background:#f8fafc}
+    .msg{margin:8px 0;padding:8px 12px;border-radius:16px;display:inline-block;max-width:80%}
+    .msg.user{background:#0369a1;color:#fff;margin-left:auto}
+    .msg.bot{background:#eef2ff;color:#0f172a}
+    .input-row{display:flex;gap:8px;margin-top:12px}
+    input[type="text"]{flex:1;padding:10px;border:1px solid #cbd5e1;border-radius:8px}
+    button{padding:10px 14px;border:none;background:#0284c7;color:#fff;border-radius:8px}
+    footer{margin-top:12px;font-size:12px;color:#475569}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chatbot (static)</h1>
+    <p>Pequeña demo que envía la pregunta al endpoint del backend y muestra la respuesta.</p>
+
+    <div class="messages" id="messages" aria-live="polite"></div>
+
+    <div class="input-row">
+      <input id="q" type="text" placeholder="Escribe tu pregunta..." />
+      <button id="send">Enviar</button>
+    </div>
+
+    <footer>
+      Cambia la variable <code>API_URL</code> dentro del script si tu backend está en otra URL.
+    </footer>
+  </div>
+
+  <script>
+    // Cambia aquí la URL de tu API si es necesario
+    const API_URL = 'https://back-jqdv9.ondigitalocean.app';
+
+    const messagesEl = document.getElementById('messages');
+    const input = document.getElementById('q');
+    const sendBtn = document.getElementById('send');
+
+    function addMessage(text, cls){
+      const d = document.createElement('div');
+      d.className = 'msg ' + cls;
+      d.textContent = text;
+      messagesEl.appendChild(d);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    async function ask(question){
+      addMessage(question, 'user');
+      addMessage('Pensando...', 'bot');
+      try{
+        const res = await fetch(`${API_URL}/api/filter-question`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question })
+        });
+
+        // remove the 'Pensando...' placeholder
+        const placeholders = messagesEl.querySelectorAll('.msg.bot');
+        if(placeholders.length) placeholders[placeholders.length - 1].remove();
+
+        if(!res.ok){
+          addMessage('Error al contactar al servidor: ' + res.statusText, 'bot');
+          return;
+        }
+        const data = await res.json();
+        // adapt to the backend shape: buscado en roadmap -> /api/filter-question devuelve respuesta
+        const answer = data?.answer || data?.response || JSON.stringify(data);
+        addMessage(answer, 'bot');
+      }catch(err){
+        // remove the placeholder
+        const placeholders = messagesEl.querySelectorAll('.msg.bot');
+        if(placeholders.length) placeholders[placeholders.length - 1].remove();
+        addMessage('Network error: ' + err.message, 'bot');
+      }
+    }
+
+    sendBtn.addEventListener('click', ()=>{
+      const q = input.value && input.value.trim();
+      if(!q) return;
+      ask(q);
+      input.value = '';
+    });
+
+    input.addEventListener('keydown',(e)=>{if(e.key==='Enter'){sendBtn.click();}});
+  </script>
+</body>
+</html>

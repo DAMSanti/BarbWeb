@@ -61,7 +61,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // Health check
-app.get('/', (req, res) => {
+// Move health check to /health so the root domain (/) can serve the frontend
+app.get('/health', (req, res) => {
   res.json({
     message: 'Bufete Jurídico Backend',
     version: '1.0.0',
@@ -84,7 +85,7 @@ app.use('/api/payments', paymentRoutes)
 // Admin routes (protected, requires admin role)
 app.use('/api/admin', adminRoutes)
 
-// Servir archivos estáticos del frontend en /barbweb2
+// Servir archivos estáticos del frontend en la raíz '/' (antes /barbweb2)
 // En producción, el backend/dist está en /workspace/backend/dist, así que ../../../ nos lleva a /workspace/frontend/dist
 // En desarrollo local, la ruta relativa también funciona
 const frontendPath = process.env.NODE_ENV === 'production' 
@@ -92,16 +93,16 @@ const frontendPath = process.env.NODE_ENV === 'production'
   : path.join(__dirname, '../../../frontend/dist')
 
 // Servir archivos estáticos (CSS, JS, imágenes)
-app.use('/barbweb2', express.static(frontendPath, {
+app.use('/', express.static(frontendPath, {
   index: false, // No servir index.html automáticamente
   setHeaders: (res) => {
     res.set('Cache-Control', 'public, max-age=3600')
   }
 }))
 
-// Catch-all para SPA - Cualquier ruta bajo /barbweb2 que no sea un archivo estático
+// Catch-all para SPA - Cualquier ruta que no sea /api, /auth, /webhooks, sitemap, etc.
 // debe redirigir al index.html para que React Router funcione
-app.get('/barbweb2/*', (req, res) => {
+app.get('*', (req, res) => {
   const indexPath = path.join(frontendPath, 'index.html')
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.sendFile(indexPath, (err) => {

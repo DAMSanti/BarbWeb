@@ -8,7 +8,6 @@ import ConsultationPage from './pages/ConsultationPage'
 import CheckoutPage from './pages/CheckoutPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
-import { VerifyEmailPage } from './pages/VerifyEmailPage'
 import AdminLayout from './layouts/AdminLayout'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminUsers from './pages/AdminUsers'
@@ -112,7 +111,6 @@ function AppContent() {
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/verify-email" element={<VerifyEmailPage />} />
           
           {/* Protected routes */}
           <Route
@@ -156,7 +154,7 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <Router basename="/barbweb2">
+      <Router>
         <AppContent />
       </Router>
     </ErrorBoundary>

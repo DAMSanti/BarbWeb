@@ -1,0 +1,16 @@
+name: barbweb-static-chatbot
+static_sites:
+  - name: static-chatbot
+    github:
+      repo: DAMSanti/BarbWeb
+      branch: master
+      deploy_on_push: true
+    source_dir: static-chatbot
+    output_dir: /
+    routes:
+      - path: /
+        preserve_path: false
+
+# Nota: puedes crear la app en DigitalOcean usando:
+# doctl apps create --spec ./app-static.yaml
+# Si prefieres usar el panel web, crea un "Static Site" y apunta al directorio `static-chatbot`.

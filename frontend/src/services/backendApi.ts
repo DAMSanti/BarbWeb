@@ -3,7 +3,7 @@ import { parseBackendError } from './errorHandler.js'
 import { retryAsync, retryAuth, retryAI } from '../utils/retry.js'
 import { useAppStore } from '../store/appStore.js'
 
-// En producción, el frontend se sirve desde /barbweb2/ en el mismo dominio que la API
+// En producción, el frontend se sirve desde la raíz '/' en el mismo dominio que la API
 // Usar una URL relativa (sin dominio) para que funcione tanto en local como en producción
 // LAZY EVALUATION: No evaluar import.meta.env en el scope global
 export const getApiUrl = (): string => {

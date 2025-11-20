@@ -154,7 +154,7 @@ Testeado: 8.99% (CRÍTICO - Necesita 70%) 🔴
 ```
 ✅ VITE_API_URL = https://back-jqdv9.ondigitalocean.app
 ✅ VITE_STRIPE_PUBLISHED_KEY = pk_test_51SRv4h...
-✅ VITE_FRONTEND_URL = https://back-jqdv9.ondigitalocean.app/barbweb2/
+✅ VITE_FRONTEND_URL = https://back-jqdv9.ondigitalocean.app/
 ✅ VITE_GOOGLE_CLIENT_ID
 ✅ VITE_MICROSOFT_CLIENT_ID
 ```

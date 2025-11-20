@@ -61,4 +61,4 @@ src/
 
 ## Deploy
 
-El frontend se construye automáticamente en Digital Ocean y se sirve desde `/barbweb2/`.
+El frontend se construye automáticamente en Digital Ocean y se sirve desde la raíz del dominio `/`.

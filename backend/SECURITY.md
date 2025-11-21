@@ -13,6 +13,20 @@ node generate-secrets.js
 
 Copy the output and replace the `JWT_SECRET` and `JWT_REFRESH_SECRET` env vars in your DigitalOcean App Platform config. Do NOT commit or paste these values in code.
 
+> Tip: If you generate secrets inside the DO App Platform console, make sure to copy only the secret strings (no prefix like `JWT_SECRET:`) and paste them trimmed without any leading/trailing spaces or quotes. Using the single-line one-liner below guarantees a minimal output for copy/paste:
+
+```bash
+# One-line ESM generator (works inside App Platform run command):
+node -e "import crypto from 'crypto'; console.log(crypto.randomBytes(32).toString('hex'))"
+```
+
+If you are pasting values in DO's UI, make sure the value field contains only the secret (no newlines) — you can validate it inside a run command by logging the variable as JSON:
+
+```bash
+cd /workspace/backend && node -e "console.log(JSON.stringify(process.env.JWT_SECRET))"
+cd /workspace/backend && node -e "console.log(JSON.stringify(process.env.JWT_REFRESH_SECRET))"
+```
+
 ## Validate env on startup
 The backend runs a validation function on startup to check some required secrets and their minimum length. If the environment fails validation in `NODE_ENV=production`, the process will exit to avoid running with insecure configuration.
 

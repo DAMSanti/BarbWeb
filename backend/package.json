@@ -11,6 +11,9 @@
   "scripts": {
       "revoke:refresh-tokens": "node ./scripts/revoke-refresh-tokens.js",
       "check-env": "node ./scripts/check-env.js",
+      "generate:secrets": "node ./generate-secrets.js",
+      "generate:secrets:value": "node ./generate-secrets.js --value",
+      "generate:secrets:json": "node ./generate-secrets.js --json",
     "dev": "node --loader ts-node/esm src/index.ts",
     "build": "tsc",
     "start": "sh start.sh",

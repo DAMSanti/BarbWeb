@@ -1,10 +1,25 @@
 // Script para generar JWT secrets seguros (ESM)
 import crypto from 'crypto';
 
+const argv = process.argv.slice(2);
+const isValueOnly = argv.includes('--value');
+const isJson = argv.includes('--json');
+
 console.log('\n🔐 Generando JWT Secrets Seguros...\n');
 
 const jwtSecret = crypto.randomBytes(32).toString('hex');
 const jwtRefreshSecret = crypto.randomBytes(32).toString('hex');
+
+if (isJson) {
+	console.log(JSON.stringify({ JWT_SECRET: jwtSecret, JWT_REFRESH_SECRET: jwtRefreshSecret }));
+	process.exit(0);
+}
+
+if (isValueOnly) {
+	console.log(jwtSecret);
+	console.log(jwtRefreshSecret);
+	process.exit(0);
+}
 
 console.log('✅ JWT_SECRET:');
 console.log(jwtSecret);

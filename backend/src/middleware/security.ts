@@ -19,15 +19,52 @@ declare const process: { env: Record<string, string | undefined> }
 
 export const helmetConfig = helmet({
   contentSecurityPolicy: {
-    directives: {
+    directives: (() => {
+      // Build connectSrc dynamic list including the configured API URL origin
+      const apiUrl = process.env.VITE_API_URL || 'http://localhost:3000'
+      let apiOrigin = 'http://localhost:3000'
+      try {
+        apiOrigin = new URL(apiUrl).origin
+      } catch (err) {
+        apiOrigin = apiUrl
+      }
+      // Also include APP_DOMAIN origin if provided (env may be just a hostname)
+      let appDomainOrigin: string | null = null
+      if (process.env.APP_DOMAIN) {
+        try {
+          const raw = process.env.APP_DOMAIN!.startsWith('http') ? process.env.APP_DOMAIN! : `https://${process.env.APP_DOMAIN!}`
+          appDomainOrigin = new URL(raw).origin
+        } catch (err) {
+          appDomainOrigin = null
+        }
+      }
+
+      const allowedConnectSrc = ["'self'", apiOrigin, 'https://api.stripe.com', 'https://js.stripe.com', 'https://api.resend.com']
+      if (appDomainOrigin && !allowedConnectSrc.includes(appDomainOrigin)) {
+        allowedConnectSrc.push(appDomainOrigin)
+      }
+
+      // TEMPORARY: fallback for the DigitalOcean default app domain (if not included by envs)
+      // TODO: Remove fallback after domain/env is validated and VITE_API_URL / APP_DOMAIN correctly set in production
+      const doFallback = 'https://back-jqdv9.ondigitalocean.app'
+      if (!allowedConnectSrc.includes(doFallback)) {
+        allowedConnectSrc.push(doFallback)
+        logger.warn(`CSP fallback: added DO default backend domain ${doFallback} to connect-src`) 
+      }
+
+      // Log the effective connect-src list for debugging (helps confirm headers)
+      logger.info(`CSP connect-src allowed origins: ${JSON.stringify(allowedConnectSrc)}`)
+
+      return {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'", 'https://js.stripe.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", 'https://api.stripe.com', 'https://js.stripe.com'],
+      connectSrc: allowedConnectSrc,
       frameSrc: ["'self'", 'https://js.stripe.com', 'https://hooks.stripe.com'],
       objectSrc: ["'none'"],
-    },
+      }
+    })(),
   },
   crossOriginEmbedderPolicy: false,
   hsts: {
@@ -119,10 +156,16 @@ export const globalLimiter = rateLimit({
 
 // Auth rate limiter: 5 requests per 15 minutes (prevent brute force)
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máximo 5 intentos
+  windowMs: (process.env.AUTH_RATE_WINDOW_MS ? Number(process.env.AUTH_RATE_WINDOW_MS) : 15) * 60 * 1000, // default 15 minutos
+  max: Number(process.env.AUTH_RATE_LIMIT || 5), // configurable max intentos
   message: 'Demasiados intentos de login. Intenta más tarde.',
   skipSuccessfulRequests: true, // No contar requests exitosos
+  skip: (req) => {
+    // Allowlist IPs from env for debug/ops purposes (comma-separated list)
+    const whitelist = (process.env.AUTH_WHITELIST || '').split(',').map(s => s.trim()).filter(Boolean)
+    if (whitelist.includes(req.ip)) return true
+    return false
+  },
   handler: (req, res) => {
     logger.warn(`Auth rate limit exceeded for IP: ${req.ip}`)
     res.status(429).json({

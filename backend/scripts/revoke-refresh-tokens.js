@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import { getPrismaClient } from '../src/db/init.js'
+import { PrismaClient } from '@prisma/client'
 
-const prisma = getPrismaClient()
+const prisma = new PrismaClient()
 
 async function main() {
   console.log('🔐 Revoking all refresh tokens for all users...')

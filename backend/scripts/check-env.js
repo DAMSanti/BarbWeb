@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-import { logger } from '../src/utils/logger.js'
 import dotenv from 'dotenv'
 dotenv.config()
+
+// Use console if logger not available (avoid importing project code)
+const logger = console
 
 const required = [
   { name: 'JWT_SECRET', minLen: 32 },

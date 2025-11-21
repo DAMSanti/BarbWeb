@@ -201,6 +201,7 @@ FRONTEND_URL=http://localhost:5173- **TypeScript** - Tipado estático├── i
 # JWT- **Google Gemini AI** - Inteligencia artificial├── vite.config.ts              # Configuración de Vite
 
 JWT_SECRET=your-secret-key-here
+> Seguridad: Para instrucciones sobre rotación de secrets y como revocar `refreshTokens`, consulta `backend/SECURITY.md`.
 
 JWT_REFRESH_SECRET=your-refresh-secret-here- **@google/generative-ai** - SDK oficial├── tailwind.config.ts          # Configuración de TailwindCSS
 

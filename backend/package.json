@@ -9,6 +9,8 @@
     "npm": "10.x"
   },
   "scripts": {
+      "revoke:refresh-tokens": "node ./scripts/revoke-refresh-tokens.js",
+      "check-env": "node ./scripts/check-env.js",
     "dev": "node --loader ts-node/esm src/index.ts",
     "build": "tsc",
     "start": "sh start.sh",

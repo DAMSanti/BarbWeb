@@ -1,5 +1,5 @@
-// Script para generar JWT secrets seguros
-const crypto = require('crypto');
+// Script para generar JWT secrets seguros (ESM)
+import crypto from 'crypto';
 
 console.log('\n🔐 Generando JWT Secrets Seguros...\n');
 

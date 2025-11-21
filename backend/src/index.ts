@@ -16,6 +16,45 @@ import { logger } from './utils/logger.js'
 // Force DigitalOcean rebuild - Database initialization v3
 dotenv.config()
 
+// Validate critical environment variables (secure secrets, API keys, etc.)
+function validateEnv() {
+  const requiredSecrets = [
+    { name: 'JWT_SECRET', minLen: 32 },
+    { name: 'JWT_REFRESH_SECRET', minLen: 32 },
+    { name: 'STRIPE_SECRET_KEY', minLen: 20 },
+  ]
+
+  const errors: string[] = []
+  requiredSecrets.forEach((s) => {
+    const val = process.env[s.name]
+    if (!val) {
+      errors.push(`${s.name} is missing`)
+      return
+    }
+    if (val.length < s.minLen) {
+      errors.push(`${s.name} must be at least ${s.minLen} characters`) 
+    }
+    if (/\s/.test(val)) {
+      errors.push(`${s.name} contains whitespace — please rotate and remove spaces`)
+    }
+  })
+
+  if (errors.length > 0) {
+    // In production we fail fast, in development only warn
+    const isProd = process.env.NODE_ENV === 'production'
+    errors.forEach((e) => logger.error(`Env validation: ${e}`))
+    if (isProd) {
+      logger.error('Fatal: Environment validation failed in production. Exiting.')
+      process.exit(1)
+    } else {
+      logger.warn('Environment validation warnings (not fatal in development)')
+    }
+  }
+}
+
+// Run environment validation early
+validateEnv()
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 

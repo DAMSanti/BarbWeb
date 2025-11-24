@@ -12,15 +12,15 @@ export NODE_ENV=development
 echo "📦 Installing dependencies..."
 cd /workspace
 npm install --legacy-peer-deps --force
-cd /workspace/backend
-npm install --legacy-peer-deps --force
 
 # Step 2: Build frontend
 echo "🎨 Building frontend..."
+cd /workspace
 npm run build:frontend
 
 # Step 3: Build backend
 echo "🔨 Building backend..."
+cd /workspace
 npm run build:backend
 
 # Step 4: Generate Prisma client

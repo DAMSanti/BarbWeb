@@ -1,9 +1,31 @@
 # 📋 TODO LIST - Barbara & Abogados
 ## Tareas Pendientes Ordenadas por Prioridad
 
-**Actualizado**: Noviembre 13, 2025  
+**Actualizado**: Noviembre 24, 2025  
 **Total Items**: 47  
 **Blocker Items**: 3 🔴
+
+---
+
+## 🎯 TESTING ENVIRONMENT SETUP - ✅ COMPLETADO
+
+### Infrastructure de Testing ✅ DONE
+- ✅ `TESTING_SETUP.md` - Guía completa
+- ✅ `TESTING_SETUP_CHECKLIST.md` - Checklist ejecutiva
+- ✅ `TESTING_CHEAT_SHEET.md` - Quick reference
+- ✅ `FIRST_RUN_TESTING.md` - Guía paso a paso para DO
+- ✅ `backend/tests/README.md` - Documentación técnica
+
+### Scripts Automáticos ✅ DONE
+- ✅ `backend/scripts/setup-testing.sh` - Setup automático en DO
+- ✅ `backend/scripts/run-tests.sh` - Helper para ejecutar tests
+- ✅ `backend/scripts/setup-testing.ps1` - Referencia Windows
+
+### Config Optimizadas ✅ DONE
+- ✅ `backend/vitest.config.ts` - Optimizado para CI/CD
+- ✅ `backend/playwright.config.ts` - Optimizado para CI/CD
+
+**PRÓXIMO PASO EN DO**: `bash scripts/setup-testing.sh`
 
 ---
 
@@ -104,12 +126,12 @@
 - [ ] Generate coverage report: `npm run test:coverage -- --reporter=html`
 
 ### Security Fixes - CRÍTICO (1-2 horas)
-- [ ] Cambiar ALLOW_ALL_CORS=1 a ALLOW_ALL_CORS=0 en app.yaml
-- [ ] Cambiar ALLOW_ALL_CORS=1 a ALLOW_ALL_CORS=0 en .env
-- [ ] Verificar JWT_SECRET formato (revisar espacios/caracteres especiales)
-- [ ] Verificar JWT_REFRESH_SECRET formato (revisar espacios/caracteres especiales)
-- [ ] Rotar secrets si tienen errores
-- [ ] Validar CORS restrictivo en producción
+- [x] Cambiar ALLOW_ALL_CORS=1 a ALLOW_ALL_CORS=0 en app.yaml
+- [x] Cambiar ALLOW_ALL_CORS=1 a ALLOW_ALL_CORS=0 en .env
+- [x] Verificar JWT_SECRET formato (revisar espacios/caracteres especiales)
+- [x] Verificar JWT_REFRESH_SECRET formato (revisar espacios/caracteres especiales)
+- [x] Rotar secrets si tienen errores
+- [x] Validar CORS restrictivo en producción
 
 ### Email Features - Crítico (2-3 horas)
 - [ ] Crear template: Reset password email

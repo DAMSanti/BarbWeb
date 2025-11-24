@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test'
  */
 // require('dotenv').config();
 
+const isCI = !!process.env.CI
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -16,17 +18,26 @@ export default defineConfig({
   /* Run tests in serial mode */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
+  forbidOnly: isCI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  retries: isCI ? 2 : 0,
+  /* Workers configuration */
+  workers: isCI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'test-results/results.json' }],
+    ...(isCI ? [['github']] : []),
+  ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.VITE_FRONTEND_URL || 'http://localhost:5173',
+    /* Screenshot and video config for CI */
+    ...(isCI && {
+      screenshot: 'only-on-failure',
+      video: 'retain-on-failure',
+    }),
   },
 
   /* Configure projects for major browsers */
@@ -36,15 +47,17 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // Skip other browsers in CI for faster execution
+    ...(isCI ? [] : [
+      {
+        name: 'firefox',
+        use: { ...devices['Desktop Firefox'] },
+      },
+      {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+      },
+    ]),
 
     /* Test against mobile viewports. */
     // {
@@ -68,10 +81,12 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'cd ../frontend && npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  ...(isCI ? {} : {
+    webServer: {
+      command: 'cd ../frontend && npm run dev',
+      url: 'http://localhost:5173',
+      reuseExistingServer: true,
+      timeout: 120 * 1000,
+    },
+  }),
 })

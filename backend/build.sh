@@ -11,7 +11,9 @@ export NODE_ENV=development
 # Step 1: Install all dependencies (including devDependencies)
 echo "📦 Installing dependencies..."
 cd /workspace
-npm install
+npm install --legacy-peer-deps --force
+cd /workspace/backend
+npm install --legacy-peer-deps --force
 
 # Step 2: Build frontend
 echo "🎨 Building frontend..."

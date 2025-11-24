@@ -21,7 +21,9 @@ cd ~/barbweb
 ls -la | grep backend
 ```
 
-## Paso 3: Ejecutar Setup Automático
+## Paso 3: Ejecutar Setup
+
+### Opción A: Setup Automático (Recomendado)
 
 ```bash
 cd backend
@@ -31,16 +33,41 @@ bash scripts/setup-testing.sh
 Este script hará automáticamente:
 - ✅ Verificar Node.js 20.x
 - ✅ Instalar dependencias (`npm ci`)
-- ✅ Verificar/iniciar PostgreSQL
-- ✅ Crear base de datos de test (`barbweb_test`)
-- ✅ Crear usuario de test (`testuser:testpass`)
+- ✅ Verificar/iniciar PostgreSQL (si tienes acceso sudo)
+- ✅ Crear base de datos de test
 - ✅ Instalar Playwright browsers
-- ✅ Instalar Chromium
 - ✅ Generar tipos de Prisma
 
-**Tiempo esperado:** 5-10 minutos (la primera vez)
+**Tiempo esperado:** 5-10 minutos (primera vez)
 
-### Output esperado al final:
+**Si el script falla por permisos** → Ver "Opción B" abajo
+
+### Opción B: Setup Manual (Si Opción A falla)
+
+```bash
+cd backend
+
+# 1. Instalar dependencias
+npm ci
+
+# 2. Instalar Playwright
+npx playwright install
+
+# 3. Generar tipos
+npm run db:generate
+
+# 4. Configurar BD manualmente (si tienes sudo)
+sudo -u postgres psql << EOF
+CREATE USER testuser WITH PASSWORD 'testpass';
+CREATE DATABASE barbweb_test OWNER testuser;
+ALTER USER testuser CREATEDB;
+EOF
+```
+
+**Tiempo esperado:** 5-10 minutos  
+**Nota**: Ver archivo `MANUAL_SETUP_TESTING.md` para más detalles
+
+### Output Esperado
 
 ```
 ════════════════════════════════════════════════════════════
@@ -48,17 +75,10 @@ Este script hará automáticamente:
 ════════════════════════════════════════════════════════════
 
 Próximos pasos:
-  1. Ejecutar tests unitarios + integración:
-     npm run test
-
-  2. Ejecutar tests con cobertura:
-     npm run test:coverage
-
-  3. Ejecutar E2E tests:
-     npm run test:e2e
-
-  4. Modo watch (desarrollo):
-     npm run test:watch
+  1. npm run test
+  2. npm run test:coverage
+  3. npm run test:e2e
+  4. npm run test:watch
 ```
 
 Si ves esto, ¡todo está instalado! ✅

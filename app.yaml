@@ -25,6 +25,8 @@ services:
         value: ${VITE_GOOGLE_CLIENT_ID}
       - key: VITE_MICROSOFT_CLIENT_ID
         value: ${VITE_MICROSOFT_CLIENT_ID}
+      - key: ALLOW_ALL_CORS
+        value: "0"
     http_port: 3000
       allow_origins:
         - prefix: https://

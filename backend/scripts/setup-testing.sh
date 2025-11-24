@@ -33,8 +33,13 @@ echo -e "\n${BLUE}2️⃣ Instalando dependencias del backend...${NC}"
 if npm ci; then
     echo -e "${GREEN}✅ Dependencias instaladas${NC}"
 else
-    echo -e "${RED}❌ Error instalando dependencias${NC}"
-    exit 1
+    echo -e "${YELLOW}⚠️ npm ci falló, intentando npm install...${NC}"
+    if npm install; then
+        echo -e "${GREEN}✅ Dependencias instaladas con npm install${NC}"
+    else
+        echo -e "${RED}❌ Error instalando dependencias${NC}"
+        exit 1
+    fi
 fi
 
 # 3. Verificar PostgreSQL

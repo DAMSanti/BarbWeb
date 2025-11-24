@@ -5,9 +5,6 @@ echo "======================================"
 echo "🚀 Starting Build Process"
 echo "======================================"
 
-# Force npm to install devDependencies even in production
-export NODE_ENV=development
-
 # Step 0: Clean up (CRITICAL FIX)
 echo "🧹 Cleaning up corrupted dependencies..."
 cd /workspace/backend
@@ -16,13 +13,13 @@ npm cache clean --force
 
 # Step 1: Install all dependencies (including devDependencies)
 echo "📦 Installing dependencies..."
-cd /workspace
-npm install
+cd /workspace/backend
+npm install --legacy-peer-deps
 
 # Step 1b: Force install test packages (FIXED - removed invalid vi-fetch)
 echo "🧪 Installing test dependencies..."
 cd /workspace/backend
-npm install vitest@^4.0.8 @vitest/coverage-v8@^4.0.8 supertest@^7.0.0 @types/supertest@^6.0.2 --save-dev --force --no-optional
+npm install vitest@^4.0.8 @vitest/coverage-v8@^4.0.8 supertest@^7.0.0 @types/supertest@^6.0.2 --save-dev --force --legacy-peer-deps
 
 # Step 2: Build frontend
 echo "🎨 Building frontend..."

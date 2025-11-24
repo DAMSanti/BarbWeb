@@ -4,11 +4,9 @@ services:
     github:
       branch: master
       repo: DAMSanti/BarbWeb
-    build_command: cd /workspace/backend && npm install --no-package-lock --legacy-peer-deps && bash build.sh
+    build_command: bash backend/build.sh
     run_command: cd /workspace/backend && npm start
     envs:
-      - key: NPM_CONFIG_PRODUCTION
-        value: "false"
       - key: PORT
         value: "3000"
       - key: NODE_ENV

@@ -15,39 +15,180 @@ process.env.STRIPE_SECRET_KEY = 'sk_test_test'
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test'
 process.env.VITE_FRONTEND_URL = 'http://localhost:5173'
 
-// Mock Prisma client to avoid DB connection during build
+// In-memory data store for mocking
+const dataStore = {
+  users: new Map<string, any>(),
+  payments: new Map<string, any>(),
+  consultations: new Map<string, any>(),
+}
+
+// Helper to generate IDs
+let userIdCounter = 1
+let paymentIdCounter = 1
+let consultationIdCounter = 1
+
+// Mock Prisma client with full functionality
 vi.mock('@prisma/client', () => ({
-  PrismaClient: vi.fn(() => ({
-    user: {
-      findUnique: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      deleteMany: vi.fn(),
-      count: vi.fn(() => Promise.resolve(0)),
-    },
-    payment: {
-      findUnique: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      deleteMany: vi.fn(),
-      count: vi.fn(() => Promise.resolve(0)),
-    },
-    consultation: {
-      findUnique: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      deleteMany: vi.fn(),
-      count: vi.fn(() => Promise.resolve(0)),
-    },
-    $connect: vi.fn(),
-    $disconnect: vi.fn(),
-  })),
+  PrismaClient: vi.fn(() => {
+    return {
+      user: {
+        create: vi.fn(async ({ data }: any) => {
+          const id = `user_${userIdCounter++}`
+          const user = { id, ...data, createdAt: new Date(), updatedAt: new Date() }
+          dataStore.users.set(id, user)
+          return user
+        }),
+        findUnique: vi.fn(async ({ where }: any) => {
+          if (where.id) return dataStore.users.get(where.id) || null
+          if (where.email) {
+            for (const user of dataStore.users.values()) {
+              if (user.email === where.email) return user
+            }
+          }
+          return null
+        }),
+        findMany: vi.fn(async ({ where, skip = 0, take = 10, orderBy }: any) => {
+          let results = Array.from(dataStore.users.values())
+          
+          if (where?.role) {
+            results = results.filter(u => u.role === where.role)
+          }
+          if (where?.email) {
+            results = results.filter(u => u.email?.includes(where.email))
+          }
+          
+          return results.slice(skip, skip + take)
+        }),
+        update: vi.fn(async ({ where, data }: any) => {
+          const user = dataStore.users.get(where.id)
+          if (!user) throw new Error('User not found')
+          const updated = { ...user, ...data, updatedAt: new Date() }
+          dataStore.users.set(where.id, updated)
+          return updated
+        }),
+        delete: vi.fn(async ({ where }: any) => {
+          const user = dataStore.users.get(where.id)
+          if (!user) throw new Error('User not found')
+          dataStore.users.delete(where.id)
+          return user
+        }),
+        deleteMany: vi.fn(async () => {
+          dataStore.users.clear()
+          return { count: dataStore.users.size }
+        }),
+        count: vi.fn(async ({ where }: any) => {
+          if (!where) return dataStore.users.size
+          let count = 0
+          for (const user of dataStore.users.values()) {
+            if (where.role && user.role !== where.role) continue
+            if (where.email && !user.email?.includes(where.email)) continue
+            count++
+          }
+          return count
+        }),
+      },
+      payment: {
+        create: vi.fn(async ({ data }: any) => {
+          const id = `payment_${paymentIdCounter++}`
+          const payment = { id, ...data, createdAt: new Date(), updatedAt: new Date() }
+          dataStore.payments.set(id, payment)
+          return payment
+        }),
+        findUnique: vi.fn(async ({ where }: any) => {
+          return dataStore.payments.get(where.id) || null
+        }),
+        findMany: vi.fn(async ({ where, skip = 0, take = 10 }: any) => {
+          let results = Array.from(dataStore.payments.values())
+          
+          if (where?.userId) {
+            results = results.filter(p => p.userId === where.userId)
+          }
+          if (where?.status) {
+            results = results.filter(p => p.status === where.status)
+          }
+          
+          return results.slice(skip, skip + take)
+        }),
+        update: vi.fn(async ({ where, data }: any) => {
+          const payment = dataStore.payments.get(where.id)
+          if (!payment) throw new Error('Payment not found')
+          const updated = { ...payment, ...data, updatedAt: new Date() }
+          dataStore.payments.set(where.id, updated)
+          return updated
+        }),
+        delete: vi.fn(async ({ where }: any) => {
+          const payment = dataStore.payments.get(where.id)
+          if (!payment) throw new Error('Payment not found')
+          dataStore.payments.delete(where.id)
+          return payment
+        }),
+        deleteMany: vi.fn(async () => {
+          const count = dataStore.payments.size
+          dataStore.payments.clear()
+          return { count }
+        }),
+        count: vi.fn(async ({ where }: any) => {
+          if (!where) return dataStore.payments.size
+          let count = 0
+          for (const payment of dataStore.payments.values()) {
+            if (where.userId && payment.userId !== where.userId) continue
+            if (where.status && payment.status !== where.status) continue
+            count++
+          }
+          return count
+        }),
+      },
+      consultation: {
+        create: vi.fn(async ({ data }: any) => {
+          const id = `consultation_${consultationIdCounter++}`
+          const consultation = { id, ...data, createdAt: new Date(), updatedAt: new Date() }
+          dataStore.consultations.set(id, consultation)
+          return consultation
+        }),
+        findUnique: vi.fn(async ({ where }: any) => {
+          return dataStore.consultations.get(where.id) || null
+        }),
+        findMany: vi.fn(async ({ where, skip = 0, take = 10 }: any) => {
+          let results = Array.from(dataStore.consultations.values())
+          
+          if (where?.userId) {
+            results = results.filter(c => c.userId === where.userId)
+          }
+          
+          return results.slice(skip, skip + take)
+        }),
+        update: vi.fn(async ({ where, data }: any) => {
+          const consultation = dataStore.consultations.get(where.id)
+          if (!consultation) throw new Error('Consultation not found')
+          const updated = { ...consultation, ...data, updatedAt: new Date() }
+          dataStore.consultations.set(where.id, updated)
+          return updated
+        }),
+        delete: vi.fn(async ({ where }: any) => {
+          const consultation = dataStore.consultations.get(where.id)
+          if (!consultation) throw new Error('Consultation not found')
+          dataStore.consultations.delete(where.id)
+          return consultation
+        }),
+        deleteMany: vi.fn(async () => {
+          const count = dataStore.consultations.size
+          dataStore.consultations.clear()
+          return { count }
+        }),
+        count: vi.fn(async ({ where }: any) => {
+          if (!where) return dataStore.consultations.size
+          let count = 0
+          for (const consultation of dataStore.consultations.values()) {
+            if (where.userId && consultation.userId !== where.userId) continue
+            count++
+          }
+          return count
+        }),
+      },
+      $connect: vi.fn(async () => {}),
+      $disconnect: vi.fn(async () => {}),
+    }
+  }),
 }))
 
 // Suppress console output during tests (optional)

@@ -20,12 +20,18 @@ const dataStore = {
   users: new Map<string, any>(),
   payments: new Map<string, any>(),
   consultations: new Map<string, any>(),
+  oAuthAccounts: new Map<string, any>(),
+  emailVerificationTokens: new Map<string, any>(),
+  refreshTokens: new Map<string, any>(),
 }
 
 // Helper to generate IDs
 let userIdCounter = 1
 let paymentIdCounter = 1
 let consultationIdCounter = 1
+let oAuthIdCounter = 1
+let emailVerificationIdCounter = 1
+let refreshTokenIdCounter = 1
 
 // Mock Prisma client with full functionality
 vi.mock('@prisma/client', () => ({
@@ -43,7 +49,15 @@ function createPrismaMock() {
       user: {
         create: vi.fn(async ({ data }: any) => {
           const id = `user_${userIdCounter++}`
-          const user = { id, ...data, createdAt: new Date(), updatedAt: new Date() }
+          const user = {
+            id,
+            ...data,
+            role: data.role || 'user',
+            refreshTokens: data.refreshTokens || [],
+            emailVerified: data.emailVerified || false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
           dataStore.users.set(id, user)
           return user
         }),
@@ -97,7 +111,14 @@ function createPrismaMock() {
         update: vi.fn(async ({ where, data }: any) => {
           const user = dataStore.users.get(where.id)
           if (!user) throw new Error('User not found')
-          const updated = { ...user, ...data, updatedAt: new Date() }
+          
+          // Handle Prisma data format for nested updates
+          let updateData = data
+          if (data.refreshTokens?.set) {
+            updateData = { ...data, refreshTokens: data.refreshTokens.set }
+          }
+          
+          const updated = { ...user, ...updateData, updatedAt: new Date() }
           dataStore.users.set(where.id, updated)
           return updated
         }),
@@ -352,6 +373,100 @@ function createPrismaMock() {
             count++
           }
           return count
+        }),
+      },
+      oAuthAccount: {
+        create: vi.fn(async ({ data }: any) => {
+          const id = `oauth_${oAuthIdCounter++}`
+          const oAuthAccount = { id, ...data, createdAt: new Date(), updatedAt: new Date() }
+          dataStore.oAuthAccounts.set(id, oAuthAccount)
+          return oAuthAccount
+        }),
+        findUnique: vi.fn(async ({ where }: any) => {
+          if (where.id) return dataStore.oAuthAccounts.get(where.id) || null
+          if (where.provider_providerAccountId) {
+            for (const account of dataStore.oAuthAccounts.values()) {
+              if (account.provider === where.provider_providerAccountId.provider &&
+                  account.providerAccountId === where.provider_providerAccountId.providerAccountId) {
+                return account
+              }
+            }
+          }
+          return null
+        }),
+        findMany: vi.fn(async ({ where }: any) => {
+          let results = Array.from(dataStore.oAuthAccounts.values())
+          
+          if (where?.userId) {
+            results = results.filter(a => a.userId === where.userId)
+          }
+          if (where?.provider) {
+            results = results.filter(a => a.provider === where.provider)
+          }
+          
+          return results
+        }),
+        update: vi.fn(async ({ where, data }: any) => {
+          const account = dataStore.oAuthAccounts.get(where.id)
+          if (!account) throw new Error('OAuth account not found')
+          const updated = { ...account, ...data, updatedAt: new Date() }
+          dataStore.oAuthAccounts.set(where.id, updated)
+          return updated
+        }),
+        delete: vi.fn(async ({ where }: any) => {
+          const account = dataStore.oAuthAccounts.get(where.id)
+          if (!account) throw new Error('OAuth account not found')
+          dataStore.oAuthAccounts.delete(where.id)
+          return account
+        }),
+        deleteMany: vi.fn(async () => {
+          const count = dataStore.oAuthAccounts.size
+          dataStore.oAuthAccounts.clear()
+          return { count }
+        }),
+      },
+      emailVerificationToken: {
+        create: vi.fn(async ({ data }: any) => {
+          const id = `email_verify_${emailVerificationIdCounter++}`
+          const token = { id, ...data, createdAt: new Date(), expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) }
+          dataStore.emailVerificationTokens.set(id, token)
+          return token
+        }),
+        findUnique: vi.fn(async ({ where }: any) => {
+          if (where.id) return dataStore.emailVerificationTokens.get(where.id) || null
+          if (where.token) {
+            for (const token of dataStore.emailVerificationTokens.values()) {
+              if (token.token === where.token) return token
+            }
+          }
+          return null
+        }),
+        findMany: vi.fn(async ({ where }: any) => {
+          let results = Array.from(dataStore.emailVerificationTokens.values())
+          
+          if (where?.userId) {
+            results = results.filter(t => t.userId === where.userId)
+          }
+          
+          return results
+        }),
+        update: vi.fn(async ({ where, data }: any) => {
+          const token = dataStore.emailVerificationTokens.get(where.id)
+          if (!token) throw new Error('Email verification token not found')
+          const updated = { ...token, ...data, updatedAt: new Date() }
+          dataStore.emailVerificationTokens.set(where.id, updated)
+          return updated
+        }),
+        delete: vi.fn(async ({ where }: any) => {
+          const token = dataStore.emailVerificationTokens.get(where.id)
+          if (!token) throw new Error('Email verification token not found')
+          dataStore.emailVerificationTokens.delete(where.id)
+          return token
+        }),
+        deleteMany: vi.fn(async () => {
+          const count = dataStore.emailVerificationTokens.size
+          dataStore.emailVerificationTokens.clear()
+          return { count }
         }),
       },
       $connect: vi.fn(async () => {}),

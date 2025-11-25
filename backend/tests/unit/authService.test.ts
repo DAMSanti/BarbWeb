@@ -26,6 +26,12 @@ vi.mock('../../src/utils/logger', () => ({
 const prisma = getPrismaClient()
 
 describe('Password Hashing', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks()
+    // Clean up users between tests
+    await prisma.user.deleteMany({})
+  })
+
   describe('hashPassword', () => {
     it('should hash password with bcrypt', async () => {
       const password = 'MySecurePassword123'
@@ -327,8 +333,10 @@ describe('Token Expiration', () => {
 })
 
 describe('registerUser', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await prisma.user.deleteMany({})
+    await prisma.emailVerificationToken.deleteMany({})
   })
 
   it('should register new user with email and password', async () => {
@@ -403,6 +411,8 @@ describe('registerUser', () => {
 describe('loginUser', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    await prisma.user.deleteMany({})
+    await prisma.emailVerificationToken.deleteMany({})
     await authService.registerUser('login@example.com', 'password123', 'Login User')
   })
 
@@ -450,8 +460,10 @@ describe('loginUser', () => {
 })
 
 describe('oauthLogin', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await prisma.user.deleteMany({})
+    await prisma.oAuthAccount.deleteMany({})
   })
 
   it('should create new user on first OAuth login', async () => {
@@ -546,8 +558,9 @@ describe('oauthLogin', () => {
 })
 
 describe('logoutUser', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await prisma.user.deleteMany({})
   })
 
   it('should invalidate all refresh tokens', async () => {
@@ -564,8 +577,10 @@ describe('logoutUser', () => {
 })
 
 describe('linkOAuthAccount', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await prisma.user.deleteMany({})
+    await prisma.oAuthAccount.deleteMany({})
   })
 
   it('should link OAuth account to existing user', async () => {
@@ -640,8 +655,9 @@ describe('linkOAuthAccount', () => {
 })
 
 describe('setupAdmin', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await prisma.user.deleteMany({})
   })
 
   it('should create initial admin user', async () => {
@@ -706,8 +722,9 @@ describe('setupAdmin', () => {
 })
 
 describe('refreshAccessToken', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    await prisma.user.deleteMany({})
   })
 
   it('should generate new access token from valid refresh token', async () => {

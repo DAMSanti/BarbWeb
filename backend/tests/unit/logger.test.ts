@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 // Mock winston before importing logger
-vi.mock('winston', () => {
+vi.mock('winston', async (importOriginal: any) => {
   const mockLogger = {
     info: vi.fn(),
     error: vi.fn(),
@@ -13,19 +13,21 @@ vi.mock('winston', () => {
   }
 
   return {
-    createLogger: vi.fn(() => mockLogger),
-    format: {
-      combine: vi.fn((...args: any[]) => args),
-      timestamp: vi.fn((opts: any) => ({ timestamp: opts })),
-      colorize: vi.fn((opts: any) => ({ colorize: opts })),
-      printf: vi.fn((fn: any) => ({ printf: fn })),
-      uncolorize: vi.fn(() => ({ uncolorize: true })),
+    default: {
+      createLogger: vi.fn(() => mockLogger),
+      format: {
+        combine: vi.fn((...args: any[]) => args),
+        timestamp: vi.fn((opts: any) => ({ timestamp: opts })),
+        colorize: vi.fn((opts: any) => ({ colorize: opts })),
+        printf: vi.fn((fn: any) => ({ printf: fn })),
+        uncolorize: vi.fn(() => ({ uncolorize: true })),
+      },
+      transports: {
+        Console: vi.fn(),
+        File: vi.fn(),
+      },
+      addColors: vi.fn(),
     },
-    transports: {
-      Console: vi.fn(),
-      File: vi.fn(),
-    },
-    addColors: vi.fn(),
   }
 })
 

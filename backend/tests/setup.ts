@@ -130,6 +130,7 @@ vi.mock('@prisma/client', () => ({
           const payment = { 
             id, 
             ...data,
+            refundedAmount: data.refundedAmount || 0,
             amount: { toNumber: () => typeof data.amount === 'number' ? data.amount : parseFloat(data.amount) },
             createdAt: new Date(), 
             updatedAt: new Date() 
@@ -139,7 +140,14 @@ vi.mock('@prisma/client', () => ({
         }),
         findUnique: vi.fn(async ({ where }: any) => {
           const p = dataStore.payments.get(where.id)
-          return p ? { ...p, amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') } } : null
+          if (!p) return null
+          const user = dataStore.users.get(p.userId)
+          return { 
+            ...p, 
+            amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') },
+            refundedAmount: p.refundedAmount || 0,
+            user: user ? { email: user.email, name: user.name } : null
+          }
         }),
         findMany: vi.fn(async ({ where, skip = 0, take = 10, select, orderBy }: any) => {
           let results = Array.from(dataStore.payments.values())
@@ -161,6 +169,7 @@ vi.mock('@prisma/client', () => ({
           const processed = results.slice(skip, skip + take).map(p => {
             const payment: any = {
               ...p,
+              refundedAmount: p.refundedAmount || 0,
               amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') }
             }
             
@@ -174,12 +183,24 @@ vi.mock('@prisma/client', () => ({
           
           return processed
         }),
-        update: vi.fn(async ({ where, data }: any) => {
+        update: vi.fn(async ({ where, data, include, select }: any) => {
           const payment = dataStore.payments.get(where.id)
           if (!payment) throw new Error('Payment not found')
-          const updated = { ...payment, ...data, updatedAt: new Date() }
+          const updated = { ...payment, ...data, updatedAt: new Date(), refundedAmount: payment.refundedAmount || 0 }
           dataStore.payments.set(where.id, updated)
-          return updated
+          const user = dataStore.users.get(updated.userId)
+          
+          const result: any = {
+            ...updated,
+            amount: { toNumber: () => typeof updated.amount === 'number' ? updated.amount : parseFloat(updated.amount?.toString?.() || '0') },
+          }
+          
+          // Handle include for relations
+          if (include?.user || select?.user) {
+            result.user = user ? { email: user.email, name: user.name } : null
+          }
+          
+          return result
         }),
         delete: vi.fn(async ({ where }: any) => {
           const payment = dataStore.payments.get(where.id)
@@ -202,19 +223,23 @@ vi.mock('@prisma/client', () => ({
           }
           return count
         }),
-        aggregate: vi.fn(async ({ where, _sum, _avg }: any) => {
+        aggregate: vi.fn(async ({ where = {}, _sum, _avg }: any) => {
           let payments = Array.from(dataStore.payments.values())
           
-          if (where?.userId) {
+          if (where.userId) {
             payments = payments.filter(p => p.userId === where.userId)
           }
-          if (where?.status) {
+          if (where.status) {
             payments = payments.filter(p => p.status === where.status)
           }
           
           const result: any = {}
           if (_sum?.amount) {
             result._sum = { amount: payments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0')), 0) }
+          }
+          if (_sum?.refundedAmount) {
+            result._sum = result._sum || {}
+            result._sum.refundedAmount = payments.reduce((sum, p) => sum + (p.refundedAmount || 0), 0)
           }
           if (_avg?.amount) {
             const total = payments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0')), 0)

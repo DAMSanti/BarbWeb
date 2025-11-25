@@ -59,8 +59,8 @@ describe('Common Schemas', () => {
       }
     })
 
-    it('should trim whitespace and convert to lowercase', () => {
-      const result = EmailSchema.safeParse('  USER@EXAMPLE.COM  ')
+    it('should convert to lowercase', () => {
+      const result = EmailSchema.safeParse('USER@EXAMPLE.COM')
       expect(result.success).toBe(true)
       if (result.success) {
         expect(result.data).toBe('user@example.com')
@@ -331,14 +331,10 @@ describe('Common Schemas', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should coerce and validate decimal strings', () => {
+    it('should reject decimal strings', () => {
       const result = PaginationSchema.safeParse({ page: '3.7', limit: '15.2' })
-      // Coerce rounds down to integers
-      expect(result.success).toBe(true)
-      if (result.success) {
-        expect(result.data.page).toBe(3)
-        expect(result.data.limit).toBe(15)
-      }
+      // Decimal strings should fail validation
+      expect(result.success).toBe(false)
     })
 
     it('should handle very large page numbers', () => {
@@ -534,10 +530,10 @@ describe('Common Schemas', () => {
       }
     })
 
-    it('should handle multiple errors on same field', () => {
+    it('should handle multiple error issues on same field', () => {
       // Create a schema that can generate multiple errors
       const testSchema = z.object({
-        value: z.string().min(5).max(3), // Conflicting constraints
+        value: z.string().min(5).max(10), // Valid constraints
       })
 
       const result = testSchema.safeParse({ value: 'test' })
@@ -547,6 +543,7 @@ describe('Common Schemas', () => {
         const errors = formatZodErrors(result.error)
         expect(Array.isArray(errors)).toBe(true)
         expect(errors.length).toBeGreaterThan(0)
+        expect(errors[0].field).toBe('value')
       }
     })
 

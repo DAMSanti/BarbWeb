@@ -29,8 +29,17 @@ let consultationIdCounter = 1
 
 // Mock Prisma client with full functionality
 vi.mock('@prisma/client', () => ({
-  PrismaClient: vi.fn(() => {
-    return {
+  PrismaClient: vi.fn(() => createPrismaMock()),
+}))
+
+// Mock getPrismaClient function
+vi.mock('../src/db/init.js', () => ({
+  getPrismaClient: () => createPrismaMock(),
+}))
+
+// Factory function to create mock instance
+function createPrismaMock() {
+  return {
       user: {
         create: vi.fn(async ({ data }: any) => {
           const id = `user_${userIdCounter++}`
@@ -313,8 +322,7 @@ vi.mock('@prisma/client', () => ({
       $connect: vi.fn(async () => {}),
       $disconnect: vi.fn(async () => {}),
     }
-  }),
-}))
+}
 
 // Suppress console output during tests (optional)
 // vi.spyOn(console, 'log').mockImplementation(() => {})

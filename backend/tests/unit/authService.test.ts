@@ -732,19 +732,19 @@ describe('refreshAccessToken', () => {
   it('should generate new access token from valid refresh token', async () => {
     const user = await authService.registerUser('refresh@example.com', 'pass123', 'User')
 
-    // Small delay to ensure different JWT timestamps
-    await new Promise(resolve => setTimeout(resolve, 10))
     const newTokens = await authService.refreshAccessToken(user.tokens.refreshToken)
 
     expect(newTokens).toBeDefined()
     expect(newTokens.accessToken).toBeDefined()
     expect(newTokens.refreshToken).toBeDefined()
     
-    // Verify tokens are different from original ones
-    const originalDecoded = authService.verifyJWT(user.tokens.accessToken)
-    const newDecoded = authService.verifyJWT(newTokens.accessToken)
+    // Verify new access token is valid and decodes correctly
+    const newAccessDecoded = authService.verifyJWT(newTokens.accessToken)
+    expect(newAccessDecoded).toBeDefined()
+    expect(newAccessDecoded?.userId).toBe(user.user.id)
+    expect(newAccessDecoded?.email).toBe('refresh@example.com')
     
-    expect(originalDecoded?.userId).toBe(newDecoded?.userId)
+    // New refresh token should be different (always different due to new random iat/exp)
     expect(newTokens.refreshToken).not.toBe(user.tokens.refreshToken)
   })
 

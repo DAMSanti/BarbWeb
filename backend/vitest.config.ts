@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vite'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -22,10 +22,12 @@ export default defineConfig({
         '**/*.d.ts',
         '**/node_modules/**',
       ],
-      lines: 70,      // Target 70% line coverage
-      functions: 70,  // Target 70% function coverage
-      branches: 60,   // Target 60% branch coverage
-      statements: 70, // Target 70% statement coverage
+      lines: {
+        lines: 70,      // Target 70% line coverage
+        functions: 70,  // Target 70% function coverage
+        branches: 60,   // Target 60% branch coverage
+        statements: 70, // Target 70% statement coverage
+      },
       
       // CI-specific options
       ...(isCI && {

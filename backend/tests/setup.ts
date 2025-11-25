@@ -291,15 +291,18 @@ function createPrismaMock() {
             result._count = payments.length
           }
           if (_sum?.amount) {
-            result._sum = { amount: payments.reduce((sum, p) => sum + getAmountValue(p.amount), 0) }
+            const total = payments.reduce((sum, p) => sum + getAmountValue(p.amount), 0)
+            result._sum = { amount: { toNumber: () => total } }
           }
           if (_sum?.refundedAmount) {
             result._sum = result._sum || {}
-            result._sum.refundedAmount = payments.reduce((sum, p) => sum + getAmountValue(p.refundedAmount), 0)
+            const total = payments.reduce((sum, p) => sum + getAmountValue(p.refundedAmount), 0)
+            result._sum.refundedAmount = { toNumber: () => total }
           }
           if (_avg?.amount) {
             const total = payments.reduce((sum, p) => sum + getAmountValue(p.amount), 0)
-            result._avg = { amount: payments.length > 0 ? total / payments.length : 0 }
+            const avg = payments.length > 0 ? total / payments.length : 0
+            result._avg = { amount: { toNumber: () => avg } }
           }
           return result
         }),

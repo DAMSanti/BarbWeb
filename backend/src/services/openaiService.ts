@@ -54,15 +54,16 @@ IMPORTANTE:
 `
 
 export async function filterQuestionWithAI(question: string): Promise<FilteredQuestion> {
+  // Validations first - throw directly, don't catch these
+  if (!question || question.trim().length === 0) {
+    throw new Error('Question cannot be empty')
+  }
+
+  if (!genAI) {
+    throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
+  }
+
   try {
-    if (!genAI) {
-      throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
-    }
-
-    if (!question || question.trim().length === 0) {
-      throw new Error('Question cannot be empty')
-    }
-
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' })
 
     const prompt = `${LEGAL_AGENT_PROMPT}\n\nPregunta del cliente: "${question}"\n\nAnaliza y responde en formato JSON:`
@@ -97,7 +98,7 @@ export async function filterQuestionWithAI(question: string): Promise<FilteredQu
     return parsedResult
   } catch (error) {
     console.error('Error filtering question with AI:', error)
-    throw new Error('Failed to process question with AI')
+    throw error
   }
 }
 

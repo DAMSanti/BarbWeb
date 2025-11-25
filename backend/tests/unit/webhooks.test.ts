@@ -3,9 +3,8 @@
  * Tests para manejo de webhooks de Stripe (pagos, reembolsos, fallos)
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import Stripe from 'stripe'
-import { ValidationError } from '../../src/utils/errors'
 
 // Mock dependencies
 const mockPrisma = {
@@ -69,11 +68,6 @@ describe('Webhooks Routes', () => {
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_123456789'
   })
 
-  afterEach(() => {
-    delete process.env.STRIPE_SECRET_KEY
-    delete process.env.STRIPE_WEBHOOK_SECRET
-  })
-
   describe('Webhook Signature Verification', () => {
     it('should verify valid webhook signature', () => {
       const body = Buffer.from(JSON.stringify({ type: 'payment_intent.succeeded' }))
@@ -122,86 +116,59 @@ describe('Webhooks Routes', () => {
   describe('handlePaymentIntentSucceeded', () => {
     it('should create payment when paymentIntent is new', async () => {
       const paymentIntent = {
-        id: 'pi_test_123',
+        id: 'pi_new_001',
         amount: 10000,
         currency: 'eur',
         metadata: {
-          userId: 'user_123',
+          userId: 'user_new_001',
           clientName: 'John Doe',
           consultationSummary: 'Consulta sobre divorcio',
           category: 'Familia',
         },
-        receipt_email: 'client@example.com',
+        receipt_email: 'john@example.com',
       } as unknown as Stripe.PaymentIntent
 
-      mockPrisma.payment.findFirst.mockClear()
-      mockPrisma.payment.create.mockClear()
-      mockPrisma.user.findUnique.mockClear()
-      
       mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
       mockPrisma.payment.create.mockResolvedValueOnce({
-        id: 'payment_123',
-        ...paymentIntent,
+        id: 'payment_new_001',
       })
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
+        id: 'user_new_001',
         email: 'user@example.com',
         name: 'John Doe',
       })
       mockEmailService.sendPaymentConfirmationEmail.mockResolvedValueOnce(true)
-      mockEmailService.sendLawyerNotificationEmail.mockResolvedValueOnce(true)
 
-      // Verify mocks are set up correctly
       expect(mockPrisma.payment.findFirst).toBeDefined()
     })
 
     it('should not create duplicate payment for same paymentIntent', async () => {
       const paymentIntent = {
-        id: 'pi_test_123_dup',
+        id: 'pi_dup_001',
         amount: 10000,
-        metadata: { userId: 'user_456' },
+        metadata: { userId: 'user_dup_001' },
       } as unknown as Stripe.PaymentIntent
 
-      mockPrisma.payment.findFirst.mockClear()
-      mockPrisma.payment.create.mockClear()
-      
-      const existingPaymentData = {
-        id: 'existing_payment_999',
-        stripeSessionId: 'pi_test_123_dup',
+      mockPrisma.payment.findFirst.mockResolvedValueOnce({
+        id: 'existing_payment_dup_001',
+        stripeSessionId: 'pi_dup_001',
         status: 'completed',
-      }
+      })
 
-      mockPrisma.payment.findFirst.mockResolvedValueOnce(existingPaymentData)
-
-      // Verify existing payment is found
       const existingPayment = await mockPrisma.payment.findFirst({
         where: { stripeSessionId: paymentIntent.id },
       })
 
       expect(existingPayment).toBeDefined()
-      expect(existingPayment?.id).toBe('existing_payment_999')
-      // Verify create was NOT called since payment exists
+      expect(existingPayment?.id).toBe('existing_payment_dup_001')
       expect(mockPrisma.payment.create).not.toHaveBeenCalled()
     })
 
     it('should send confirmation email to client', async () => {
-      const paymentIntent = {
-        id: 'pi_test_123',
-        amount: 5000,
-        currency: 'eur',
-        metadata: {
-          userId: 'user_123',
-          clientName: 'Jane Smith',
-          category: 'Laboral',
-          consultationSummary: 'Consulta sobre despido',
-        },
-        receipt_email: 'jane@example.com',
-      } as unknown as Stripe.PaymentIntent
-
       mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
-      mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_123' })
+      mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_email_001' })
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
+        id: 'user_email_001',
         email: 'jane@example.com',
         name: 'Jane Smith',
       })
@@ -212,29 +179,17 @@ describe('Webhooks Routes', () => {
         currency: 'eur',
         category: 'Laboral',
         consultationSummary: 'Consulta sobre despido',
-        paymentId: 'pi_test_123',
+        paymentId: 'pi_email_001',
       })
 
       expect(mockEmailService.sendPaymentConfirmationEmail).toHaveBeenCalled()
     })
 
     it('should send lawyer notification email', async () => {
-      const paymentIntent = {
-        id: 'pi_test_123',
-        amount: 7500,
-        metadata: {
-          userId: 'user_123',
-          clientName: 'Carlos López',
-          category: 'Civil',
-          consultationSummary: 'Consulta sobre contrato',
-        },
-        receipt_email: 'carlos@example.com',
-      } as unknown as Stripe.PaymentIntent
-
       mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
-      mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_123' })
+      mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_lawyer_001' })
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
+        id: 'user_lawyer_001',
         email: 'carlos@example.com',
         name: 'Carlos López',
       })
@@ -245,40 +200,30 @@ describe('Webhooks Routes', () => {
         amount: 75,
         category: 'Civil',
         consultationSummary: 'Consulta sobre contrato',
-        paymentId: 'pi_test_123',
+        paymentId: 'pi_lawyer_001',
       })
 
       expect(mockEmailService.sendLawyerNotificationEmail).toHaveBeenCalled()
     })
 
-    it('should handle missing userId gracefully', async () => {
+    it('should handle missing userId gracefully', () => {
       const paymentIntent = {
-        id: 'pi_test_123',
+        id: 'pi_missing_userid_001',
         amount: 10000,
         metadata: {},
       } as unknown as Stripe.PaymentIntent
 
-      mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
-
-      // Verify logic handles missing userId
       const userId = paymentIntent.metadata?.userId
       expect(userId).toBeUndefined()
     })
 
-    it('should use receipt_email when available', async () => {
+    it('should use receipt_email when available', () => {
       const paymentIntent = {
-        id: 'pi_test_123',
+        id: 'pi_receipt_001',
         amount: 10000,
-        metadata: { userId: 'user_123', clientName: 'Test Client' },
+        metadata: { userId: 'user_receipt_001', clientName: 'Test Client' },
         receipt_email: 'receipt@example.com',
       } as unknown as Stripe.PaymentIntent
-
-      mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
-      mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_123' })
-      mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
-        email: 'default@example.com',
-      })
 
       const clientEmail = paymentIntent.receipt_email || 'default@example.com'
       expect(clientEmail).toBe('receipt@example.com')
@@ -286,22 +231,22 @@ describe('Webhooks Routes', () => {
 
     it('should use user email as fallback', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
-        email: 'user@example.com',
+        id: 'user_fallback_001',
+        email: 'fallback@example.com',
         name: 'Test User',
       })
 
-      const user = await mockPrisma.user.findUnique({ where: { id: 'user_123' } })
-      const receiptEmail: string | undefined = undefined // No receipt_email from Stripe
+      const user = await mockPrisma.user.findUnique({ where: { id: 'user_fallback_001' } })
+      const receiptEmail: string | undefined = undefined
       const clientEmail = receiptEmail || user?.email
-      expect(clientEmail).toBe('user@example.com')
+      expect(clientEmail).toBe('fallback@example.com')
     })
 
-    it('should calculate correct amount in euros (divide by 100)', async () => {
+    it('should calculate correct amount in euros (divide by 100)', () => {
       const paymentIntent = {
-        id: 'pi_test_123',
-        amount: 10000, // cents
-        metadata: { userId: 'user_123' },
+        id: 'pi_amount_001',
+        amount: 10000,
+        metadata: { userId: 'user_amount_001' },
       } as unknown as Stripe.PaymentIntent
 
       const amountInEuros = paymentIntent.amount / 100
@@ -309,32 +254,24 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle email sending failure gracefully', async () => {
-      const paymentIntent = {
-        id: 'pi_test_123',
-        amount: 5000,
-        metadata: { userId: 'user_123', clientName: 'Jane' },
-        receipt_email: 'jane@example.com',
-      } as unknown as Stripe.PaymentIntent
-
       mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
-      mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_123' })
+      mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_fail_001' })
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
-        email: 'jane@example.com',
+        id: 'user_fail_001',
+        email: 'fail@example.com',
       })
       mockEmailService.sendPaymentConfirmationEmail.mockRejectedValueOnce(
         new Error('Email service error')
       )
 
-      // Verify error is caught and logged
       try {
-        await mockEmailService.sendPaymentConfirmationEmail('jane@example.com', {
+        await mockEmailService.sendPaymentConfirmationEmail('fail@example.com', {
           clientName: 'Jane',
           amount: 50,
           currency: 'eur',
           category: 'General',
           consultationSummary: 'Test',
-          paymentId: 'pi_test_123',
+          paymentId: 'pi_fail_001',
         })
       } catch (error) {
         expect(error).toBeDefined()
@@ -343,11 +280,11 @@ describe('Webhooks Routes', () => {
   })
 
   describe('handlePaymentIntentFailed', () => {
-    it('should log payment failure with details', async () => {
+    it('should log payment failure with details', () => {
       const paymentIntent = {
-        id: 'pi_failed_123',
+        id: 'pi_failed_001',
         amount: 10000,
-        metadata: { userId: 'user_123', clientName: 'John Doe' },
+        metadata: { userId: 'user_failed_001', clientName: 'John Doe' },
         last_payment_error: {
           message: 'Your card was declined',
         },
@@ -363,23 +300,13 @@ describe('Webhooks Routes', () => {
     })
 
     it('should send payment failed email to client', async () => {
-      const paymentIntent = {
-        id: 'pi_failed_123',
-        amount: 5000,
-        metadata: { userId: 'user_123', clientName: 'Jane Smith' },
-        receipt_email: 'jane@example.com',
-        last_payment_error: {
-          message: 'Insufficient funds',
-        },
-      } as unknown as Stripe.PaymentIntent
-
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
-        email: 'jane@example.com',
+        id: 'user_failed_email_001',
+        email: 'failed@example.com',
         name: 'Jane Smith',
       })
 
-      await mockEmailService.sendPaymentFailedEmail('jane@example.com', {
+      await mockEmailService.sendPaymentFailedEmail('failed@example.com', {
         clientName: 'Jane Smith',
         amount: 50,
         errorMessage: 'Insufficient funds',
@@ -388,9 +315,9 @@ describe('Webhooks Routes', () => {
       expect(mockEmailService.sendPaymentFailedEmail).toHaveBeenCalled()
     })
 
-    it('should handle missing userId in failed payment', async () => {
+    it('should handle missing userId in failed payment', () => {
       const paymentIntent = {
-        id: 'pi_failed_123',
+        id: 'pi_failed_no_user_001',
         amount: 10000,
         metadata: {},
         last_payment_error: {
@@ -402,9 +329,9 @@ describe('Webhooks Routes', () => {
       expect(userId).toBeUndefined()
     })
 
-    it('should use receipt_email if user not found', async () => {
+    it('should use receipt_email if user not found', () => {
       const paymentIntent = {
-        id: 'pi_failed_123',
+        id: 'pi_failed_receipt_001',
         amount: 10000,
         metadata: { userId: 'nonexistent_user' },
         receipt_email: 'receipt@example.com',
@@ -418,14 +345,6 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle email sending failure in payment failed', async () => {
-      const paymentIntent = {
-        id: 'pi_failed_123',
-        amount: 10000,
-        metadata: { userId: 'user_123', clientName: 'Client' },
-        receipt_email: 'client@example.com',
-        last_payment_error: { message: 'Payment failed' },
-      } as unknown as Stripe.PaymentIntent
-
       mockEmailService.sendPaymentFailedEmail.mockRejectedValueOnce(
         new Error('Email service down')
       )
@@ -445,17 +364,16 @@ describe('Webhooks Routes', () => {
   describe('handleChargeRefunded', () => {
     it('should update payment status to refunded', async () => {
       const charge = {
-        id: 'ch_refunded_123',
-        payment_intent: 'pi_test_123',
+        id: 'ch_refund_001',
+        payment_intent: 'pi_refund_001',
         amount_refunded: 5000,
         currency: 'eur',
       } as unknown as Stripe.Charge
 
-      mockPrisma.payment.findFirst.mockClear()
       mockPrisma.payment.findFirst.mockResolvedValueOnce({
-        id: 'existing_payment_123',
-        userId: 'user_123',
-        stripeSessionId: 'pi_test_123',
+        id: 'existing_refund_001',
+        userId: 'user_refund_001',
+        stripeSessionId: 'pi_refund_001',
       })
 
       const payment = await mockPrisma.payment.findFirst({
@@ -463,30 +381,22 @@ describe('Webhooks Routes', () => {
       })
 
       expect(payment).toBeDefined()
-      expect(payment?.id).toBe('existing_payment_123')
+      expect(payment?.id).toBe('existing_refund_001')
     })
 
     it('should send refund confirmation email', async () => {
-      const charge = {
-        id: 'ch_refunded_123',
-        payment_intent: 'pi_test_123',
-        amount_refunded: 7500,
-        currency: 'eur',
-        receipt_email: 'client@example.com',
-      } as unknown as Stripe.Charge
-
       mockPrisma.payment.findFirst.mockResolvedValueOnce({
-        id: 'payment_123',
-        userId: 'user_123',
+        id: 'payment_refund_email_001',
+        userId: 'user_refund_email_001',
       })
 
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
-        email: 'client@example.com',
+        id: 'user_refund_email_001',
+        email: 'refund@example.com',
         name: 'Client Name',
       })
 
-      await mockEmailService.sendRefundConfirmationEmail('client@example.com', {
+      await mockEmailService.sendRefundConfirmationEmail('refund@example.com', {
         clientName: 'Client Name',
         amount: 75,
         currency: 'eur',
@@ -495,9 +405,9 @@ describe('Webhooks Routes', () => {
       expect(mockEmailService.sendRefundConfirmationEmail).toHaveBeenCalled()
     })
 
-    it('should handle missing payment_intent', async () => {
+    it('should handle missing payment_intent', () => {
       const charge = {
-        id: 'ch_refunded_123',
+        id: 'ch_no_intent_001',
         payment_intent: undefined,
         amount_refunded: 5000,
       } as unknown as Stripe.Charge
@@ -505,28 +415,27 @@ describe('Webhooks Routes', () => {
       const paymentIntentId = charge.payment_intent
 
       if (paymentIntentId && typeof paymentIntentId === 'string') {
-        // This block should not execute
         expect(true).toBe(false)
       } else {
         expect(paymentIntentId).toBeUndefined()
       }
     })
 
-    it('should handle string payment_intent correctly', async () => {
+    it('should handle string payment_intent correctly', () => {
       const charge = {
-        id: 'ch_refunded_123',
-        payment_intent: 'pi_test_123',
+        id: 'ch_string_intent_001',
+        payment_intent: 'pi_string_intent_001',
         amount_refunded: 5000,
       } as unknown as Stripe.Charge
 
       expect(typeof charge.payment_intent).toBe('string')
     })
 
-    it('should calculate correct refund amount', async () => {
+    it('should calculate correct refund amount', () => {
       const charge = {
-        id: 'ch_refunded_123',
-        payment_intent: 'pi_test_123',
-        amount_refunded: 10000, // cents
+        id: 'ch_amount_calc_001',
+        payment_intent: 'pi_amount_calc_001',
+        amount_refunded: 10000,
       } as unknown as Stripe.Charge
 
       const refundAmount = charge.amount_refunded / 100
@@ -535,39 +444,30 @@ describe('Webhooks Routes', () => {
 
     it('should handle payment not found gracefully', async () => {
       const charge = {
-        id: 'ch_refunded_123',
-        payment_intent: 'pi_nonexistent',
+        id: 'ch_not_found_001',
+        payment_intent: 'pi_not_found_001',
         amount_refunded: 5000,
       } as unknown as Stripe.Charge
 
       mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
-      mockLogger.error.mockClear()
 
       const payment = await mockPrisma.payment.findFirst({
         where: { stripeSessionId: charge.payment_intent as string },
       })
 
       expect(payment).toBeNull()
-      // Verify that update is not called when payment not found
       expect(mockPrisma.payment.update).not.toHaveBeenCalled()
     })
 
     it('should handle refund email failure gracefully', async () => {
-      const charge = {
-        id: 'ch_refunded_123',
-        payment_intent: 'pi_test_123',
-        amount_refunded: 5000,
-        receipt_email: 'client@example.com',
-      } as unknown as Stripe.Charge
-
       mockPrisma.payment.findFirst.mockResolvedValueOnce({
-        id: 'payment_123',
-        userId: 'user_123',
+        id: 'payment_refund_fail_001',
+        userId: 'user_refund_fail_001',
       })
 
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
-        email: 'client@example.com',
+        id: 'user_refund_fail_001',
+        email: 'refund_fail@example.com',
         name: 'Client',
       })
 
@@ -576,7 +476,7 @@ describe('Webhooks Routes', () => {
       )
 
       try {
-        await mockEmailService.sendRefundConfirmationEmail('client@example.com', {
+        await mockEmailService.sendRefundConfirmationEmail('refund_fail@example.com', {
           clientName: 'Client',
           amount: 50,
           currency: 'eur',
@@ -588,39 +488,34 @@ describe('Webhooks Routes', () => {
 
     it('should handle refund without receipt_email', async () => {
       const charge = {
-        id: 'ch_no_email_789',
-        payment_intent: 'pi_no_email_789',
+        id: 'ch_no_receipt_001',
+        payment_intent: 'pi_no_receipt_001',
         amount_refunded: 5000,
-        // receipt_email is intentionally omitted/undefined
       } as unknown as Stripe.Charge
 
-      mockPrisma.payment.findFirst.mockClear()
-      mockPrisma.user.findUnique.mockClear()
-      
       mockPrisma.payment.findFirst.mockResolvedValueOnce({
-        id: 'payment_no_email_789',
-        userId: 'user_no_email_789',
+        id: 'payment_no_receipt_001',
+        userId: 'user_no_receipt_001',
       })
 
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_no_email_789',
-        email: 'user_no_email@example.com',
+        id: 'user_no_receipt_001',
+        email: 'no_receipt@example.com',
         name: 'User NoEmail',
       })
 
-      // receipt_email should be undefined
       expect(charge.receipt_email).toBeUndefined()
-      
-      const user = await mockPrisma.user.findUnique({ where: { id: 'user_no_email_789' } })
+
+      const user = await mockPrisma.user.findUnique({ where: { id: 'user_no_receipt_001' } })
       const clientEmail = charge.receipt_email || user?.email
-      expect(clientEmail).toBe('user_no_email@example.com')
+      expect(clientEmail).toBe('no_receipt@example.com')
     })
   })
 
   describe('Edge Cases and Error Handling', () => {
-    it('should handle empty metadata gracefully', async () => {
+    it('should handle empty metadata gracefully', () => {
       const paymentIntent = {
-        id: 'pi_test_123',
+        id: 'pi_empty_meta_001',
         amount: 10000,
         metadata: {},
       } as unknown as Stripe.PaymentIntent
@@ -630,33 +525,32 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle missing email completely', async () => {
-      mockPrisma.user.findUnique.mockClear()
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_missing_email_999',
+        id: 'user_no_email_001',
         name: 'User Missing Email',
         email: undefined,
       })
 
-      const user = await mockPrisma.user.findUnique({ where: { id: 'user_missing_email_999' } })
+      const user = await mockPrisma.user.findUnique({ where: { id: 'user_no_email_001' } })
       expect(user?.email).toBeUndefined()
     })
 
-    it('should handle very large amounts correctly', async () => {
+    it('should handle very large amounts correctly', () => {
       const paymentIntent = {
-        id: 'pi_test_123',
-        amount: 999999999, // Very large amount in cents
-        metadata: { userId: 'user_123' },
+        id: 'pi_large_amount_001',
+        amount: 999999999,
+        metadata: { userId: 'user_large_amount_001' },
       } as unknown as Stripe.PaymentIntent
 
       const amountInEuros = paymentIntent.amount / 100
       expect(amountInEuros).toBe(9999999.99)
     })
 
-    it('should handle zero amount', async () => {
+    it('should handle zero amount', () => {
       const paymentIntent = {
-        id: 'pi_test_123',
+        id: 'pi_zero_amount_001',
         amount: 0,
-        metadata: { userId: 'user_123' },
+        metadata: { userId: 'user_zero_amount_001' },
       } as unknown as Stripe.PaymentIntent
 
       const amountInEuros = paymentIntent.amount / 100
@@ -673,7 +567,7 @@ describe('Webhooks Routes', () => {
       expect(process.env.STRIPE_WEBHOOK_SECRET).toBe('whsec_test_123456789')
     })
 
-    it('should throw error if STRIPE_SECRET_KEY is missing', () => {
+    it('should have STRIPE_SECRET_KEY defined', () => {
       const key = process.env.STRIPE_SECRET_KEY
       expect(key).toBeDefined()
     })

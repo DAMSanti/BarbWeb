@@ -287,7 +287,7 @@ export const oauthLogin = async (
 // Refresh access token
 export const refreshAccessToken = async (
   refreshToken: string
-): Promise<{ accessToken: string }> => {
+): Promise<{ accessToken: string; refreshToken: string }> => {
   try {
     const decoded = jwt.verify(
       refreshToken,
@@ -303,8 +303,8 @@ export const refreshAccessToken = async (
       throw new AuthenticationError('Refresh token inválido o expirado')
     }
 
-    // Generate new access token
-    const accessToken = jwt.sign(
+    // Generate new tokens
+    const newAccessToken = jwt.sign(
       {
         userId: user.id,
         email: user.email,
@@ -316,7 +316,34 @@ export const refreshAccessToken = async (
       }
     )
 
-    return { accessToken }
+    const newRefreshToken = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_REFRESH_SECRET || 'refresh-secret',
+      {
+        expiresIn: '7d',
+      }
+    )
+
+    // Remove old refresh token and add new one
+    const updatedTokens = user.refreshTokens
+      .filter((t: string) => t !== refreshToken)
+      .slice(0, 4) // Keep only last 4 old tokens
+    updatedTokens.unshift(newRefreshToken) // Add new token at the beginning
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        refreshTokens: {
+          set: updatedTokens,
+        },
+      },
+    })
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken }
   } catch (error: any) {
     // Si es un error de autenticación nuestro, re-lanzarlo
     if (error instanceof AuthenticationError) {

@@ -278,24 +278,16 @@ describe('Webhooks Routes', () => {
     })
 
     it('should use user email as fallback', async () => {
-      const paymentIntent = {
-        id: 'pi_test_123',
-        amount: 10000,
-        metadata: { userId: 'user_123', clientName: 'Test User' },
-        receipt_email: undefined,
-      } as unknown as Stripe.PaymentIntent
-
-      mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
-      mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_123' })
       mockPrisma.user.findUnique.mockResolvedValueOnce({
         id: 'user_123',
-        email: 'user_email@example.com',
+        email: 'user@example.com',
         name: 'Test User',
       })
 
       const user = await mockPrisma.user.findUnique({ where: { id: 'user_123' } })
-      const clientEmail = paymentIntent.receipt_email || user?.email
-      expect(clientEmail).toBe('user_email@example.com')
+      const receiptEmail: string | undefined = undefined // No receipt_email from Stripe
+      const clientEmail = receiptEmail || user?.email
+      expect(clientEmail).toBe('user@example.com')
     })
 
     it('should calculate correct amount in euros (divide by 100)', async () => {
@@ -463,7 +455,7 @@ describe('Webhooks Routes', () => {
       })
 
       expect(payment).toBeDefined()
-      expect(payment.id).toBe('payment_123')
+      expect(payment?.id).toBe('payment_123')
     })
 
     it('should send refund confirmation email', async () => {
@@ -630,7 +622,7 @@ describe('Webhooks Routes', () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce({
         id: 'user_123',
         name: 'User Name',
-        // no email
+        email: undefined,
       })
 
       const user = await mockPrisma.user.findUnique({ where: { id: 'user_123' } })

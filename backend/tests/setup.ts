@@ -47,7 +47,8 @@ vi.mock('@prisma/client', () => ({
           }
           return null
         }),
-        findMany: vi.fn(async ({ where = {}, skip = 0, take = 10, orderBy, select }: any) => {
+        findMany: vi.fn(async (params: any = {}) => {
+          const { where = {}, skip = 0, take = 10, orderBy, select } = params
           let results = Array.from(dataStore.users.values())
           
           if (where?.role) {
@@ -157,7 +158,8 @@ vi.mock('@prisma/client', () => ({
             user: user ? { email: user.email, name: user.name } : null
           }
         }),
-        findMany: vi.fn(async ({ where = {}, skip = 0, take = 10, select, orderBy }: any) => {
+        findMany: vi.fn(async (params: any = {}) => {
+          const { where = {}, skip = 0, take = 10, select, orderBy } = params
           let results = Array.from(dataStore.payments.values())
           
           if (where?.userId) {

@@ -277,7 +277,7 @@ describe('Admin Service - RBAC and Management', () => {
       const refunded = await adminService.refundPayment(payments[0].id, 'Test refund')
 
       expect(refunded.status).toBe('refunded')
-      expect(refunded.refundedAmount).toEqual(payments[0].amount)
+      expect(refunded.refundedAmount.toNumber()).toEqual(payments[0].amount.toNumber())
 
       const verify = await prisma.payment.findUnique({
         where: { id: payments[0].id },

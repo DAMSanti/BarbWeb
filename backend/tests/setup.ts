@@ -145,11 +145,12 @@ function createPrismaMock() {
       payment: {
         create: vi.fn(async ({ data }: any) => {
           const id = `payment_${paymentIdCounter++}`
+          const amountValue = typeof data.amount === 'number' ? data.amount : parseFloat(data.amount)
           const payment = { 
             id, 
             ...data,
-            refundedAmount: data.refundedAmount || 0,
-            amount: { toNumber: () => typeof data.amount === 'number' ? data.amount : parseFloat(data.amount) },
+            refundedAmount: data.refundedAmount || { toNumber: () => 0 },
+            amount: { toNumber: () => amountValue },
             createdAt: new Date(), 
             updatedAt: new Date() 
           }
@@ -160,10 +161,15 @@ function createPrismaMock() {
           const p = dataStore.payments.get(where.id)
           if (!p) return null
           const user = dataStore.users.get(p.userId)
+          const getAmountValue = (amt: any) => {
+            if (typeof amt === 'number') return amt
+            if (amt?.toNumber) return amt.toNumber()
+            return parseFloat(amt?.toString?.() || '0')
+          }
           return { 
             ...p, 
-            amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') },
-            refundedAmount: p.refundedAmount || 0,
+            amount: { toNumber: () => getAmountValue(p.amount) },
+            refundedAmount: { toNumber: () => getAmountValue(p.refundedAmount) },
             user: user ? { email: user.email, name: user.name } : null
           }
         }),
@@ -186,10 +192,15 @@ function createPrismaMock() {
           
           // Add related user data if select includes it
           const processed = results.slice(skip, skip + take).map(p => {
+            const getAmountValue = (amt: any) => {
+              if (typeof amt === 'number') return amt
+              if (amt?.toNumber) return amt.toNumber()
+              return parseFloat(amt?.toString?.() || '0')
+            }
             const payment: any = {
               ...p,
-              refundedAmount: p.refundedAmount || 0,
-              amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') }
+              refundedAmount: { toNumber: () => getAmountValue(p.refundedAmount) },
+              amount: { toNumber: () => getAmountValue(p.amount) }
             }
             
             if (select?.user) {
@@ -205,13 +216,20 @@ function createPrismaMock() {
         update: vi.fn(async ({ where, data, include, select }: any) => {
           const payment = dataStore.payments.get(where.id)
           if (!payment) throw new Error('Payment not found')
-          const updated = { ...payment, ...data, updatedAt: new Date(), refundedAmount: payment.refundedAmount || 0 }
+          const updated = { ...payment, ...data, updatedAt: new Date() }
           dataStore.payments.set(where.id, updated)
           const user = dataStore.users.get(updated.userId)
           
+          const getAmountValue = (amt: any) => {
+            if (typeof amt === 'number') return amt
+            if (amt?.toNumber) return amt.toNumber()
+            return parseFloat(amt?.toString?.() || '0')
+          }
+          
           const result: any = {
             ...updated,
-            amount: { toNumber: () => typeof updated.amount === 'number' ? updated.amount : parseFloat(updated.amount?.toString?.() || '0') },
+            amount: { toNumber: () => getAmountValue(updated.amount) },
+            refundedAmount: { toNumber: () => getAmountValue(updated.refundedAmount) },
           }
           
           // Handle include for relations

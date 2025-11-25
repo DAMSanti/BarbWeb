@@ -56,6 +56,7 @@ describe('Admin Service - RBAC and Management', () => {
 
   afterEach(async () => {
     // Clean up
+    await prisma.payment.deleteMany()
     await prisma.user.deleteMany()
   })
 

@@ -98,6 +98,14 @@ vi.mock('@prisma/client', () => ({
           return user
         }),
         deleteMany: vi.fn(async () => {
+          // When users are deleted, also delete their payments (cascade)
+          const userIds = Array.from(dataStore.users.keys())
+          for (const paymentId of dataStore.payments.keys()) {
+            const payment = dataStore.payments.get(paymentId)
+            if (payment && userIds.includes(payment.userId)) {
+              dataStore.payments.delete(paymentId)
+            }
+          }
           dataStore.users.clear()
           return { count: dataStore.users.size }
         }),

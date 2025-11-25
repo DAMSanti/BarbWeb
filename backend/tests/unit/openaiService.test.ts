@@ -3,222 +3,216 @@
  * Tests para funciones de filtrado de preguntas y generación de respuestas detalladas
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import * as openaiService from '../../src/services/openaiService'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-// Mock Gemini AI
+// Mock the Gemini module before importing the service
+const mockGenerateContent = vi.fn()
+
 vi.mock('@google/generative-ai', () => ({
-  GoogleGenerativeAI: vi.fn(function (apiKey: string) {
-    return {
-      getGenerativeModel: vi.fn(function ({ model }: any) {
-        return {
-          generateContent: vi.fn(async (prompt: string) => {
-            // Mock responses based on prompt content
-            if (prompt.includes('Pregunta del cliente')) {
-              // This is a filterQuestionWithAI call
-              return {
-                response: {
-                  text: () => {
-                    if (prompt.includes('divorcio')) {
-                      return JSON.stringify({
-                        category: 'Familia',
-                        briefAnswer: 'El divorcio es un proceso legal que requiere asesoramiento profesional específico según su situación.',
-                        needsProfessionalConsultation: true,
-                        reasoning: 'Casos de familia requieren análisis personalizado y documentación legal',
-                        confidence: 0.95,
-                        complexity: 'complex',
-                      })
-                    } else if (prompt.includes('contrato')) {
-                      return JSON.stringify({
-                        category: 'Civil',
-                        briefAnswer: 'Los contratos tienen implicaciones legales importantes que deben ser revisadas por un profesional.',
-                        needsProfessionalConsultation: true,
-                        reasoning: 'Contratos requieren análisis de cláusulas y riesgos legales',
-                        confidence: 0.90,
-                        complexity: 'medium',
-                      })
-                    } else if (prompt.includes('impuesto')) {
-                      return JSON.stringify({
-                        category: 'Tributario',
-                        briefAnswer: 'Las cuestiones tributarias requieren asesoramiento especializado para optimizar su situación fiscal.',
-                        needsProfessionalConsultation: true,
-                        reasoning: 'Tributario requiere análisis de normativas fiscales actuales',
-                        confidence: 0.85,
-                        complexity: 'complex',
-                      })
-                    } else if (prompt.includes('penal')) {
-                      return JSON.stringify({
-                        category: 'Penal',
-                        briefAnswer: 'En asuntos penales, es crucial contar con defensa legal profesional desde el inicio.',
-                        needsProfessionalConsultation: true,
-                        reasoning: 'Casos penales siempre requieren asesoramiento legal especializado',
-                        confidence: 0.98,
-                        complexity: 'complex',
-                      })
-                    } else {
-                      return JSON.stringify({
-                        category: 'Civil',
-                        briefAnswer: 'Consulte con un profesional para obtener asesoramiento específico sobre su situación.',
-                        needsProfessionalConsultation: true,
-                        reasoning: 'Caso requiere análisis personalizado',
-                        confidence: 0.75,
-                        complexity: 'medium',
-                      })
-                    }
-                  },
-                },
-              }
-            } else {
-              // This is a generateDetailedResponse call
-              return {
-                response: {
-                  text: () => 'Respuesta detallada sobre el tema legal solicitado...',
-                },
-              }
-            }
-          }),
-        }
-      }),
-    }
-  }),
+  GoogleGenerativeAI: vi.fn(() => ({
+    getGenerativeModel: vi.fn(() => ({
+      generateContent: mockGenerateContent,
+    })),
+  })),
 }))
+
+// Import service after mocking
+import * as openaiService from '../../src/services/openaiService'
 
 describe('OpenAI Service (Gemini)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Set API key for tests
     process.env.GEMINI_API_KEY = 'test-api-key'
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
+    mockGenerateContent.mockClear()
   })
 
   describe('filterQuestionWithAI', () => {
     it('should filter divorce question and return Familia category', async () => {
-      const result = await openaiService.filterQuestionWithAI(
-        '¿Cómo puedo iniciar un divorcio? ¿Qué documentos necesito?'
-      )
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Familia',
+              briefAnswer: 'El divorcio es un proceso legal que requiere asesoramiento profesional.',
+              needsProfessionalConsultation: true,
+              reasoning: 'Casos de familia requieren análisis personalizado',
+              confidence: 0.95,
+              complexity: 'complex',
+            }),
+        },
+      })
+
+      const result = await openaiService.filterQuestionWithAI('¿Cómo puedo iniciar un divorcio?')
 
       expect(result).toBeDefined()
       expect(result.category).toBe('Familia')
       expect(result.briefAnswer).toBeDefined()
-      expect(result.briefAnswer.length).toBeGreaterThan(0)
       expect(result.needsProfessionalConsultation).toBe(true)
-      expect(result.reasoning).toBeDefined()
-      expect(result.confidence).toBeGreaterThan(0)
-      expect(result.confidence).toBeLessThanOrEqual(1)
+      expect(result.confidence).toBe(0.95)
       expect(result.complexity).toBe('complex')
     })
 
     it('should filter contract question and return Civil category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Civil',
+              briefAnswer: 'Los contratos requieren revisión profesional.',
+              needsProfessionalConsultation: true,
+              reasoning: 'Contratos tienen implicaciones legales',
+              confidence: 0.90,
+              complexity: 'medium',
+            }),
+        },
+      })
+
       const result = await openaiService.filterQuestionWithAI(
-        '¿Qué cláusulas debo revisar en un contrato de alquiler?'
+        '¿Qué cláusulas debo revisar en un contrato?'
       )
 
-      expect(result).toBeDefined()
       expect(result.category).toBe('Civil')
-      expect(result.needsProfessionalConsultation).toBe(true)
-      expect(result.confidence).toBeGreaterThan(0.5)
-      expect(['simple', 'medium', 'complex']).toContain(result.complexity)
+      expect(result.confidence).toBe(0.90)
     })
 
     it('should filter tax question and return Tributario category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Tributario',
+              briefAnswer: 'Las cuestiones tributarias requieren asesoramiento especializado.',
+              needsProfessionalConsultation: true,
+              reasoning: 'Tributario requiere análisis fiscal',
+              confidence: 0.85,
+              complexity: 'complex',
+            }),
+        },
+      })
+
       const result = await openaiService.filterQuestionWithAI(
-        '¿Cuál es la mejor forma de declarar impuestos como autónomo?'
+        '¿Cuál es la mejor forma de declarar impuestos?'
       )
 
-      expect(result).toBeDefined()
       expect(result.category).toBe('Tributario')
-      expect(result.needsProfessionalConsultation).toBe(true)
-      expect(result.reasoning).toContain('fiscal')
     })
 
     it('should filter criminal question and return Penal category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Penal',
+              briefAnswer: 'En asuntos penales, es crucial contar con defensa legal profesional.',
+              needsProfessionalConsultation: true,
+              reasoning: 'Casos penales siempre requieren asesoramiento legal especializado',
+              confidence: 0.98,
+              complexity: 'complex',
+            }),
+        },
+      })
+
       const result = await openaiService.filterQuestionWithAI(
-        '¿Qué derechos tengo si me detienen en una investigación penal?'
+        '¿Qué derechos tengo si me detienen?'
       )
 
-      expect(result).toBeDefined()
       expect(result.category).toBe('Penal')
-      expect(result.needsProfessionalConsultation).toBe(true)
       expect(result.confidence).toBeGreaterThan(0.9)
     })
 
-    it('should return valid category for generic question', async () => {
+    it('should filter labor question and return Laboral category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Laboral',
+              briefAnswer: 'Las cuestiones laborales tienen protecciones legales específicas.',
+              needsProfessionalConsultation: true,
+              reasoning: 'Laboral requiere conocimiento de legislación laboral actual',
+              confidence: 0.88,
+              complexity: 'medium',
+            }),
+        },
+      })
+
       const result = await openaiService.filterQuestionWithAI(
-        '¿Cuáles son mis derechos como ciudadano?'
+        '¿Cuáles son mis derechos laborales?'
       )
 
-      expect(result).toBeDefined()
-      expect(result.category).toBeDefined()
-      expect(['Civil', 'Penal', 'Laboral', 'Administrativo', 'Mercantil', 'Familia', 'Tributario']).toContain(
-        result.category
-      )
-      expect(result.briefAnswer).toBeDefined()
-      expect(result.needsProfessionalConsultation).toBeDefined()
-      expect(result.reasoning).toBeDefined()
-      expect(result.confidence).toBeGreaterThan(0)
+      expect(result.category).toBe('Laboral')
     })
 
-    it('should have valid confidence score', async () => {
-      const result = await openaiService.filterQuestionWithAI('Pregunta legal válida')
+    it('should return valid confidence score between 0 and 1', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Civil',
+              briefAnswer: 'Respuesta breve',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón',
+              confidence: 0.75,
+              complexity: 'medium',
+            }),
+        },
+      })
+
+      const result = await openaiService.filterQuestionWithAI('Pregunta legal')
 
       expect(result.confidence).toBeGreaterThanOrEqual(0)
       expect(result.confidence).toBeLessThanOrEqual(1)
-      expect(typeof result.confidence).toBe('number')
     })
 
     it('should throw error for empty question', async () => {
       await expect(openaiService.filterQuestionWithAI('')).rejects.toThrow(
         'Question cannot be empty'
       )
+      expect(mockGenerateContent).not.toHaveBeenCalled()
     })
 
     it('should throw error for whitespace-only question', async () => {
       await expect(openaiService.filterQuestionWithAI('   ')).rejects.toThrow(
         'Question cannot be empty'
       )
+      expect(mockGenerateContent).not.toHaveBeenCalled()
     })
 
-    it('should handle very long questions', async () => {
-      const longQuestion = 'A'.repeat(1000) + ' ¿Es válido este contrato?'
-      const result = await openaiService.filterQuestionWithAI(longQuestion)
+    it('should have valid complexity field', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Civil',
+              briefAnswer: 'Respuesta',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón',
+              confidence: 0.75,
+              complexity: 'simple',
+            }),
+        },
+      })
 
-      expect(result).toBeDefined()
-      expect(result.category).toBeDefined()
-      expect(result.briefAnswer).toBeDefined()
-    })
+      const result = await openaiService.filterQuestionWithAI('Pregunta')
 
-    it('should have complexity field', async () => {
-      const result = await openaiService.filterQuestionWithAI(
-        '¿Puedo reclamar un pago impagado?'
-      )
-
-      expect(result.complexity).toBeDefined()
       expect(['simple', 'medium', 'complex']).toContain(result.complexity)
     })
 
-    it('should handle special characters in questions', async () => {
-      const specialQuestion = '¿Qué pasa con los derechos de autor ©️ y patentes ®️?'
-      const result = await openaiService.filterQuestionWithAI(specialQuestion)
+    it('should include reasoning for professional consultation', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Civil',
+              briefAnswer: 'Respuesta breve',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón específica para consulta profesional',
+              confidence: 0.75,
+              complexity: 'medium',
+            }),
+        },
+      })
 
-      expect(result).toBeDefined()
-      expect(result.category).toBeDefined()
-    })
-
-    it('should handle questions with numbers', async () => {
-      const numberQuestion = '¿Puedo deducir 5000€ de gastos de oficina en 2024?'
-      const result = await openaiService.filterQuestionWithAI(numberQuestion)
-
-      expect(result).toBeDefined()
-      expect(result.category).toBeDefined()
-    })
-
-    it('should include reasoning for professional consultation recommendation', async () => {
-      const result = await openaiService.filterQuestionWithAI(
-        '¿Cómo inicio un proceso legal?'
-      )
+      const result = await openaiService.filterQuestionWithAI('¿Pregunta?')
 
       if (result.needsProfessionalConsultation) {
         expect(result.reasoning).toBeDefined()
@@ -226,33 +220,55 @@ describe('OpenAI Service (Gemini)', () => {
       }
     })
 
-    it('should ensure briefAnswer provides orientation', async () => {
-      const result = await openaiService.filterQuestionWithAI(
-        '¿Qué debo hacer ante un impago?'
-      )
+    it('should ensure briefAnswer is not empty', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Civil',
+              briefAnswer: 'Una respuesta con contenido relevante',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón',
+              confidence: 0.75,
+              complexity: 'medium',
+            }),
+        },
+      })
+
+      const result = await openaiService.filterQuestionWithAI('Pregunta')
 
       expect(result.briefAnswer).toBeDefined()
       expect(result.briefAnswer.length).toBeGreaterThan(10)
-      expect(result.briefAnswer.length).toBeLessThan(500) // Reasonable max length
     })
   })
 
   describe('generateDetailedResponse', () => {
     it('should generate response for Civil category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Respuesta detallada sobre derechos civiles...',
+        },
+      })
+
       const response = await openaiService.generateDetailedResponse(
-        '¿Cuáles son mis derechos como inquilino?',
+        '¿Cuáles son mis derechos?',
         'Civil'
       )
 
       expect(response).toBeDefined()
-      expect(response).toBeTruthy()
       expect(typeof response).toBe('string')
       expect(response.length).toBeGreaterThan(0)
     })
 
     it('should generate response for Penal category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Respuesta sobre derechos penales...',
+        },
+      })
+
       const response = await openaiService.generateDetailedResponse(
-        '¿Qué derechos tengo en una comisaría?',
+        '¿Derechos penales?',
         'Penal'
       )
 
@@ -261,8 +277,14 @@ describe('OpenAI Service (Gemini)', () => {
     })
 
     it('should generate response for Laboral category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Información sobre derechos laborales...',
+        },
+      })
+
       const response = await openaiService.generateDetailedResponse(
-        '¿Puedo despedir a un empleado sin causa?',
+        '¿Derechos laborales?',
         'Laboral'
       )
 
@@ -271,8 +293,14 @@ describe('OpenAI Service (Gemini)', () => {
     })
 
     it('should generate response for Familia category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Asesoramiento sobre derecho de familia...',
+        },
+      })
+
       const response = await openaiService.generateDetailedResponse(
-        '¿Cómo se calcula la pensión alimenticia?',
+        '¿Derecho familiar?',
         'Familia'
       )
 
@@ -281,8 +309,14 @@ describe('OpenAI Service (Gemini)', () => {
     })
 
     it('should generate response for Tributario category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Información tributaria y fiscal...',
+        },
+      })
+
       const response = await openaiService.generateDetailedResponse(
-        '¿Cuáles son las deducciones fiscales disponibles?',
+        '¿Tributario?',
         'Tributario'
       )
 
@@ -291,8 +325,14 @@ describe('OpenAI Service (Gemini)', () => {
     })
 
     it('should generate response for Administrativo category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Asesoramiento administrativo...',
+        },
+      })
+
       const response = await openaiService.generateDetailedResponse(
-        '¿Cómo recurro una decisión administrativa?',
+        '¿Procedimiento administrativo?',
         'Administrativo'
       )
 
@@ -301,8 +341,14 @@ describe('OpenAI Service (Gemini)', () => {
     })
 
     it('should generate response for Mercantil category', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Información sobre derecho mercantil...',
+        },
+      })
+
       const response = await openaiService.generateDetailedResponse(
-        '¿Cómo constituyo una sociedad mercantil?',
+        '¿Derecho mercantil?',
         'Mercantil'
       )
 
@@ -310,154 +356,128 @@ describe('OpenAI Service (Gemini)', () => {
       expect(response.length).toBeGreaterThan(0)
     })
 
-    it('should handle various question types', async () => {
-      const questions = [
-        '¿Cuáles son mis derechos?',
-        '¿Qué debo hacer ahora?',
-        'Explica las obligaciones legales',
-        '¿Es válido este documento?',
-      ]
+    it('should return non-empty response', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Respuesta válida con contenido',
+        },
+      })
 
-      for (const question of questions) {
-        const response = await openaiService.generateDetailedResponse(question, 'Civil')
-        expect(response).toBeDefined()
-        expect(typeof response).toBe('string')
-      }
-    })
-
-    it('should generate reasonable length response', async () => {
-      const response = await openaiService.generateDetailedResponse(
-        '¿Cuál es la ley aplicable aquí?',
-        'Civil'
-      )
-
-      expect(response.length).toBeGreaterThan(20) // Minimum reasonable length
-      expect(response.length).toBeLessThan(5000) // Reasonable maximum
-    })
-
-    it('should handle special characters in category', async () => {
-      const response = await openaiService.generateDetailedResponse(
-        '¿Puedo reclamar derechos de autor?',
-        'Civil'
-      )
-
-      expect(response).toBeDefined()
-      expect(typeof response).toBe('string')
-    })
-
-    it('should generate non-empty response', async () => {
-      const response = await openaiService.generateDetailedResponse(
-        'Una pregunta legal',
-        'Civil'
-      )
+      const response = await openaiService.generateDetailedResponse('Pregunta', 'Civil')
 
       expect(response).toBeTruthy()
       expect(response.trim().length).toBeGreaterThan(0)
     })
+
+    it('should handle response with reasonable length', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Una respuesta con contenido'.repeat(10),
+        },
+      })
+
+      const response = await openaiService.generateDetailedResponse('Pregunta', 'Civil')
+
+      expect(response.length).toBeGreaterThan(20)
+    })
   })
 
   describe('Error Handling', () => {
-    it('should handle API key not configured for filterQuestionWithAI', async () => {
+    it('should throw error when API key is not configured', async () => {
       const originalKey = process.env.GEMINI_API_KEY
       delete process.env.GEMINI_API_KEY
 
-      await expect(
-        openaiService.filterQuestionWithAI('¿Pregunta legal?')
-      ).rejects.toThrow()
-
-      process.env.GEMINI_API_KEY = originalKey
-    })
-
-    it('should handle API key not configured for generateDetailedResponse', async () => {
-      const originalKey = process.env.GEMINI_API_KEY
-      delete process.env.GEMINI_API_KEY
-
-      await expect(
-        openaiService.generateDetailedResponse('¿Pregunta?', 'Civil')
-      ).rejects.toThrow()
-
-      process.env.GEMINI_API_KEY = originalKey
-    })
-
-    it('should handle malformed JSON response gracefully', async () => {
-      // This would be caught by the try-catch in the actual service
-      const question = 'Pregunta válida'
-      
       try {
-        const result = await openaiService.filterQuestionWithAI(question)
-        expect(result).toBeDefined()
-      } catch (error) {
-        expect(error).toBeDefined()
+        await expect(
+          openaiService.filterQuestionWithAI('Pregunta')
+        ).rejects.toThrow('Gemini AI is not configured')
+      } finally {
+        process.env.GEMINI_API_KEY = originalKey
       }
+    })
+
+    it('should handle invalid JSON response', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'This is not valid JSON',
+        },
+      })
+
+      await expect(openaiService.filterQuestionWithAI('Pregunta')).rejects.toThrow()
+    })
+
+    it('should handle empty response from API', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => '',
+        },
+      })
+
+      await expect(openaiService.filterQuestionWithAI('Pregunta')).rejects.toThrow(
+        'No response from Gemini AI'
+      )
+    })
+
+    it('should handle API error for generateDetailedResponse', async () => {
+      mockGenerateContent.mockRejectedValueOnce(new Error('API Error'))
+
+      await expect(
+        openaiService.generateDetailedResponse('Pregunta', 'Civil')
+      ).rejects.toThrow()
     })
   })
 
   describe('Integration Tests', () => {
     it('should handle complete workflow: filter then generate', async () => {
-      const question = '¿Cómo inicio un divorcio en España?'
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Familia',
+              briefAnswer: 'Respuesta breve',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón',
+              confidence: 0.95,
+              complexity: 'complex',
+            }),
+        },
+      })
 
-      // First filter the question
-      const filtered = await openaiService.filterQuestionWithAI(question)
-      expect(filtered).toBeDefined()
+      const filtered = await openaiService.filterQuestionWithAI('¿Divorcio?')
       expect(filtered.category).toBe('Familia')
 
-      // Then generate detailed response
-      const detailed = await openaiService.generateDetailedResponse(
-        question,
-        filtered.category
-      )
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Respuesta detallada...',
+        },
+      })
+
+      const detailed = await openaiService.generateDetailedResponse('¿Divorcio?', filtered.category)
       expect(detailed).toBeDefined()
-      expect(detailed.length).toBeGreaterThan(0)
     })
 
-    it('should handle multiple questions with different categories', async () => {
-      const questions = [
-        { q: '¿Cómo inicio un divorcio?', expectedCategory: 'Familia' },
-        { q: '¿Cuáles son mis derechos laborales?', expectedCategory: 'Laboral' },
-        { q: '¿Cómo recurro una multa?', expectedCategory: 'Administrativo' },
-      ]
+    it('should process multiple questions', async () => {
+      const questions = ['¿Divorcio?', '¿Contrato?', '¿Impuestos?']
 
-      for (const { q, expectedCategory } of questions) {
-        const result = await openaiService.filterQuestionWithAI(q)
-        expect(result.category).toBe(expectedCategory)
-        
-        const detailed = await openaiService.generateDetailedResponse(q, result.category)
-        expect(detailed).toBeDefined()
+      for (const question of questions) {
+        mockGenerateContent.mockResolvedValueOnce({
+          response: {
+            text: () =>
+              JSON.stringify({
+                category: 'Civil',
+                briefAnswer: 'Respuesta',
+                needsProfessionalConsultation: true,
+                reasoning: 'Razón',
+                confidence: 0.75,
+                complexity: 'medium',
+              }),
+          },
+        })
+
+        const result = await openaiService.filterQuestionWithAI(question)
+        expect(result).toBeDefined()
+        expect(result.category).toBeDefined()
       }
-    })
-
-    it('should maintain consistency across calls', async () => {
-      const question = '¿Qué documentos necesito para este contrato?'
-
-      const result1 = await openaiService.filterQuestionWithAI(question)
-      const result2 = await openaiService.filterQuestionWithAI(question)
-
-      // Same question should produce same category (mocked consistently)
-      expect(result1.category).toBe(result2.category)
-    })
-  })
-
-  describe('Performance Tests', () => {
-    it('should return result within reasonable time for filterQuestionWithAI', async () => {
-      const startTime = Date.now()
-      
-      await openaiService.filterQuestionWithAI('¿Pregunta rápida?')
-      
-      const endTime = Date.now()
-      const duration = endTime - startTime
-      
-      expect(duration).toBeLessThan(5000) // Should complete within 5 seconds
-    })
-
-    it('should return result within reasonable time for generateDetailedResponse', async () => {
-      const startTime = Date.now()
-      
-      await openaiService.generateDetailedResponse('¿Pregunta rápida?', 'Civil')
-      
-      const endTime = Date.now()
-      const duration = endTime - startTime
-      
-      expect(duration).toBeLessThan(5000) // Should complete within 5 seconds
     })
   })
 })

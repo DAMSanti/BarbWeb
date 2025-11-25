@@ -122,6 +122,65 @@ function createPrismaMock() {
           dataStore.users.set(where.id, updated)
           return updated
         }),
+        findFirst: vi.fn(async (params: any = {}) => {
+          const { where = {}, orderBy } = params
+          let results = Array.from(dataStore.users.values())
+          
+          if (where?.role) {
+            results = results.filter(u => u.role === where.role)
+          }
+          if (where?.id) {
+            return dataStore.users.get(where.id) || null
+          }
+          if (where?.email) {
+            for (const user of dataStore.users.values()) {
+              if (user.email === where.email) return user
+            }
+            return null
+          }
+          
+          return results.length > 0 ? results[0] : null
+        }),
+        upsert: vi.fn(async ({ where, create, update }: any) => {
+          let user = null
+          
+          // Find existing user
+          if (where.email) {
+            for (const u of dataStore.users.values()) {
+              if (u.email === where.email) {
+                user = u
+                break
+              }
+            }
+          } else if (where.id) {
+            user = dataStore.users.get(where.id)
+          }
+          
+          if (user) {
+            // Update existing
+            let updateData = update
+            if (update?.refreshTokens?.set) {
+              updateData = { ...update, refreshTokens: update.refreshTokens.set }
+            }
+            const updated = { ...user, ...updateData, updatedAt: new Date() }
+            dataStore.users.set(user.id, updated)
+            return updated
+          } else {
+            // Create new
+            const id = `user_${userIdCounter++}`
+            const newUser = {
+              id,
+              ...create,
+              role: create.role || 'user',
+              refreshTokens: create.refreshTokens || [],
+              emailVerified: create.emailVerified || false,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            }
+            dataStore.users.set(id, newUser)
+            return newUser
+          }
+        }),
         delete: vi.fn(async ({ where }: any) => {
           const user = dataStore.users.get(where.id)
           if (!user) throw new Error('User not found')
@@ -382,17 +441,28 @@ function createPrismaMock() {
           dataStore.oAuthAccounts.set(id, oAuthAccount)
           return oAuthAccount
         }),
-        findUnique: vi.fn(async ({ where }: any) => {
-          if (where.id) return dataStore.oAuthAccounts.get(where.id) || null
+        findUnique: vi.fn(async ({ where, include }: any) => {
+          let account = null
+          if (where.id) account = dataStore.oAuthAccounts.get(where.id)
           if (where.provider_providerAccountId) {
-            for (const account of dataStore.oAuthAccounts.values()) {
-              if (account.provider === where.provider_providerAccountId.provider &&
-                  account.providerAccountId === where.provider_providerAccountId.providerAccountId) {
-                return account
+            for (const acc of dataStore.oAuthAccounts.values()) {
+              if (acc.provider === where.provider_providerAccountId.provider &&
+                  acc.providerAccountId === where.provider_providerAccountId.providerAccountId) {
+                account = acc
+                break
               }
             }
           }
-          return null
+          
+          if (!account) return null
+          
+          // Handle include for related user
+          if (include?.user) {
+            const user = dataStore.users.get(account.userId)
+            return { ...account, user: user || null }
+          }
+          
+          return account
         }),
         findMany: vi.fn(async ({ where }: any) => {
           let results = Array.from(dataStore.oAuthAccounts.values())

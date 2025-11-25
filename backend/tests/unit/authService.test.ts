@@ -453,6 +453,8 @@ describe('loginUser', () => {
 
   it('should generate new refresh token on each login', async () => {
     const result1 = await authService.loginUser('login@example.com', 'password123')
+    // Small delay to ensure different JWT timestamps
+    await new Promise(resolve => setTimeout(resolve, 10))
     const result2 = await authService.loginUser('login@example.com', 'password123')
 
     expect(result1.tokens.refreshToken).not.toBe(result2.tokens.refreshToken)

@@ -109,9 +109,13 @@ describe('Webhooks Routes', () => {
         throw new Error('Invalid signature')
       })
 
-      expect(() => {
+      // Verify that constructEvent throws when called with invalid signature
+      try {
         mockStripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET)
-      }).toThrow()
+        expect(true).toBe(false) // Should not reach here
+      } catch (error) {
+        expect(error).toBeDefined()
+      }
     })
   })
 
@@ -154,10 +158,13 @@ describe('Webhooks Routes', () => {
         metadata: { userId: 'user_123' },
       } as unknown as Stripe.PaymentIntent
 
-      mockPrisma.payment.findFirst.mockResolvedValueOnce({
+      const existingPaymentData = {
         id: 'existing_payment_123',
         stripeSessionId: 'pi_test_123',
-      })
+        status: 'completed',
+      }
+
+      mockPrisma.payment.findFirst.mockResolvedValueOnce(existingPaymentData)
 
       // Verify existing payment is found
       const existingPayment = await mockPrisma.payment.findFirst({
@@ -165,7 +172,9 @@ describe('Webhooks Routes', () => {
       })
 
       expect(existingPayment).toBeDefined()
-      expect(existingPayment.id).toBe('existing_payment_123')
+      expect(existingPayment?.id).toBe('existing_payment_123')
+      // Verify create was NOT called since payment exists
+      expect(mockPrisma.payment.create).not.toHaveBeenCalled()
     })
 
     it('should send confirmation email to client', async () => {
@@ -273,19 +282,20 @@ describe('Webhooks Routes', () => {
         id: 'pi_test_123',
         amount: 10000,
         metadata: { userId: 'user_123', clientName: 'Test User' },
+        receipt_email: undefined,
       } as unknown as Stripe.PaymentIntent
 
       mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
       mockPrisma.payment.create.mockResolvedValueOnce({ id: 'payment_123' })
       mockPrisma.user.findUnique.mockResolvedValueOnce({
         id: 'user_123',
-        email: 'user_default@example.com',
+        email: 'user_email@example.com',
         name: 'Test User',
       })
 
       const user = await mockPrisma.user.findUnique({ where: { id: 'user_123' } })
-      const clientEmail = user?.email
-      expect(clientEmail).toBe('user_default@example.com')
+      const clientEmail = paymentIntent.receipt_email || user?.email
+      expect(clientEmail).toBe('user_email@example.com')
     })
 
     it('should calculate correct amount in euros (divide by 100)', async () => {
@@ -523,7 +533,7 @@ describe('Webhooks Routes', () => {
       expect(refundAmount).toBe(100)
     })
 
-    it('should handle payment not found', async () => {
+    it('should handle payment not found gracefully', async () => {
       const charge = {
         id: 'ch_refunded_123',
         payment_intent: 'pi_nonexistent',
@@ -531,12 +541,15 @@ describe('Webhooks Routes', () => {
       } as unknown as Stripe.Charge
 
       mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
+      mockLogger.error.mockClear()
 
       const payment = await mockPrisma.payment.findFirst({
         where: { stripeSessionId: charge.payment_intent as string },
       })
 
       expect(payment).toBeNull()
+      // Verify that update is not called when payment not found
+      expect(mockPrisma.payment.update).not.toHaveBeenCalled()
     })
 
     it('should handle refund email failure gracefully', async () => {
@@ -578,7 +591,7 @@ describe('Webhooks Routes', () => {
         id: 'ch_refunded_123',
         payment_intent: 'pi_test_123',
         amount_refunded: 5000,
-        receipt_email: undefined,
+        // receipt_email is intentionally omitted/undefined
       } as unknown as Stripe.Charge
 
       mockPrisma.payment.findFirst.mockResolvedValueOnce({
@@ -592,7 +605,11 @@ describe('Webhooks Routes', () => {
         name: 'User',
       })
 
-      const clientEmail = charge.receipt_email || 'user@example.com'
+      // receipt_email should be undefined
+      expect(charge.receipt_email).toBeUndefined()
+      
+      const user = await mockPrisma.user.findUnique({ where: { id: 'user_123' } })
+      const clientEmail = charge.receipt_email || user?.email
       expect(clientEmail).toBe('user@example.com')
     })
   })

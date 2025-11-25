@@ -25,6 +25,7 @@ vi.mock('@prisma/client', () => ({
       update: vi.fn(),
       delete: vi.fn(),
       deleteMany: vi.fn(),
+      count: vi.fn(() => Promise.resolve(0)),
     },
     payment: {
       findUnique: vi.fn(),
@@ -32,6 +33,8 @@ vi.mock('@prisma/client', () => ({
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      deleteMany: vi.fn(),
+      count: vi.fn(() => Promise.resolve(0)),
     },
     consultation: {
       findUnique: vi.fn(),
@@ -39,6 +42,8 @@ vi.mock('@prisma/client', () => ({
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      deleteMany: vi.fn(),
+      count: vi.fn(() => Promise.resolve(0)),
     },
     $connect: vi.fn(),
     $disconnect: vi.fn(),

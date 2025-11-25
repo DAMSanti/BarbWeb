@@ -119,7 +119,8 @@ function createPrismaMock() {
           dataStore.users.clear()
           return { count: dataStore.users.size }
         }),
-        count: vi.fn(async ({ where }: any) => {
+        count: vi.fn(async (params: any) => {
+          const where = params?.where
           if (!where) return dataStore.users.size
           let count = 0
           for (const user of dataStore.users.values()) {
@@ -250,7 +251,8 @@ function createPrismaMock() {
           dataStore.payments.clear()
           return { count }
         }),
-        count: vi.fn(async ({ where }: any) => {
+        count: vi.fn(async (params: any) => {
+          const where = params?.where
           if (!where) return dataStore.payments.size
           let count = 0
           for (const payment of dataStore.payments.values()) {
@@ -271,20 +273,32 @@ function createPrismaMock() {
           if (where.status) {
             payments = payments.filter(p => p.status === where.status)
           }
+          if (where.createdAt?.gte) {
+            payments = payments.filter(p => new Date(p.createdAt) >= where.createdAt.gte)
+          }
+          if (where.createdAt?.lte) {
+            payments = payments.filter(p => new Date(p.createdAt) <= where.createdAt.lte)
+          }
+          
+          const getAmountValue = (amt: any) => {
+            if (typeof amt === 'number') return amt
+            if (amt?.toNumber) return amt.toNumber()
+            return parseFloat(amt?.toString?.() || '0')
+          }
           
           const result: any = {}
           if (_count) {
             result._count = payments.length
           }
           if (_sum?.amount) {
-            result._sum = { amount: payments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0')), 0) }
+            result._sum = { amount: payments.reduce((sum, p) => sum + getAmountValue(p.amount), 0) }
           }
           if (_sum?.refundedAmount) {
             result._sum = result._sum || {}
-            result._sum.refundedAmount = payments.reduce((sum, p) => sum + (p.refundedAmount || 0), 0)
+            result._sum.refundedAmount = payments.reduce((sum, p) => sum + getAmountValue(p.refundedAmount), 0)
           }
           if (_avg?.amount) {
-            const total = payments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0')), 0)
+            const total = payments.reduce((sum, p) => sum + getAmountValue(p.amount), 0)
             result._avg = { amount: payments.length > 0 ? total / payments.length : 0 }
           }
           return result

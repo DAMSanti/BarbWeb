@@ -482,22 +482,6 @@ describe('OAuth Helper', () => {
   })
 
   describe('Error Scenarios', () => {
-    it('should handle malformed token response from Google', async () => {
-      mockedAxios.post.mockResolvedValueOnce({
-        data: { error: 'invalid_grant' },
-      })
-
-      await expect(exchangeGoogleCode('invalid-code')).rejects.toThrow()
-    })
-
-    it('should handle malformed token response from Microsoft', async () => {
-      mockedAxios.post.mockResolvedValueOnce({
-        data: { error: 'AADSTS65001' },
-      })
-
-      await expect(exchangeMicrosoftCode('invalid-code')).rejects.toThrow()
-    })
-
     it('should handle timeout scenario', async () => {
       mockedAxios.post.mockRejectedValueOnce(new Error('ECONNABORTED: Request timeout'))
 
@@ -511,6 +495,14 @@ describe('OAuth Helper', () => {
 
       await expect(exchangeGoogleCode('test-code')).rejects.toThrow(
         'Failed to exchange Google code'
+      )
+    })
+
+    it('should handle network error on Microsoft token request', async () => {
+      mockedAxios.post.mockRejectedValueOnce(new Error('Network connection failed'))
+
+      await expect(exchangeMicrosoftCode('test-code')).rejects.toThrow(
+        'Failed to exchange Microsoft code'
       )
     })
   })

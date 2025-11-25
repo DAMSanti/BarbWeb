@@ -44,6 +44,7 @@ describe('Rate Limit Middleware', () => {
     })
 
     it('should allow first request through', () => {
+      mockReq.ip = 'basics-test-1'
       const middleware = rateLimit(60 * 1000, 100)
       middleware(mockReq as Request, mockRes as Response, mockNext)
       expect(mockNext).toHaveBeenCalled()
@@ -51,6 +52,7 @@ describe('Rate Limit Middleware', () => {
     })
 
     it('should set X-RateLimit-Limit header', () => {
+      mockReq.ip = 'basics-test-2'
       const middleware = rateLimit(60 * 1000, 100)
       middleware(mockReq as Request, mockRes as Response, mockNext)
 
@@ -59,6 +61,7 @@ describe('Rate Limit Middleware', () => {
     })
 
     it('should set X-RateLimit-Remaining header', () => {
+      mockReq.ip = 'basics-test-3'
       const middleware = rateLimit(60 * 1000, 100)
       middleware(mockReq as Request, mockRes as Response, mockNext)
 
@@ -67,6 +70,7 @@ describe('Rate Limit Middleware', () => {
     })
 
     it('should set X-RateLimit-Reset header as ISO string', () => {
+      mockReq.ip = 'basics-test-4'
       const middleware = rateLimit(60 * 1000, 100)
       middleware(mockReq as Request, mockRes as Response, mockNext)
 
@@ -113,7 +117,9 @@ describe('Rate Limit Middleware', () => {
       const middleware = rateLimit(60 * 1000, 1)
 
       // IP 1: first request passes
-      mockReq.ip = 'ip1'
+      mockReq.ip = 'iptrack-ip1'
+      mockNext.mockClear()
+      nextError = undefined
       middleware(mockReq as Request, mockRes as Response, mockNext)
       expect(nextError).toBeUndefined()
 
@@ -124,7 +130,7 @@ describe('Rate Limit Middleware', () => {
       expect(nextError).toBeInstanceOf(RateLimitError)
 
       // IP 2: first request passes (different IP)
-      mockReq.ip = 'ip2'
+      mockReq.ip = 'iptrack-ip2'
       mockNext.mockClear()
       nextError = undefined
       middleware(mockReq as Request, mockRes as Response, mockNext)
@@ -134,9 +140,8 @@ describe('Rate Limit Middleware', () => {
 
   describe('authRateLimit preset', () => {
     it('should limit to 5 requests', () => {
-      mockReq.ip = 'auth-test-ip'
+      mockReq.ip = 'auth-unique-1'
 
-      // Make 5 requests
       for (let i = 0; i < 5; i++) {
         mockNext.mockClear()
         nextError = undefined
@@ -144,7 +149,6 @@ describe('Rate Limit Middleware', () => {
         expect(nextError).toBeUndefined()
       }
 
-      // 6th should fail
       mockNext.mockClear()
       nextError = undefined
       authRateLimit(mockReq as Request, mockRes as Response, mockNext)
@@ -154,9 +158,8 @@ describe('Rate Limit Middleware', () => {
 
   describe('apiRateLimit preset', () => {
     it('should limit to 100 requests', () => {
-      mockReq.ip = 'api-test-ip'
+      mockReq.ip = 'api-unique-1'
 
-      // Make 100 requests
       for (let i = 0; i < 100; i++) {
         mockNext.mockClear()
         nextError = undefined
@@ -164,7 +167,6 @@ describe('Rate Limit Middleware', () => {
         expect(nextError).toBeUndefined()
       }
 
-      // 101st should fail
       mockNext.mockClear()
       nextError = undefined
       apiRateLimit(mockReq as Request, mockRes as Response, mockNext)

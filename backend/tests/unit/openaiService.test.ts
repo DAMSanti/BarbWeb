@@ -5,9 +5,11 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-// Create mock functions before the vi.mock call
-const mockGenerateContent = vi.fn()
-const mockGetGenerativeModel = vi.fn()
+// Use vi.hoisted to define mocks at the top level
+const { mockGenerateContent, mockGetGenerativeModel } = vi.hoisted(() => ({
+  mockGenerateContent: vi.fn(),
+  mockGetGenerativeModel: vi.fn(),
+}))
 
 vi.mock('@google/generative-ai', () => {
   return {
@@ -26,9 +28,9 @@ describe('OpenAI Service (Gemini)', () => {
     process.env.GEMINI_API_KEY = 'test-api-key'
     
     // Setup the mock to return a model with generateContent
-    mockGetGenerativeModel.mockImplementation(() => ({
+    mockGetGenerativeModel.mockReturnValue({
       generateContent: mockGenerateContent,
-    }))
+    })
   })
 
   describe('filterQuestionWithAI', () => {

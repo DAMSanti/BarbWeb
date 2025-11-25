@@ -47,17 +47,42 @@ vi.mock('@prisma/client', () => ({
           }
           return null
         }),
-        findMany: vi.fn(async ({ where, skip = 0, take = 10, orderBy }: any) => {
+        findMany: vi.fn(async ({ where, skip = 0, take = 10, orderBy, select }: any) => {
           let results = Array.from(dataStore.users.values())
           
           if (where?.role) {
             results = results.filter(u => u.role === where.role)
           }
-          if (where?.email) {
-            results = results.filter(u => u.email?.includes(where.email))
+          
+          // Handle OR conditions for search (email or name contains)
+          if (where?.OR) {
+            results = results.filter(u => {
+              return where.OR.some((condition: any) => {
+                if (condition.email?.contains) {
+                  return u.email?.toLowerCase().includes(condition.email.contains.toLowerCase())
+                }
+                if (condition.name?.contains) {
+                  return u.name?.toLowerCase().includes(condition.name.contains.toLowerCase())
+                }
+                return false
+              })
+            })
           }
           
-          return results.slice(skip, skip + take)
+          if (where?.email?.contains) {
+            results = results.filter(u => u.email?.toLowerCase().includes(where.email.contains.toLowerCase()))
+          }
+          
+          // Add _count if requested in select
+          const processed = results.slice(skip, skip + take).map(u => {
+            const user: any = u
+            if (select?._count) {
+              user._count = { payments: 0 } // Mock payment count
+            }
+            return user
+          })
+          
+          return processed
         }),
         update: vi.fn(async ({ where, data }: any) => {
           const user = dataStore.users.get(where.id)
@@ -81,7 +106,19 @@ vi.mock('@prisma/client', () => ({
           let count = 0
           for (const user of dataStore.users.values()) {
             if (where.role && user.role !== where.role) continue
-            if (where.email && !user.email?.includes(where.email)) continue
+            
+            if (where.OR) {
+              const matches = where.OR.some((condition: any) => {
+                if (condition.email?.contains) {
+                  return user.email?.toLowerCase().includes(condition.email.contains.toLowerCase())
+                }
+                if (condition.name?.contains) {
+                  return user.name?.toLowerCase().includes(condition.name.contains.toLowerCase())
+                }
+                return false
+              })
+              if (!matches) continue
+            }
             count++
           }
           return count
@@ -120,11 +157,20 @@ vi.mock('@prisma/client', () => ({
             results = results.filter(p => new Date(p.createdAt) <= where.createdAt.lte)
           }
           
-          // Add toNumber method to amount if select includes it
-          const processed = results.slice(skip, skip + take).map(p => ({
-            ...p,
-            amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') }
-          }))
+          // Add related user data if select includes it
+          const processed = results.slice(skip, skip + take).map(p => {
+            const payment: any = {
+              ...p,
+              amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') }
+            }
+            
+            if (select?.user) {
+              const user = dataStore.users.get(p.userId)
+              payment.user = user ? { email: user.email, name: user.name } : null
+            }
+            
+            return payment
+          })
           
           return processed
         }),

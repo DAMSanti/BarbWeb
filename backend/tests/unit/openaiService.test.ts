@@ -480,4 +480,194 @@ describe('OpenAI Service (Gemini)', () => {
       }
     })
   })
+
+  describe('Additional Edge Cases', () => {
+    it('should handle invalid category with default fallback', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'InvalidCategory',
+              briefAnswer: 'Respuesta',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón',
+              confidence: 0.75,
+              complexity: 'medium',
+            }),
+        },
+      })
+
+      const result = await openaiService.filterQuestionWithAI('Pregunta')
+      
+      expect(result.category).toBe('Civil') // Default fallback
+    })
+
+    it('should handle empty briefAnswer with default', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Civil',
+              briefAnswer: '',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón',
+              confidence: 0.75,
+              complexity: 'medium',
+            }),
+        },
+      })
+
+      const result = await openaiService.filterQuestionWithAI('Pregunta')
+      
+      expect(result.briefAnswer).toBeDefined()
+      expect(result.briefAnswer.length).toBeGreaterThan(0)
+      expect(result.needsProfessionalConsultation).toBe(true)
+    })
+
+    it('should handle whitespace-only briefAnswer', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Civil',
+              briefAnswer: '   ',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón',
+              confidence: 0.75,
+              complexity: 'medium',
+            }),
+        },
+      })
+
+      const result = await openaiService.filterQuestionWithAI('Pregunta')
+      
+      expect(result.briefAnswer.trim().length).toBeGreaterThan(0)
+    })
+
+    it('should extract JSON from response with surrounding text', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => `
+            Aquí está el análisis:
+            {
+              "category": "Penal",
+              "briefAnswer": "Respuesta",
+              "needsProfessionalConsultation": true,
+              "reasoning": "Razón",
+              "confidence": 0.8,
+              "complexity": "complex"
+            }
+            Fin del análisis.
+          `,
+        },
+      })
+
+      const result = await openaiService.filterQuestionWithAI('Pregunta penal')
+      
+      expect(result.category).toBe('Penal')
+      expect(result.confidence).toBe(0.8)
+    })
+
+    it('should handle JSON parse error gracefully', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Not valid JSON at all',
+        },
+      })
+
+      await expect(openaiService.filterQuestionWithAI('Pregunta')).rejects.toThrow()
+    })
+
+    it('should handle missing JSON in response', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => 'Respuesta sin JSON válido',
+        },
+      })
+
+      await expect(openaiService.filterQuestionWithAI('Pregunta')).rejects.toThrow()
+    })
+
+    it('should validate all legal categories are recognized', async () => {
+      const categories = ['Civil', 'Penal', 'Laboral', 'Administrativo', 'Mercantil', 'Familia', 'Tributario']
+      
+      for (const category of categories) {
+        mockGenerateContent.mockResolvedValueOnce({
+          response: {
+            text: () =>
+              JSON.stringify({
+                category,
+                briefAnswer: 'Respuesta',
+                needsProfessionalConsultation: true,
+                reasoning: 'Razón',
+                confidence: 0.75,
+                complexity: 'medium',
+              }),
+          },
+        })
+
+        const result = await openaiService.filterQuestionWithAI('Pregunta')
+        expect(result.category).toBe(category)
+      }
+    })
+
+    it('should validate confidence score bounds', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () =>
+            JSON.stringify({
+              category: 'Civil',
+              briefAnswer: 'Respuesta',
+              needsProfessionalConsultation: true,
+              reasoning: 'Razón',
+              confidence: 1.5,
+              complexity: 'medium',
+            }),
+        },
+      })
+
+      const result = await openaiService.filterQuestionWithAI('Pregunta')
+      
+      expect(result.confidence).toBe(1.5)
+    })
+
+    it('should handle generateDetailedResponse with all categories', async () => {
+      const categories = ['Civil', 'Penal', 'Laboral', 'Administrativo', 'Mercantil', 'Familia', 'Tributario']
+      
+      for (const category of categories) {
+        mockGenerateContent.mockResolvedValueOnce({
+          response: {
+            text: () => `Respuesta detallada para ${category}`,
+          },
+        })
+
+        const response = await openaiService.generateDetailedResponse('¿Pregunta?', category)
+        expect(response).toContain(category)
+      }
+    })
+
+    it('should handle generateDetailedResponse with empty response', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => '',
+        },
+      })
+
+      const response = await openaiService.generateDetailedResponse('Pregunta', 'Civil')
+      
+      expect(response).toBe('No response generated')
+    })
+
+    it('should handle generateDetailedResponse with null response', async () => {
+      mockGenerateContent.mockResolvedValueOnce({
+        response: {
+          text: () => null,
+        },
+      })
+
+      const response = await openaiService.generateDetailedResponse('Pregunta', 'Civil')
+      
+      expect(response).toBe('No response generated')
+    })
+  })
 })

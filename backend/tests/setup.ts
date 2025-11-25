@@ -219,11 +219,13 @@ vi.mock('@prisma/client', () => ({
           for (const payment of dataStore.payments.values()) {
             if (where.userId && payment.userId !== where.userId) continue
             if (where.status && payment.status !== where.status) continue
+            if (where.createdAt?.gte && new Date(payment.createdAt) < where.createdAt.gte) continue
+            if (where.createdAt?.lte && new Date(payment.createdAt) > where.createdAt.lte) continue
             count++
           }
           return count
         }),
-        aggregate: vi.fn(async ({ where = {}, _sum, _avg }: any) => {
+        aggregate: vi.fn(async ({ where = {}, _sum, _avg, _count }: any) => {
           let payments = Array.from(dataStore.payments.values())
           
           if (where.userId) {
@@ -234,6 +236,9 @@ vi.mock('@prisma/client', () => ({
           }
           
           const result: any = {}
+          if (_count) {
+            result._count = payments.length
+          }
           if (_sum?.amount) {
             result._sum = { amount: payments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0')), 0) }
           }

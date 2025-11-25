@@ -5,20 +5,15 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-// Mock the Gemini module before importing the service
+// Create mock functions before the vi.mock call
 const mockGenerateContent = vi.fn()
+const mockGetGenerativeModel = vi.fn()
 
 vi.mock('@google/generative-ai', () => {
-  const mockModel = {
-    generateContent: mockGenerateContent,
-  }
-  
-  const mockGenAI = {
-    getGenerativeModel: vi.fn(() => mockModel),
-  }
-
   return {
-    GoogleGenerativeAI: vi.fn().mockImplementation(() => mockGenAI),
+    GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
+      getGenerativeModel: mockGetGenerativeModel,
+    })),
   }
 })
 
@@ -29,7 +24,11 @@ describe('OpenAI Service (Gemini)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     process.env.GEMINI_API_KEY = 'test-api-key'
-    mockGenerateContent.mockClear()
+    
+    // Setup the mock to return a model with generateContent
+    mockGetGenerativeModel.mockImplementation(() => ({
+      generateContent: mockGenerateContent,
+    }))
   })
 
   describe('filterQuestionWithAI', () => {

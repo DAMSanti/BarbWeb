@@ -8,38 +8,37 @@ import request from 'supertest'
 import express from 'express'
 import Stripe from 'stripe'
 
-// Mock all dependencies
-const mockPrisma = {
-  payment: {
-    findFirst: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
+// Hoist mocks to be available in vi.mock() calls
+const { mockPrisma, mockEmailService, mockLogger, mockStripe } = vi.hoisted(() => ({
+  mockPrisma: {
+    payment: {
+      findFirst: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    user: {
+      findUnique: vi.fn(),
+    },
   },
-  user: {
-    findUnique: vi.fn(),
+  mockEmailService: {
+    sendPaymentConfirmationEmail: vi.fn(),
+    sendLawyerNotificationEmail: vi.fn(),
+    sendPaymentFailedEmail: vi.fn(),
+    sendRefundConfirmationEmail: vi.fn(),
   },
-}
-
-const mockEmailService = {
-  sendPaymentConfirmationEmail: vi.fn(),
-  sendLawyerNotificationEmail: vi.fn(),
-  sendPaymentFailedEmail: vi.fn(),
-  sendRefundConfirmationEmail: vi.fn(),
-}
-
-const mockLogger = {
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-}
+  mockLogger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+  mockStripe: {
+    webhooks: {
+      constructEvent: vi.fn(),
+    },
+  },
+}))
 
 // Mock stripe
-const mockStripe = {
-  webhooks: {
-    constructEvent: vi.fn(),
-  },
-}
-
 vi.mock('stripe', () => ({
   default: vi.fn(() => mockStripe),
 }))

@@ -22,13 +22,21 @@ export interface TokenPair {
 
 // Generate JWT tokens
 export const generateTokens = (payload: JWTPayload): TokenPair => {
-  const accessToken = jwt.sign(payload, process.env.JWT_SECRET || 'secret', {
-    expiresIn: '15m',
-  })
+  const accessToken = jwt.sign(
+    { ...payload, jti: crypto.randomUUID() },
+    process.env.JWT_SECRET || 'secret',
+    {
+      expiresIn: '15m',
+    }
+  )
 
-  const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET || 'refresh-secret', {
-    expiresIn: '7d',
-  })
+  const refreshToken = jwt.sign(
+    { ...payload, jti: crypto.randomUUID() },
+    process.env.JWT_REFRESH_SECRET || 'refresh-secret',
+    {
+      expiresIn: '7d',
+    }
+  )
 
   return { accessToken, refreshToken }
 }

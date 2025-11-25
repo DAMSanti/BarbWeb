@@ -90,14 +90,21 @@ vi.mock('@prisma/client', () => ({
       payment: {
         create: vi.fn(async ({ data }: any) => {
           const id = `payment_${paymentIdCounter++}`
-          const payment = { id, ...data, createdAt: new Date(), updatedAt: new Date() }
+          const payment = { 
+            id, 
+            ...data,
+            amount: { toNumber: () => typeof data.amount === 'number' ? data.amount : parseFloat(data.amount) },
+            createdAt: new Date(), 
+            updatedAt: new Date() 
+          }
           dataStore.payments.set(id, payment)
           return payment
         }),
         findUnique: vi.fn(async ({ where }: any) => {
-          return dataStore.payments.get(where.id) || null
+          const p = dataStore.payments.get(where.id)
+          return p ? { ...p, amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') } } : null
         }),
-        findMany: vi.fn(async ({ where, skip = 0, take = 10 }: any) => {
+        findMany: vi.fn(async ({ where, skip = 0, take = 10, select, orderBy }: any) => {
           let results = Array.from(dataStore.payments.values())
           
           if (where?.userId) {
@@ -106,8 +113,20 @@ vi.mock('@prisma/client', () => ({
           if (where?.status) {
             results = results.filter(p => p.status === where.status)
           }
+          if (where?.createdAt?.gte) {
+            results = results.filter(p => new Date(p.createdAt) >= where.createdAt.gte)
+          }
+          if (where?.createdAt?.lte) {
+            results = results.filter(p => new Date(p.createdAt) <= where.createdAt.lte)
+          }
           
-          return results.slice(skip, skip + take)
+          // Add toNumber method to amount if select includes it
+          const processed = results.slice(skip, skip + take).map(p => ({
+            ...p,
+            amount: { toNumber: () => typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0') }
+          }))
+          
+          return processed
         }),
         update: vi.fn(async ({ where, data }: any) => {
           const payment = dataStore.payments.get(where.id)
@@ -136,6 +155,26 @@ vi.mock('@prisma/client', () => ({
             count++
           }
           return count
+        }),
+        aggregate: vi.fn(async ({ where, _sum, _avg }: any) => {
+          let payments = Array.from(dataStore.payments.values())
+          
+          if (where?.userId) {
+            payments = payments.filter(p => p.userId === where.userId)
+          }
+          if (where?.status) {
+            payments = payments.filter(p => p.status === where.status)
+          }
+          
+          const result: any = {}
+          if (_sum?.amount) {
+            result._sum = { amount: payments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0')), 0) }
+          }
+          if (_avg?.amount) {
+            const total = payments.reduce((sum, p) => sum + (typeof p.amount === 'number' ? p.amount : parseFloat(p.amount?.toString?.() || '0')), 0)
+            result._avg = { amount: payments.length > 0 ? total / payments.length : 0 }
+          }
+          return result
         }),
       },
       consultation: {

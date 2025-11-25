@@ -134,6 +134,10 @@ describe('Webhooks Routes', () => {
         receipt_email: 'client@example.com',
       } as unknown as Stripe.PaymentIntent
 
+      mockPrisma.payment.findFirst.mockClear()
+      mockPrisma.payment.create.mockClear()
+      mockPrisma.user.findUnique.mockClear()
+      
       mockPrisma.payment.findFirst.mockResolvedValueOnce(null)
       mockPrisma.payment.create.mockResolvedValueOnce({
         id: 'payment_123',
@@ -153,15 +157,17 @@ describe('Webhooks Routes', () => {
 
     it('should not create duplicate payment for same paymentIntent', async () => {
       const paymentIntent = {
-        id: 'pi_test_123',
+        id: 'pi_test_123_dup',
         amount: 10000,
-        metadata: { userId: 'user_123' },
+        metadata: { userId: 'user_456' },
       } as unknown as Stripe.PaymentIntent
 
       mockPrisma.payment.findFirst.mockClear()
+      mockPrisma.payment.create.mockClear()
+      
       const existingPaymentData = {
-        id: 'existing_payment_123',
-        stripeSessionId: 'pi_test_123',
+        id: 'existing_payment_999',
+        stripeSessionId: 'pi_test_123_dup',
         status: 'completed',
       }
 
@@ -173,7 +179,7 @@ describe('Webhooks Routes', () => {
       })
 
       expect(existingPayment).toBeDefined()
-      expect(existingPayment?.id).toBe('existing_payment_123')
+      expect(existingPayment?.id).toBe('existing_payment_999')
       // Verify create was NOT called since payment exists
       expect(mockPrisma.payment.create).not.toHaveBeenCalled()
     })
@@ -582,8 +588,8 @@ describe('Webhooks Routes', () => {
 
     it('should handle refund without receipt_email', async () => {
       const charge = {
-        id: 'ch_refunded_123',
-        payment_intent: 'pi_test_123',
+        id: 'ch_no_email_789',
+        payment_intent: 'pi_no_email_789',
         amount_refunded: 5000,
         // receipt_email is intentionally omitted/undefined
       } as unknown as Stripe.Charge
@@ -592,22 +598,22 @@ describe('Webhooks Routes', () => {
       mockPrisma.user.findUnique.mockClear()
       
       mockPrisma.payment.findFirst.mockResolvedValueOnce({
-        id: 'payment_123',
-        userId: 'user_123',
+        id: 'payment_no_email_789',
+        userId: 'user_no_email_789',
       })
 
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
-        email: 'user@example.com',
-        name: 'User',
+        id: 'user_no_email_789',
+        email: 'user_no_email@example.com',
+        name: 'User NoEmail',
       })
 
       // receipt_email should be undefined
       expect(charge.receipt_email).toBeUndefined()
       
-      const user = await mockPrisma.user.findUnique({ where: { id: 'user_123' } })
+      const user = await mockPrisma.user.findUnique({ where: { id: 'user_no_email_789' } })
       const clientEmail = charge.receipt_email || user?.email
-      expect(clientEmail).toBe('user@example.com')
+      expect(clientEmail).toBe('user_no_email@example.com')
     })
   })
 
@@ -626,12 +632,12 @@ describe('Webhooks Routes', () => {
     it('should handle missing email completely', async () => {
       mockPrisma.user.findUnique.mockClear()
       mockPrisma.user.findUnique.mockResolvedValueOnce({
-        id: 'user_123',
-        name: 'User Name',
+        id: 'user_missing_email_999',
+        name: 'User Missing Email',
         email: undefined,
       })
 
-      const user = await mockPrisma.user.findUnique({ where: { id: 'user_123' } })
+      const user = await mockPrisma.user.findUnique({ where: { id: 'user_missing_email_999' } })
       expect(user?.email).toBeUndefined()
     })
 

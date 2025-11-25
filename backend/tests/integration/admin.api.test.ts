@@ -253,6 +253,32 @@ describe('Admin Service - RBAC and Management', () => {
       expect(result.pagination.total).toBe(2)
     })
 
+    it('should filter payments by startDate only (no endDate)', async () => {
+      const result = await adminService.getPayments({
+        page: 1,
+        limit: 10,
+        startDate: new Date(1970, 0, 1),
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      })
+
+      expect(result.data.length).toBeGreaterThan(0)
+      expect(result.data.every((p: any) => new Date(p.createdAt) >= new Date(1970, 0, 1))).toBe(true)
+    })
+
+    it('should filter payments by endDate only (no startDate)', async () => {
+      const result = await adminService.getPayments({
+        page: 1,
+        limit: 10,
+        endDate: new Date(2100, 0, 1),
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      })
+
+      expect(result.data.length).toBeGreaterThan(0)
+      expect(result.data.every((p: any) => new Date(p.createdAt) <= new Date(2100, 0, 1))).toBe(true)
+    })
+
     it('should get payment detail', async () => {
       const payments = await prisma.payment.findMany({
         take: 1,
@@ -421,6 +447,20 @@ describe('Admin Service - RBAC and Management', () => {
         expect(trend.trend[0]).toHaveProperty('date')
         expect(trend.trend[0]).toHaveProperty('revenue')
       }
+    })
+
+    it('should get analytics trend with startDate only (no endDate)', async () => {
+      const trend = await adminService.getAnalyticsTrend('day', new Date(1970, 0, 1))
+
+      expect(trend).toBeDefined()
+      expect(trend.trend).toBeDefined()
+    })
+
+    it('should get analytics trend with endDate only (no startDate)', async () => {
+      const trend = await adminService.getAnalyticsTrend('day', undefined, new Date(2100, 0, 1))
+
+      expect(trend).toBeDefined()
+      expect(trend.trend).toBeDefined()
     })
   })
 })

@@ -5,7 +5,12 @@ if (!process.env.GEMINI_API_KEY) {
   console.warn('⚠️  WARNING: GEMINI_API_KEY not configured. AI features will be disabled.')
 }
 
-const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null
+function getGenAI() {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
+  }
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+}
 
 export interface FilteredQuestion {
   category: string
@@ -59,11 +64,12 @@ export async function filterQuestionWithAI(question: string): Promise<FilteredQu
     throw new Error('Question cannot be empty')
   }
 
-  if (!genAI) {
+  if (!process.env.GEMINI_API_KEY) {
     throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
   }
 
   try {
+    const genAI = getGenAI()
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' })
 
     const prompt = `${LEGAL_AGENT_PROMPT}\n\nPregunta del cliente: "${question}"\n\nAnaliza y responde en formato JSON:`
@@ -106,11 +112,12 @@ export async function generateDetailedResponse(
   question: string,
   category: string,
 ): Promise<string> {
-  try {
-    if (!genAI) {
-      throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
-    }
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('Gemini AI is not configured. Please set GEMINI_API_KEY environment variable.')
+  }
 
+  try {
+    const genAI = getGenAI()
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' })
 
     const prompt = `Eres un abogado experto en derecho ${category}.

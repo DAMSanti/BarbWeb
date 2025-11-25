@@ -15,6 +15,36 @@ process.env.STRIPE_SECRET_KEY = 'sk_test_test'
 process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test'
 process.env.VITE_FRONTEND_URL = 'http://localhost:5173'
 
+// Mock Prisma client to avoid DB connection during build
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn(() => ({
+    user: {
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    payment: {
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    consultation: {
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    $connect: vi.fn(),
+    $disconnect: vi.fn(),
+  })),
+}))
+
 // Suppress console output during tests (optional)
 // vi.spyOn(console, 'log').mockImplementation(() => {})
 // vi.spyOn(console, 'warn').mockImplementation(() => {})

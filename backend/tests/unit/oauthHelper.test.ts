@@ -336,7 +336,7 @@ describe('OAuth Helper', () => {
       })
       mockedAxios.get.mockResolvedValueOnce({
         data: {
-          mail: undefined,
+          mail: null,
           userPrincipalName: 'user@microsoft.com',
           displayName: 'Test User',
           id: 'user-id',
@@ -410,14 +410,14 @@ describe('OAuth Helper', () => {
       mockedAxios.get.mockResolvedValueOnce({
         data: {
           mail: 'user@example.com',
-          displayName: undefined,
+          displayName: null,
           id: 'user-id',
         },
       })
 
       const result = await exchangeMicrosoftCode('test-code')
 
-      expect(result.name).toBeUndefined()
+      expect(result.name).toBeNull()
       expect(result.email).toBe('user@example.com')
     })
 

@@ -8,7 +8,7 @@ import request from 'supertest'
 import express from 'express'
 
 // Hoist mocks to be available in vi.mock() calls
-const { mockPrisma, mockEmailService, mockLogger, mockStripe } = vi.hoisted(() => {
+const { mockPrisma, mockEmailService, mockLogger, mockStripeInstance } = vi.hoisted(() => {
   const mockStripeInstance = {
     webhooks: {
       constructEvent: vi.fn(),
@@ -37,14 +37,18 @@ const { mockPrisma, mockEmailService, mockLogger, mockStripe } = vi.hoisted(() =
       warn: vi.fn(),
       error: vi.fn(),
     },
-    mockStripe: mockStripeInstance,
+    mockStripeInstance,
   }
 })
 
-// Mock stripe - needs to be a constructor
+// Mock stripe - create a class that acts as constructor
+class MockStripeConstructor {
+  webhooks = mockStripeInstance.webhooks
+}
+
 vi.mock('stripe', () => {
   return {
-    default: vi.fn().mockImplementation(() => mockStripe),
+    default: MockStripeConstructor as any,
   }
 })
 
@@ -100,7 +104,7 @@ describe('Webhooks Routes', () => {
       const body = Buffer.from(JSON.stringify({ type: 'payment_intent.succeeded' }))
       const signature = 'valid_signature_123'
 
-      mockStripe.webhooks.constructEvent.mockImplementation((receivedBody, receivedSignature, secret) => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation((receivedBody, receivedSignature, secret) => {
         if (receivedSignature === signature && secret === process.env.STRIPE_WEBHOOK_SECRET) {
           return {
             id: 'evt_test_001',
@@ -142,7 +146,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should reject invalid webhook signature', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => {
         throw new Error('Webhook signature verification failed')
       })
 
@@ -159,7 +163,7 @@ describe('Webhooks Routes', () => {
 
   describe('payment_intent.succeeded event', () => {
     it('should create payment for new paymentIntent', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_new_payment_001',
         type: 'payment_intent.succeeded',
         data: {
@@ -203,7 +207,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should not duplicate existing payments', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_duplicate_001',
         type: 'payment_intent.succeeded',
         data: {
@@ -244,7 +248,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should send confirmation emails to client and lawyer', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_email_001',
         type: 'payment_intent.succeeded',
         data: {
@@ -290,7 +294,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should use fallback email when receipt_email not provided', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_fallback_001',
         type: 'payment_intent.succeeded',
         data: {
@@ -326,7 +330,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle missing userId gracefully', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_no_user_001',
         type: 'payment_intent.succeeded',
         data: {
@@ -355,7 +359,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle email sending failures gracefully', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_email_fail_001',
         type: 'payment_intent.succeeded',
         data: {
@@ -398,7 +402,7 @@ describe('Webhooks Routes', () => {
 
   describe('payment_intent.payment_failed event', () => {
     it('should log payment failure and send notification', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_failed_001',
         type: 'payment_intent.payment_failed',
         data: {
@@ -438,7 +442,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle payment failure without user gracefully', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_failed_no_user_001',
         type: 'payment_intent.payment_failed',
         data: {
@@ -472,7 +476,7 @@ describe('Webhooks Routes', () => {
 
   describe('charge.refunded event', () => {
     it('should update payment status to refunded', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_refund_001',
         type: 'charge.refunded',
         data: {
@@ -519,7 +523,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle missing payment for refund gracefully', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_refund_not_found_001',
         type: 'charge.refunded',
         data: {
@@ -546,7 +550,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle invalid payment_intent type in refund', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_refund_invalid_001',
         type: 'charge.refunded',
         data: {
@@ -572,7 +576,7 @@ describe('Webhooks Routes', () => {
 
   describe('Unknown webhook events', () => {
     it('should ignore unknown event types gracefully', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_unknown_001',
         type: 'customer.subscription.updated',
         data: { object: {} },
@@ -594,7 +598,7 @@ describe('Webhooks Routes', () => {
 
   describe('Error handling', () => {
     it('should return 400 on webhook processing error', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => {
         throw new Error('Stripe verification failed')
       })
 
@@ -610,7 +614,7 @@ describe('Webhooks Routes', () => {
     })
 
     it('should handle database errors gracefully', async () => {
-      mockStripe.webhooks.constructEvent.mockImplementation(() => ({
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
         id: 'evt_db_error_001',
         type: 'payment_intent.succeeded',
         data: {
@@ -653,7 +657,7 @@ describe('Webhooks Routes', () => {
     it('should reject webhook when STRIPE_WEBHOOK_SECRET is missing', async () => {
       delete process.env.STRIPE_WEBHOOK_SECRET
 
-      mockStripe.webhooks.constructEvent.mockImplementation(() => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => {
         throw new Error('STRIPE_WEBHOOK_SECRET no configurado')
       })
 

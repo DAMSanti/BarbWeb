@@ -4,26 +4,27 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import * as adminService from '../../src/services/adminService'
-import { getPrismaClient } from '../../src/db/init.js'
 
-// Mock Prisma
-const mockPrisma = {
-  user: {
-    count: vi.fn(),
-    findMany: vi.fn(),
-    findUnique: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-  },
-  payment: {
-    count: vi.fn(),
-    findMany: vi.fn(),
-    findUnique: vi.fn(),
-    update: vi.fn(),
-    aggregate: vi.fn(),
-  },
-}
+// Use hoisted to define mocks BEFORE module import
+const { mockPrisma } = vi.hoisted(() => {
+  const mockPrisma = {
+    user: {
+      count: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    payment: {
+      count: vi.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      aggregate: vi.fn(),
+    },
+  }
+  return { mockPrisma }
+})
 
 vi.mock('../../src/db/init.js', () => ({
   getPrismaClient: () => mockPrisma,
@@ -36,6 +37,9 @@ vi.mock('../../src/utils/logger.js', () => ({
     error: vi.fn(),
   },
 }))
+
+// Import AFTER mocks are defined
+import * as adminService from '../../src/services/adminService'
 
 // ============================================
 // USER MANAGEMENT TESTS

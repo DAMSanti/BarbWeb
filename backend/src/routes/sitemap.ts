@@ -4,6 +4,7 @@
  */
 
 import { Router } from 'express';
+import { logger } from '../utils/logger.js';
 
 const router = Router();
 
@@ -116,7 +117,7 @@ router.get('/sitemap.xml', (req, res) => {
     res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
     res.send(xml);
   } catch (error) {
-    console.error('Error generating sitemap:', error);
+    logger.error('Error generating sitemap:', error);
     res.status(500).send('Error generating sitemap');
   }
 });

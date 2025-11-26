@@ -18,7 +18,6 @@ export class FrontendError extends Error {
  * Parsea errores de Axios/API y los convierte a FrontendError
  */
 export const parseBackendError = (error: any): FrontendError => {
-  console.error('[Error Parser]', error)
 
   // Si es un Error object simple (del cliente, no del servidor)
   // y NO tiene propiedades de Axios (como 'response', 'code', 'isAxiosError')

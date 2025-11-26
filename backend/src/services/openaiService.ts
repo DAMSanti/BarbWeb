@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { logger } from '../utils/logger.js'
 
 // Validar que la API key esté configurada
 if (!process.env.GEMINI_API_KEY) {
@@ -103,7 +104,7 @@ export async function filterQuestionWithAI(question: string): Promise<FilteredQu
 
     return parsedResult
   } catch (error) {
-    console.error('Error filtering question with AI:', error)
+    logger.error('Error filtering question with AI:', error)
     throw error
   }
 }

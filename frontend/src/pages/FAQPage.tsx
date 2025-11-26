@@ -80,7 +80,6 @@ export default function FAQPage() {
       // Guardar categoría para consulta futura
       setSelectedCategory(result.data.category as LegalCategory)
     } catch (error) {
-      console.error('Error during search:', error)
       setErrorMessage('Error inesperado. Por favor, intenta de nuevo.')
     } finally {
       setIsLoading(false)

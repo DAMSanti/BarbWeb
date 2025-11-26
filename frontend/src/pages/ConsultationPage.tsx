@@ -76,7 +76,6 @@ export default function ConsultationPage() {
         navigate(`/checkout/${consultation.id}`)
       }, 1500)
     } catch (error) {
-      console.error('Error creating consultation:', error)
       setErrorMessage('Error al crear la consulta. Por favor, intenta de nuevo.')
     } finally {
       setIsLoading(false)

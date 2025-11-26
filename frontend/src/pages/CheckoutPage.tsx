@@ -17,13 +17,10 @@ export default function CheckoutPage() {
     try {
       const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
       if (!key || key === 'pk_test_your_stripe_key') {
-        console.warn('Stripe key not configured properly, using test key')
         return loadStripe('pk_test_51OKuXmIH4F5G2x4nKL5mN6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6')
       }
-      console.log('[CheckoutPage] Loading Stripe with key:', key.substring(0, 20) + '...')
       return loadStripe(key)
     } catch (e) {
-      console.error('[CheckoutPage] Failed to initialize Stripe:', e)
       return loadStripe('pk_test_51OKuXmIH4F5G2x4nKL5mN6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6')
     }
   }, [])
@@ -56,20 +53,10 @@ export default function CheckoutPage() {
         if (!token) {
           const errorMsg = 'No hay token disponible. Por favor, inicia sesión de nuevo.'
           setGlobalError(errorMsg)
-          console.error('[Checkout] No token available:', {
-            isAuthenticated,
-            isAuthInitialized,
-          })
           setTimeout(() => navigate('/login'), 3000)
           setIsLoadingIntent(false)
           return
         }
-
-        console.log('[Checkout] Creating payment intent', {
-          consultationId,
-          amount: consultation.price * 1.21,
-          apiUrl: getApiUrl(),
-          tokenLength: token.length,
         })
 
         const response = await fetch(`${getApiUrl()}/api/payments/create-payment-intent`, {
@@ -86,11 +73,8 @@ export default function CheckoutPage() {
           }),
         })
 
-        console.log('[Checkout] Response status:', response.status)
-        
         if (!response.ok) {
           const responseText = await response.text()
-          console.error('[Checkout] Response error body:', responseText)
           
           let errorMsg = `Error ${response.status}`
           try {
@@ -103,7 +87,6 @@ export default function CheckoutPage() {
 
           if (response.status === 401) {
             setGlobalError('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.')
-            console.error('[Checkout] Unauthorized - redirecting to login')
             setTimeout(() => navigate('/login'), 2000)
             return
           }
@@ -120,16 +103,10 @@ export default function CheckoutPage() {
 
         if (data.success && data.clientSecret) {
           setClientSecret(data.clientSecret)
-          console.log('[Checkout] Payment intent created successfully')
         } else {
           throw new Error(data.error || 'No se recibió client secret del servidor')
         }
       } catch (err: any) {
-        console.error('[Checkout] Error creating payment intent', {
-          message: err.message,
-          error: err,
-          stack: err.stack,
-        })
         setGlobalError(
           err.message || 'Error al cargar el formulario de pago. Intenta de nuevo.'
         )
@@ -427,19 +404,10 @@ function CheckoutForm({
       })
 
       if (stripeError) {
-        console.error('[CheckoutForm] Stripe payment error', {
-          error: stripeError.message,
-          code: stripeError.code,
-        })
         throw new Error(stripeError.message || 'Error al procesar el pago')
       }
 
       if (paymentIntent && paymentIntent.status === 'succeeded') {
-        console.log('[CheckoutForm] Payment succeeded', {
-          paymentIntentId: paymentIntent.id,
-          amount: paymentIntent.amount,
-        })
-
         // Confirmar el pago en el backend
         try {
           const token = tokens?.accessToken
@@ -452,14 +420,11 @@ function CheckoutForm({
             body: JSON.stringify({
               paymentIntentId: paymentIntent.id,
               consultationId,
-            }),
-          })
-        } catch (backendError) {
-          console.warn('[CheckoutForm] Backend confirmation failed', { error: backendError })
-          // No bloqueamos el flujo si falla el backend
-        }
-
-        // Actualizar el estado local
+          }),
+        })
+      } catch (backendError) {
+        // Backend confirmation failed - no blocking of flow
+      }        // Actualizar el estado local
         updateConsultation(consultationId, {
           clientName,
           clientEmail,
@@ -471,10 +436,6 @@ function CheckoutForm({
         throw new Error('El pago no se completó correctamente')
       }
     } catch (err: any) {
-      console.error('[CheckoutForm] Payment submission error', {
-        error: err.message,
-        consultationId,
-      })
       setError(err.message || 'Error al procesar el pago. Por favor, intenta de nuevo.')
     } finally {
       setIsProcessing(false)

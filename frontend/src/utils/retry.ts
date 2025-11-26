@@ -60,10 +60,7 @@ export async function retryAsync<T>(
         onRetry(attempt, delay)
       }
 
-      console.warn(
-        `Intento ${attempt} de ${maxAttempts} falló. Reintentando en ${delay}ms...`,
-      )
-
+      // Retry in progress
       await new Promise((resolve) => setTimeout(resolve, delay))
       delay *= backoffMultiplier
     }

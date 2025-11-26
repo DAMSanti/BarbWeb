@@ -1,7 +1,7 @@
 # 🚀 ROADMAP RÁPIDO - Barbara & Abogados
 ## Pasos a Seguir hacia Producción Enterprise
 
-**Versión**: 1.0 | **Actualizado**: Noviembre 13, 2025 | **Progreso**: 65% ✅
+**Versión**: 1.0 | **Actualizado**: Noviembre 26, 2025 | **Progreso**: 65% ✅
 
 ---
 
@@ -124,9 +124,9 @@ Impacto: Si se ejecutan estas tareas, podremos desbloquear el _BLOCKER_ de tests
   - [ ] emailService.test.ts
   - [ ] openaiService.test.ts
 - [ ] ⏳ Ejecutar `npm run test:coverage` y generar reporte
-- [ ] ⏳ **Target: 70%+ coverage (ACTUALMENTE 8.99% - CRÍTICO)** 🔥
+ - [ ] ⏳ **Target: 70%+ coverage (ACTUALMENTE 24.77% - CRÍTICO)** 🔥
 
-> ⚠️ **IMPORTANTE**: Coverage actualmente 8.99% porque tests son placeholders (expect(true).toBe(true)). Necesita reescribirse con supertest para tests de verdad. Ver FEATURES_PENDIENTES.md para plan detallado.
+> ⚠️ **IMPORTANTE**: Coverage actualmente 24.77% porque tests son placeholders (expect(true).toBe(true)). Necesita reescribirse con supertest para tests de verdad. Ver FEATURES_PENDIENTES.md para plan detallado.
 
 ---
 
@@ -198,7 +198,7 @@ Impacto: Si se ejecutan estas tareas, podremos desbloquear el _BLOCKER_ de tests
 **Prioridad**: Media-Alta (recomendado desde día 1)
 
 #### ⚠️ Paso 11: Pre-Launch Checklist (0.5 días)
-- [x] ✅ Tests creados (pero 8.99% coverage - NECESITA FIXING)
+- [x] ✅ Tests creados (pero 24.77% coverage - NECESITA FIXING)
 - [x] ✅ Zero console errors en navegador
 - [ ] ⏳ API documentation (Swagger/OpenAPI) - PENDIENTE
 - [ ] ⏳ Database backups automáticos
@@ -243,7 +243,7 @@ Semana 13+:      Features adicionales           (variable)
 COMPLETADO:      ~142 horas / 9 semanas ✅ (93%)
 RESTANTE:        ~40-50 horas / 2-3 semanas ⏱️ (7%)
 
-🔴 BLOCKER CRÍTICO: 8.99% test coverage (necesita 70%)
+🔴 BLOCKER CRÍTICO: 24.77% test coverage (necesita 70%)
 ```
 
 ---
@@ -259,7 +259,7 @@ RESTANTE:        ~40-50 horas / 2-3 semanas ⏱️ (7%)
 6. ✅ Security headers (DONE - Helmet configurado)
 7. ⚠️ CORS restrictivo (DONE backend, cambiar ALLOW_ALL_CORS=1 a 0)
 8. ✅ Admin Panel completo (DONE - 100%)
-9. 🔴 **Tests ejecución (8.99% → 70%) - BLOCKER CRÍTICO**
+9. 🔴 **Tests ejecución (24.77% → 70%) - BLOCKER CRÍTICO**
 
 ### Importante para Producción ⭐⭐
 10. ⏳ Email reset password (password recovery flow)
@@ -282,7 +282,7 @@ RESTANTE:        ~40-50 horas / 2-3 semanas ⏱️ (7%)
 
 **Antes de ir a Producción:**
 - ✅ 0 console errors en navegador
-- ❌ 8.99% test coverage (TARGET: 70%+) - 🔴 BLOCKER
+- ❌ 24.77% test coverage (TARGET: 70%+) - 🔴 BLOCKER
 - ⏳ Lighthouse score >90 (pendiente audit)
 - ✅ Stripe en test mode funcionando
 - ✅ Emails enviándose correctamente (Resend activo)
@@ -364,7 +364,7 @@ TOTAL CON SENTRY:        $80-300/mes
 
 ### 🔴 BLOCKER CRÍTICO - Antes de Launch (6-8h)
 1. **Tests Execution** (4-6h) 🔥 MÁXIMA PRIORIDAD
-   - Coverage actual: 8.99%
+  - Coverage actual: 24.77%
    - Target: 70%+
    - Acción: Reemplazar placeholders con supertest
    - Impacto: Bloquea lanzamiento
@@ -403,14 +403,14 @@ TOTAL CON SENTRY:        $80-300/mes
 
 **🎯 ACCIÓN INMEDIATA REQUERIDA**:
 1. Reemplazar tests placeholder con supertest reales
-2. Alcanzar 70%+ coverage (actualmente 8.99%)
+2. Alcanzar 70%+ coverage (actualmente 24.77%)
 3. Cambiar CORS a modo restrictivo
 4. Verificar/rotar secrets si es necesario
 5. ENTONCES: Lanzar a producción ✅
 
 **📊 Métricas de Salud**:
 - ✅ Código: 100% implementado (93% de 153 horas)
-- ❌ Tests: 8.99% ejecutados (CRÍTICO - necesita 70%)
+- ❌ Tests: 24.77% ejecutados (CRÍTICO - necesita 70%)
 - ✅ Security: 100% activa en producción
 - ✅ Email: 100% funcional (4 templates)
 - ✅ Admin Panel: 100% completado

@@ -33,17 +33,9 @@ let oAuthIdCounter = 1
 let emailVerificationIdCounter = 1
 let refreshTokenIdCounter = 1
 
-// Mock Prisma client with full functionality
-vi.mock('@prisma/client', () => ({
-  PrismaClient: vi.fn(() => createPrismaMock()),
-}))
+// Create a single mock instance that persists across calls
+let mockPrismaInstance: any = null
 
-// Mock getPrismaClient function
-vi.mock('../src/db/init.js', () => ({
-  getPrismaClient: () => createPrismaMock(),
-}))
-
-// Factory function to create mock instance
 function createPrismaMock() {
   return {
       user: {
@@ -543,6 +535,21 @@ function createPrismaMock() {
       $disconnect: vi.fn(async () => {}),
     }
 }
+
+// Initialize the mock instance once
+if (!mockPrismaInstance) {
+  mockPrismaInstance = createPrismaMock()
+}
+
+// Mock Prisma client with full functionality
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn(() => mockPrismaInstance),
+}))
+
+// Mock getPrismaClient function
+vi.mock('../src/db/init.js', () => ({
+  getPrismaClient: vi.fn(() => mockPrismaInstance),
+}))
 
 // Suppress console output during tests (optional)
 // vi.spyOn(console, 'log').mockImplementation(() => {})

@@ -6,37 +6,10 @@
 
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest'
 import * as authService from '../../src/services/authService'
+import { getPrismaClient } from '../../src/db/init.js'
 
-// Mock Prisma before importing authService
-vi.mock('../../src/db/init', () => ({
-  getPrismaClient: vi.fn(() => ({
-    user: {
-      findUnique: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-    },
-    oAuthAccount: {
-      findUnique: vi.fn(),
-      create: vi.fn(),
-    },
-  })),
-}))
-
-// Mock email service
-vi.mock('../../src/services/emailService', () => ({
-  sendWelcomeEmail: vi.fn().mockResolvedValue(true),
-  sendEmailVerificationEmail: vi.fn().mockResolvedValue(true),
-}))
-
-// Mock logger
-vi.mock('../../src/utils/logger', () => ({
-  logger: {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    debug: vi.fn(),
-  },
-}))
+// Get the mocked prisma client (already mocked in setup.ts)
+const prisma = getPrismaClient()
 
 describe('Password Hashing', () => {
   beforeEach(() => {
@@ -89,8 +62,6 @@ describe('Password Hashing', () => {
 
     it('should be case-sensitive', async () => {
       const isValid = await authService.verifyPassword('correctpassword123', hash)
-      expect(isValid).toBe(false)
-    })
       expect(isValid).toBe(false)
     })
 

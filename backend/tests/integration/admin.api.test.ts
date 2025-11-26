@@ -4,28 +4,18 @@
  * Using mocked Prisma calls (NO database required)
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest'
 import * as adminService from '../../src/services/adminService'
+import { getPrismaClient } from '../../src/db/init.js'
 
-// Mock Prisma
-vi.mock('../../src/db/init', () => ({
-  getPrismaClient: vi.fn(() => ({
-    user: {
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    },
-    payment: {
-      findMany: vi.fn(),
-      findUnique: vi.fn(),
-      update: vi.fn(),
-      deleteMany: vi.fn(),
-    },
-  })),
-}))
+// Get the mocked prisma client
+const prisma = getPrismaClient()
 
 describe('Admin Service - RBAC and Management (MOCKED)', () => {
+  let adminUser: any
+  let normalUser1: any
+  let normalUser2: any
+
   const mockUsers = [
     { id: '1', email: 'admin@test.com', name: 'Admin User', role: 'admin', createdAt: new Date() },
     { id: '2', email: 'lawyer@test.com', name: 'Lawyer User', role: 'lawyer', createdAt: new Date() },
@@ -33,8 +23,53 @@ describe('Admin Service - RBAC and Management (MOCKED)', () => {
     { id: '4', email: 'user2@test.com', name: 'User Two', role: 'user', createdAt: new Date() },
   ]
 
+  beforeAll(async () => {
+    // Create test users
+    adminUser = await prisma.user.create({
+      data: {
+        email: 'admin@test.com',
+        name: 'Admin User',
+        role: 'admin',
+        password: 'hashed_password',
+        emailVerified: true,
+      },
+    })
+
+    // Create a lawyer user for testing
+    await prisma.user.create({
+      data: {
+        email: 'lawyer@test.com',
+        name: 'Lawyer User',
+        role: 'lawyer',
+        password: 'hashed_password',
+        emailVerified: true,
+      },
+    })
+
+    normalUser1 = await prisma.user.create({
+      data: {
+        email: 'user1@test.com',
+        name: 'User One',
+        role: 'user',
+        password: 'hashed_password',
+        emailVerified: false,
+      },
+    })
+
+    normalUser2 = await prisma.user.create({
+      data: {
+        email: 'user2@test.com',
+        name: 'User Two',
+        role: 'user',
+        password: 'hashed_password',
+        emailVerified: false,
+      },
+    })
+  })
+
   beforeEach(() => {
-    vi.clearAllMocks()
+    // Don't clear mocks here - the dataStore persists across tests
+    // Clearing mocks would reset the implementations
   })
 
   describe('User Management', () => {

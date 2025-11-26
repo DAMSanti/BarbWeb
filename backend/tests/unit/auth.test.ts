@@ -31,12 +31,12 @@ const {
     exchangeMicrosoftCode: vi.fn(),
   }
 
-  const mockVerifyToken = vi.fn((req: any, res, next) => {
+  const mockVerifyToken = vi.fn((req: any, res: any, next: any) => {
     req.user = { userId: 'user123', email: 'test@example.com', role: 'user' }
     next()
   })
 
-  const mockIsAuthenticated = vi.fn((req: any, res, next) => {
+  const mockIsAuthenticated = vi.fn((req: any, res: any, next: any) => {
     if (!req.user) {
       res.status(401).json({ error: 'Not authenticated' })
       return

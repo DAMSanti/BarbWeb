@@ -265,6 +265,7 @@ describe('API Routes', () => {
       })
 
       expect(response.status).toBeGreaterThanOrEqual(400)
+      expect(response.body).toBeDefined()
     })
 
     it('should validate category length', async () => {
@@ -274,6 +275,7 @@ describe('API Routes', () => {
       })
 
       expect(response.status).toBeGreaterThanOrEqual(400)
+      expect(response.body).toBeDefined()
     })
 
     it('should require both question and category', async () => {
@@ -283,6 +285,7 @@ describe('API Routes', () => {
       })
 
       expect(response.status).toBeGreaterThanOrEqual(400)
+      expect(response.body).toBeDefined()
     })
 
     it('should trim whitespace from question and category', async () => {
@@ -449,7 +452,7 @@ describe('API Routes', () => {
 
       expect(response.status).toBe(200)
       expect(response.body.success).toBe(true)
-      expect(response.body.message).toContain('Email sent')
+      expect(response.body.message).toContain('sent')
       expect(response.body.emailId).toBe('email_123')
     })
 

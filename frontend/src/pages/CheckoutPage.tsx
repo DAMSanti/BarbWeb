@@ -41,14 +41,6 @@ export default function CheckoutPage() {
         setGlobalError('')
 
         const token = tokens?.accessToken
-        console.log('[Checkout] Auth state:', {
-          hasToken: !!token,
-          tokenLength: token?.length || 0,
-          tokenPrefix: token?.substring(0, 30) || 'none',
-          isAuthInitialized: isAuthInitialized,
-          isAuthenticated: isAuthenticated,
-          userId: user?.id,
-        })
 
         if (!token) {
           const errorMsg = 'No hay token disponible. Por favor, inicia sesión de nuevo.'
@@ -57,7 +49,6 @@ export default function CheckoutPage() {
           setIsLoadingIntent(false)
           return
         }
-        })
 
         const response = await fetch(`${getApiUrl()}/api/payments/create-payment-intent`, {
           method: 'POST',
@@ -95,11 +86,6 @@ export default function CheckoutPage() {
         }
 
         const data = await response.json()
-        console.log('[Checkout] Response data:', {
-          success: data.success,
-          hasClientSecret: !!data.clientSecret,
-          paymentIntentId: data.paymentIntentId,
-        })
 
         if (data.success && data.clientSecret) {
           setClientSecret(data.clientSecret)
@@ -391,8 +377,6 @@ function CheckoutForm({
     setIsProcessing(true)
 
     try {
-      console.log('[CheckoutForm] Submitting payment', { consultationId, clientEmail })
-
       // Confirmar el pago con Stripe
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
         elements,
@@ -420,11 +404,13 @@ function CheckoutForm({
             body: JSON.stringify({
               paymentIntentId: paymentIntent.id,
               consultationId,
-          }),
-        })
-      } catch (backendError) {
-        // Backend confirmation failed - no blocking of flow
-      }        // Actualizar el estado local
+            }),
+          })
+        } catch (backendError) {
+          // Backend confirmation failed - no blocking of flow
+        }
+
+        // Actualizar el estado local
         updateConsultation(consultationId, {
           clientName,
           clientEmail,

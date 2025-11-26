@@ -57,7 +57,7 @@ describe('Sitemap Routes', () => {
       const response = await request(app).get('/sitemap.xml')
 
       expect(response.status).toBe(200)
-      expect(response.text).toContain('<priority>1.0</priority>') // Homepage
+      expect(response.text).toContain('<priority>1</priority>') // Homepage (1.0 becomes 1)
       expect(response.text).toContain('<priority>0.9</priority>') // FAQ
       expect(response.text).toContain('<priority>0.8</priority>') // About
       expect(response.text).toContain('<priority>0.7</priority>') // Contact
@@ -144,9 +144,9 @@ describe('Sitemap Routes', () => {
       const response = await request(app).get('/sitemap.xml')
 
       expect(response.status).toBe(200)
-      // Homepage should have priority 1.0
+      // Homepage should have priority 1 (1.0 in JavaScript becomes 1)
       expect(response.text).toMatch(
-        /<url>\s*<loc>https:\/\/barbweb\.com<\/loc>[\s\S]*?<priority>1\.0<\/priority>/
+        /<url>\s*<loc>https:\/\/barbweb\.com<\/loc>[\s\S]*?<priority>1<\/priority>/
       )
     })
 

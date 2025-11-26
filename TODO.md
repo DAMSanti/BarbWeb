@@ -24,7 +24,7 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - [x] `backend/src/index.ts` - Reemplazar `console.log` por `logger` (0.5-1h)
 - [x] `frontend/src/services/backendApi.ts` - Reemplazar `console.log` y `console.error` por logger (1-2h)
 - [x] `frontend/src/pages/CheckoutPage.tsx` - Reemplazar `console.log` por logger (0.5-1h)
-- [ ] `frontend/scripts/build-html.js` - Avoid printing full env values (0.5h)
+- [x] `frontend/scripts/build-html.js` - Avoid printing full env values (0.5h) ✅ DONE (Nov 26)
 - [ ] `backend/src/services/emailService.ts` - Add unit tests (4-6h)
 - [x] `backend/src/services/openaiService.ts` - Add unit tests (3-5h)
 - [x] `backend/src/middleware/security.ts` - ✅ REVISADO (Nov 26)

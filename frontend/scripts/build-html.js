@@ -49,8 +49,17 @@ try {
     VITE_MICROSOFT_CLIENT_ID: process.env.VITE_MICROSOFT_CLIENT_ID || '',
   };
   
-  console.log('  ✓ VITE_STRIPE_PUBLISHABLE_KEY:', envVars.VITE_STRIPE_PUBLISHABLE_KEY.substring(0, 15) + '...');
-  console.log('  ✓ VITE_API_URL:', envVars.VITE_API_URL);
+  // Helper function to redact sensitive values
+  const redactValue = (value, type = 'generic') => {
+    if (!value) return '[not configured]';
+    if (type === 'key' && value.length > 10) {
+      return value.substring(0, 8) + '...' + value.substring(value.length - 4);
+    }
+    return value;
+  };
+  
+  console.log('  ✓ VITE_STRIPE_PUBLISHABLE_KEY:', redactValue(envVars.VITE_STRIPE_PUBLISHABLE_KEY, 'key'));
+  console.log('  ✓ VITE_API_URL:', redactValue(envVars.VITE_API_URL, 'url'));
 
   // Step 3: Bundle JavaScript with esbuild
   console.log('📦 Bundling JavaScript...');

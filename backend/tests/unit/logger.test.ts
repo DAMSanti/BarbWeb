@@ -1,53 +1,43 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock fs before winston mock
-const mockFs = {
-  existsSync: vi.fn(() => true),
-  mkdirSync: vi.fn(),
-}
-
-// Mock path before winston mock
-const mockPath = {
-  join: vi.fn((...args: any[]) => args.join('/')),
-}
-
-// Mock winston before importing logger
-vi.mock('winston', async (importOriginal: any) => {
-  const mockLogger = {
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-    debug: vi.fn(),
-    http: vi.fn(),
-  }
-
-  return {
-    default: {
-      createLogger: vi.fn(() => mockLogger),
-      format: {
-        combine: vi.fn((...args: any[]) => args),
-        timestamp: vi.fn((opts: any) => ({ timestamp: opts })),
-        colorize: vi.fn((opts: any) => ({ colorize: opts })),
-        printf: vi.fn((fn: any) => ({ printf: fn })),
-        uncolorize: vi.fn(() => ({ uncolorize: true })),
-      },
-      transports: {
-        Console: vi.fn(),
-        File: vi.fn(),
-      },
-      addColors: vi.fn(),
+// Mock winston
+vi.mock('winston', () => ({
+  default: {
+    createLogger: vi.fn(() => ({
+      info: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      http: vi.fn(),
+    })),
+    format: {
+      combine: vi.fn(),
+      timestamp: vi.fn(),
+      colorize: vi.fn(),
+      printf: vi.fn(),
+      uncolorize: vi.fn(),
     },
-  }
-})
+    transports: {
+      Console: vi.fn(),
+      File: vi.fn(),
+    },
+    addColors: vi.fn(),
+  },
+}))
 
 // Mock fs
 vi.mock('fs', () => ({
-  default: mockFs,
+  default: {
+    existsSync: vi.fn(() => true),
+    mkdirSync: vi.fn(),
+  },
 }))
 
 // Mock path
 vi.mock('path', () => ({
-  default: mockPath,
+  default: {
+    join: vi.fn((...args: any[]) => args.join('/')),
+  },
 }))
 
 import { logger, logInfo, logError, logWarn, logDebug, logHttp } from '../../src/utils/logger'
@@ -55,55 +45,9 @@ import { logger, logInfo, logError, logWarn, logDebug, logHttp } from '../../src
 describe('Logger Module', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Reset fs mocks
-    mockFs.existsSync.mockReturnValue(true)
-    mockFs.mkdirSync.mockClear()
   })
 
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
-
-  describe('Logger directory creation', () => {
-    it('should have fs.existsSync available', () => {
-      expect(mockFs.existsSync).toBeDefined()
-    })
-
-    it('should have fs.mkdirSync available', () => {
-      expect(mockFs.mkdirSync).toBeDefined()
-    })
-
-    it('should verify mkdirSync exists as a function', () => {
-      expect(typeof mockFs.mkdirSync).toBe('function')
-    })
-
-    it('should verify existsSync exists as a function', () => {
-      expect(typeof mockFs.existsSync).toBe('function')
-    })
-
-    it('should have path.join available', () => {
-      expect(mockPath.join).toBeDefined()
-    })
-
-    it('should support recursive option in mkdir calls', () => {
-      const recursiveOption = { recursive: true }
-      expect(recursiveOption.recursive).toBe(true)
-    })
-
-    it('should properly mock fs module', () => {
-      // Simulate directory check
-      mockFs.existsSync.mockReturnValueOnce(false)
-      const exists = mockFs.existsSync('logs')
-      expect(exists).toBe(false)
-    })
-
-    it('should properly mock mkdirSync for recursive creation', () => {
-      mockFs.existsSync.mockReturnValueOnce(false)
-      mockFs.mkdirSync('logs', { recursive: true })
-      
-      expect(mockFs.mkdirSync).toHaveBeenCalledWith('logs', { recursive: true })
-    })
-  })
+  describe('Logger object', () => {
     it('should be defined', () => {
       expect(logger).toBeDefined()
     })
@@ -130,6 +74,14 @@ describe('Logger Module', () => {
   })
 
   describe('logInfo function', () => {
+    it('should be defined', () => {
+      expect(logInfo).toBeDefined()
+    })
+
+    it('should be a function', () => {
+      expect(typeof logInfo).toBe('function')
+    })
+
     it('should call logger.info with message', () => {
       logInfo('Test info message')
       expect(logger.info).toHaveBeenCalledWith('Test info message', undefined)

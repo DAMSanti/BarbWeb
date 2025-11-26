@@ -1,5 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+// Hoisted mocks for fs and path so we can change behavior per-test
+const mockFs = {
+  existsSync: vi.fn(() => true),
+  mkdirSync: vi.fn(),
+}
+
+const mockPath = {
+  join: vi.fn((...args: any[]) => args.join('/')),
+}
+
 // Mock winston
 vi.mock('winston', () => ({
   default: {
@@ -25,19 +35,14 @@ vi.mock('winston', () => ({
   },
 }))
 
-// Mock fs
+// Mock fs using hoisted mock
 vi.mock('fs', () => ({
-  default: {
-    existsSync: vi.fn(() => true),
-    mkdirSync: vi.fn(),
-  },
+  default: mockFs,
 }))
 
-// Mock path
+// Mock path using hoisted mock
 vi.mock('path', () => ({
-  default: {
-    join: vi.fn((...args: any[]) => args.join('/')),
-  },
+  default: mockPath,
 }))
 
 import { logger, logInfo, logError, logWarn, logDebug, logHttp } from '../../src/utils/logger'
@@ -348,6 +353,22 @@ describe('Logger Module', () => {
     it('should handle numeric messages', () => {
       logInfo('Error code: 500')
       expect(logger.info).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('Module import behavior', () => {
+    it('should create logs directory on import when missing', async () => {
+      // Ensure a fresh module load
+      vi.resetModules()
+      // Simulate missing logs dir on first check
+      mockFs.existsSync.mockReturnValueOnce(false)
+      mockFs.mkdirSync.mockClear()
+
+      // Dynamically import module (this will execute top-level code)
+      await import('../../src/utils/logger')
+
+      expect(mockFs.mkdirSync).toHaveBeenCalled()
+      expect(mockFs.mkdirSync).toHaveBeenCalledWith(expect.any(String), { recursive: true })
     })
   })
 

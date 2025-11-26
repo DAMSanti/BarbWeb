@@ -121,7 +121,9 @@ describe('Sitemap Routes', () => {
     })
 
     it('should follow redirect and return XML', async () => {
-      const response = await request(app).get('/sitemap')
+      const response = await request(app)
+        .get('/sitemap')
+        .redirects(1)
 
       expect(response.status).toBe(200)
       expect(response.type).toBe('application/xml')
@@ -142,11 +144,10 @@ describe('Sitemap Routes', () => {
       const response = await request(app).get('/sitemap.xml')
 
       expect(response.status).toBe(200)
-      // Homepage should be first and have priority 1.0
-      const homepageMatch = response.text.match(
+      // Homepage should have priority 1.0
+      expect(response.text).toMatch(
         /<url>\s*<loc>https:\/\/barbweb\.com<\/loc>[\s\S]*?<priority>1\.0<\/priority>/
       )
-      expect(homepageMatch).toBeTruthy()
     })
 
     it('should have valid lastmod dates in ISO format', async () => {
@@ -162,13 +163,15 @@ describe('Sitemap Routes', () => {
       const response = await request(app).get('/sitemap.xml')
 
       expect(response.status).toBe(200)
-      const priorityMatches = response.text.match(/<priority>(\d\.\d)<\/priority>/g)
+      const priorityMatches = response.text.match(/<priority>[\d.]+<\/priority>/g)
       expect(priorityMatches).toBeTruthy()
-      priorityMatches!.forEach(match => {
-        const value = parseFloat(match.replace(/<\/?priority>/g, ''))
-        expect(value).toBeGreaterThanOrEqual(0)
-        expect(value).toBeLessThanOrEqual(1)
-      })
+      if (priorityMatches) {
+        priorityMatches.forEach((match: string) => {
+          const value = parseFloat(match.replace(/<\/?priority>/g, ''))
+          expect(value).toBeGreaterThanOrEqual(0)
+          expect(value).toBeLessThanOrEqual(1)
+        })
+      }
     })
   })
 })

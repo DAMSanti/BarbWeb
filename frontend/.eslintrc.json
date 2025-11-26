@@ -13,12 +13,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "no-console": [
-      "error",
-      {
-        "allow": []
-      }
-    ]
+    "no-console": "error"
   },
   "overrides": [
     {

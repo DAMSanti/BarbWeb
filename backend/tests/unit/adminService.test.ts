@@ -472,7 +472,9 @@ describe('Admin Service - Analytics', () => {
       )
 
       expect(result).toBeDefined()
-      expect(Array.isArray(result)).toBe(true)
+      expect(result).toHaveProperty('trend')
+      expect(result).toHaveProperty('summary')
+      expect(Array.isArray(result.trend)).toBe(true)
     })
 
     it('should support weekly grouping', async () => {
@@ -492,6 +494,8 @@ describe('Admin Service - Analytics', () => {
       )
 
       expect(result).toBeDefined()
+      expect(result).toHaveProperty('trend')
+      expect(result).toHaveProperty('summary')
     })
 
     it('should support monthly grouping', async () => {
@@ -511,6 +515,8 @@ describe('Admin Service - Analytics', () => {
       )
 
       expect(result).toBeDefined()
+      expect(result).toHaveProperty('trend')
+      expect(result).toHaveProperty('summary')
     })
   })
 })

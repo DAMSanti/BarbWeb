@@ -67,9 +67,9 @@ describe('Admin Service - RBAC and Management (MOCKED)', () => {
     })
   })
 
-  beforeEach(() => {
-    // Don't clear mocks here - the dataStore persists across tests
-    // Clearing mocks would reset the implementations
+  beforeEach(async () => {
+    // Clean up payments before each test to avoid data accumulation
+    await prisma.payment.deleteMany({})
   })
 
   describe('User Management', () => {

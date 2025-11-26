@@ -348,7 +348,7 @@ export const refundPayment = async (paymentId: string, reason?: string) => {
     paymentId,
     reason,
     amount: updatedPayment.amount,
-    userEmail: updatedPayment.user.email,
+    userEmail: updatedPayment.user?.email,
   })
 
   return updatedPayment

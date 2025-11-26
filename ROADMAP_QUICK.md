@@ -36,6 +36,24 @@
 
 ---
 
+## 🧭 REVISIÓN DE CÓDIGO - RESULTADOS PRINCIPALES (Nov 26, 2025)
+Se ha realizado una auditoría rápida del código y estas son las observaciones que afectan la entrega rápida:
+- 🔐 Archivo `backend/secrets.txt` contiene secrets impresos — eliminar y rotar secrets en DO (CRÍTICO).
+- ⚠️ Múltiples `console.log` y `console.error` en `frontend/src/services/*`, `backend/src/index.ts`, `backend/scripts/*` que exponen información o afectan la calidad de logs; migrar a `logger` (Winston) para consistencia y evitar fugas de información. (4-6h)
+- 🧪 Tests: Muchas pruebas son placeholders (ej. `expect(true).toBe(true)`) o faltan por completo para rutas / services / middleware — Reescribir con `supertest` y agregar Coverage CI. (40-60h)
+- ⚠️ CORS en modo debug (`ALLOW_ALL_CORS=1`), riesgo en producción — cambiar a `0` y probar. (1h)
+
+Acciones rápidas (Semana 1):
+1. 🔴 Eliminar `backend/secrets.txt` y rotar secrets (1h)  
+2. 🔴 Reemplazar tests placeholders y agregar tests para rutas críticas con `supertest` (12-24h este sprint)  
+3. 🟠 Aplicar `no-console` ESLint rule y migrar prints a `logger` (2-4h)  
+4. 🟠 Cambiar CORS a modo restrictivo y añadir test CORS en CI (1h)  
+
+Impacto: Si se ejecutan estas tareas, podremos desbloquear el _BLOCKER_ de tests y pasar a producción con seguridad reforzada.
+
+
+---
+
 ## 📋 PRÓXIMOS PASOS
 
 ### SEMANA 7: CONFIGURACIÓN PRODUCCIÓN Y TESTING (4-6 horas) 🚀

@@ -24,6 +24,7 @@ coverage
 *.launch
 .settings/
 *.sublime-workspace
+backend/secrets.txt
 
 # Environment variables - IMPORTANT: Never commit .env.local files
 .env

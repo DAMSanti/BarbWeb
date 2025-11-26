@@ -45,6 +45,19 @@
 - [ ] DOMPurify para sanitizar inputs en frontend
 - [ ] Content Security Policy más estricto en frontend
 
+### ✅ Hallazgos de auditoría (Nov 26, 2025)
+**Prioritarios**:
+- 🔐 `backend/secrets.txt` encontrado en repo con secrets impresos: eliminar de inmediato y rotar secrets (1h).  
+- ⚠️ CORS: `ALLOW_ALL_CORS=1` en entorno — cambiar a 0, validar `VITE_FRONTEND_URL`. (0.5h)
+- 🧪 Tests: placeholders y cobertura insuficiente (target 70%+). Reescribir tests y añadir integraciones para rutas, servicios y middleware. (40-60h)
+- 🧾 `console.log` y `console.error` dispersos en frontend/backend; migrar a `logger` y eliminar prints. (4-6h)
+
+**Recomendaciones**:
+1. Eliminar `backend/secrets.txt`, agregar `gitleaks`/`git-secrets` y reglas para impedir commitear secrets. (2h)
+2. Reescribir los tests placeholders con `supertest` y añadir coverage gating en CI: `coverage >= 70%`. (40-60h)
+3. Añadir ES Lint `no-console` rule en production code y documentar excepción para `scripts/` y CI jobs. (1h)
+4. Remediar CORS y validar en staging. (1h)
+
 **Prioridad**: Alta (CORS), Media (resto)
 **Tiempo Estimado**: 2-4 horas total
 **Notas**: CORS debe cambiarse antes de producción. CSRF solo si se migra a cookies.

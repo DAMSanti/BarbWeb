@@ -29,6 +29,145 @@
 
 ---
 
+## 📌 REVISIÓN PROFUNDA DEL CÓDIGO (Nov 26, 2025) - ACTUALIZADO
+Se realizó un análisis automático y manual de todo el repositorio para identificar riesgos, inconsistencias y tareas pendientes no reflejadas.
+
+### Hallazgos principales (REVISADOS):
+- ✅ `backend/secrets.txt` - **YA ELIMINADO** (completado Nov 26)
+- ✅ `.gitignore` reparado - Archivo corrupto, recreado con capas de seguridad (backend + frontend)
+- ⚠️ ALLOW_ALL_CORS=1 sigue activo en entorno - debe cambiarse a 0 antes del lanzamiento (0.5h)
+- 🧭 Console logs en producción: múltiples `console.log` y `console.error` en frontend y backend (4-6h)
+- 🧪 Tests: vitest.config.ts corregido (importaba vite incorrectamente). Tests necesitan supertest (40-60h)
+- 🧾 Secrets CI scanning: **gitleaks NO se instala con npm** - usar pre-commit hook o CLI global (2-3h)
+- 🧰 Linting: agregar ESLint rule `no-console` para producción (1h)
+
+Acciones recomendadas (priorizadas):
+1. ✅ Remover `backend/secrets.txt` - **COMPLETADO Nov 26** (.gitignore actualizado con capas)
+2. ⚠️ Configurar gitleaks como **pre-commit hook** (NO npm install) - usar `install-pre-commit-hook` (1-2h)
+3. 🔴 Reescribir tests placeholder con `supertest` y arreglar vitest.config.ts (vitest/config). (40-60h)  
+4. 🟠 Reemplazar `console.log` por `logger` en backend y por error handlers en frontend. (4-6h)
+5. 🟠 Ajustar `ALLOW_ALL_CORS=0` en DigitalOcean y agregar test CORS. (0.5-1h)
+6. 🟠 Añadir CI job para `npm run test:coverage` y fallo si coverage < 70%. (2h)
+7. 🟢 Linting: prohibir `console.log` con ESLint `no-console` rule. (1h)
+
+Prioridad global: Secrets ✅ -> Gitleaks setup -> Tests reales -> CORS restrictivo -> Logging cleanup -> CI/Tests
+
+Owner: Full-Stack Development Team
+
+---
+
+## 🔎 Archivos con issues detectados (lista priorizada)
+Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en CI.
+
+- [ ] `backend/secrets.txt` - Eliminar archivo, rotar secrets, agregar escáner CI (gitleaks/git-secrets). (1-2h)
+- [ ] `backend/generate-secrets.js` - Mantener, agregar logs solo si `--debug` flag; evitar crear archivos con secrets por commit. (0.5h)
+- [ ] `backend/src/index.ts` - Reemplazar `console.log` por `logger` y asegurar `logger` no exponga secrets. (0.5-1h)
+- [ ] `frontend/src/services/backendApi.ts` - Reemplazar `console.log` y `console.error` por logger wrappers o `handleError`. (1-2h)
+- [ ] `frontend/src/pages/CheckoutPage.tsx` - Reemplazar `console.log` por logger; revisar exposures of `VITE_STRIPE_PUBLISHED_KEY`. (0.5-1h)
+- [ ] `frontend/scripts/build-html.js` - Avoid printing full env values; print masked values or presence only. (0.5h)
+- [ ] `backend/src/services/emailService.ts` - Add unit tests (integration mocks for Resend). (4-6h)
+- [ ] `backend/src/services/openaiService.ts` - Add unit tests; ensure warnings don't leak keys. (3-5h)
+- [ ] `backend/src/middleware/security.ts` - Remove debug fallback; enforce `VITE_FRONTEND_URL` and `APP_DOMAIN` usage. (1h)
+- [ ] `backend/tests` - Replace placeholders with `supertest` powered integration tests, implement coverage gating. (40-60h)
+
+---
+
+## 🔐 SETUP GITLEAKS (Pre-Commit Hook - NO npm)
+
+**IMPORTANTE**: `gitleaks` NO se instala con `npm install`. Es una herramienta CLI global que se ejecuta en pre-commit hooks.
+
+### Opción 1: Instalar gitleaks CLI (Recomendado en DO)
+```bash
+# En DigitalOcean o tu servidor Linux:
+# Opción A: Usar script de instalación oficial
+curl https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh
+
+# Opción B: Usar package manager
+apt-get install gitleaks  # Ubuntu/Debian
+brew install gitleaks      # macOS
+choco install gitleaks     # Windows
+
+# Verificar instalación
+gitleaks version
+```
+
+### Opción 2: Setup Pre-Commit Hook (Recommended)
+```bash
+# Instalar pre-commit framework
+pip install pre-commit  # o: brew install pre-commit
+
+# Crear .pre-commit-config.yaml en raíz del repo:
+```
+
+### Crear `.pre-commit-config.yaml` en raíz:
+```yaml
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.1
+    hooks:
+      - id: gitleaks
+        name: gitleaks
+        description: Scan for secrets using gitleaks
+        entry: gitleaks protect --verbose --redact
+        language: golang
+        stages: [commit]
+        pass_filenames: false
+```
+
+### Setup Pre-Commit en el repo:
+```bash
+# En raíz del proyecto
+pre-commit install
+pre-commit run --all-files  # Escanear todo el repo
+
+# Resultado esperado:
+# - Si encuentra secrets: BLOQUEA commit
+# - Si NO encuentra: commit procede normalmente
+```
+
+**Resultado**: Gitleaks bloqueará commits que intenten subir secrets/API keys automáticamente. ✅
+
+---
+
+## 🛠️ Quick checks (Commands to run locally)
+Run these commands to verify the main findings quickly:
+
+```bash
+# 1. Verify secrets.txt is deleted:
+test -f backend/secrets.txt && echo "FOUND - DELETE NOW!" || echo "✅ OK - File not found"
+
+# 2. Find console.log uses in production code:
+grep -r "console\.log\|console\.error" backend/src frontend/src --include="*.ts" --include="*.tsx" 2>/dev/null | head -20
+
+# 3. Check for exposed .env and .txt files:
+find . -type f \( -name ".env" -o -name "*.txt" -o -name "secrets*" \) 2>/dev/null | grep -v node_modules | grep -v ".git"
+
+# 4. Run TypeScript type checking:
+cd backend && npx tsc --noEmit && cd ..
+
+# 5. Run tests and coverage (FIXED vitest.config.ts):
+cd backend && npm ci && npm run test:coverage && cd ..
+```
+
+**✅ COMPLETED TODAY (Nov 26)**:
+- ✅ `backend/secrets.txt` - Deleted
+- ✅ `backend/.gitignore` - Repaired (was binary, recreated with security layers)
+- ✅ `frontend/.gitignore` - Created (was missing)
+- ✅ `backend/vitest.config.ts` - Fixed (changed from `vite` to `vitest/config` import)
+
+**🔴 NEXT CRITICAL ACTION**:
+Setup gitleaks pre-commit hook (see section above) OR remove gitleaks from package.json if added:
+```bash
+cd backend
+npm uninstall gitleaks  # Remove if accidentally installed
+cd ..
+```
+
+
+
+
+---
+
 ## 🔴 BLOCKER CRÍTICO - ESTA SEMANA (Requiere completarse antes de lanzamiento)
 
 ### Tests Execution (80-85 horas) 🔥 MÁXIMA PRIORIDAD

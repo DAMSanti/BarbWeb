@@ -36,6 +36,30 @@ All files            |    8.99 |     1.07 |    7.79 |    9.04 |
 - ✅ Schemas testados: 79.41% coverage (auth.schemas, payment.schemas ESTÁN testeados)
 - ✅ authService.ts: 29.62% coverage (algunas funciones testeadas)
 - ❌ **routes/*.ts: 0% coverage** - NO HAY TESTS de rutas (auth.ts, payments.ts, admin.ts, webhooks.ts)
+---
+
+## 🧭 REVISIÓN PROFUNDA DE CÓDIGO - NOV 26, 2025
+Se realizó una auditoría más profunda del código a nivel de archivos y dependencias. A continuación, hallazgos, riesgos y modificaciones recomendadas — con prioridad y tiempo estimado.
+
+Principales hallazgos:
+- 🔐 `backend/secrets.txt` expone secrets y prints (eliminar y rotar inmediatamente). CRÍTICO (1h)
+- 🛠️ Scripts que imprimen secrets: `backend/generate-secrets.js` imprime secrets por diseño — está bien como util para admin, pero no debe generar archivos con secrets ni dejar outputs comprometidos (0.5h)
+- 🧾 `console.log`/`console.error` detectados en frontend y backend (ej.: `index.ts`, `backendApi.ts`, `CheckoutPage.tsx`, `generate-secrets.js`, `secrets.txt`) — migrar a `logger` con niveles (info/debug/warn/error) y remover prints de producción. (4-6h)
+- 🧪 Cobertura de tests: Rutas, servicios, middlewares y utils con 0% o placeholders — reescribir tests con `supertest` y `vitest`/`playwright` para recuperar cobertura. (40-60h)
+- ⚠️ CORS en modo debug `ALLOW_ALL_CORS=1` detectado — cambiar a `0`. Ejecutar test CORS. (0.5-1h)
+- 🔐 Posible presencia de whitespace/spuriuos chars en JWT secret (validar/rotar). (1h)
+- 🔍 Añadir checks CI de seguridad (gitleaks/git-secrets), coverage gating, y linting `no-console`. (3-4h)
+
+Recomendaciones (Prioridad y tiempo estimado):
+1. 🔴 Eliminar `backend/secrets.txt` y rotar secrets en DigitalOcean, actualizar `.env.example` y credenciales. (1-2h)
+2. 🔴 Reescribir tests placeholders usando `supertest` y crear integration tests para rutas críticas: `auth`, `payments`, `webhooks`, `admin` (40-60h)  
+3. 🟠 Reemplazar `console.log`/`console.error` por `logger` (Winston) en backend y `useErrorHandler`/`logger` (si corresponde) en frontend; habilitar ESLint `no-console` en CI; scripts can use `console.log` — add lint exceptions. (4-6h)
+4. 🟠 Cambiar CORS a modo restrictivo; ejecutar test en staging/CI para validar. (0.5-1h)
+5. 🔧 Añadir CI scans: `gitleaks` or `git-secrets` to block commits with possible secrets; configure `coverage` threshold and fail pipeline if < 70%. (3-4h)
+6. 🟢 Implementar check for webpack/CI to avoid printing full keys, only presence masked for debug. (1h)
+
+Owner: Dev Team; Target for next sprint: remove secrets + replace tests placeholders + change CORS + add CI scans
+
 - ❌ **services/emailService.ts: 0% coverage** - Email service NO testeado
 - ❌ **services/openaiService.ts: 0% coverage** - OpenAI service NO testeado
 - ❌ **utils/*.ts: 0% coverage** - Helpers NO testeados

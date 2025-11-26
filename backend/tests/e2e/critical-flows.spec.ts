@@ -53,7 +53,6 @@ test.describe.skip('E2E: Critical Flows (REQUIRES RUNNING SERVERS)', () => {
     }
   })
 })
-})
 
 /**
  * E2E TEST 2: User Login Flow

@@ -30,7 +30,7 @@ describe('Admin Service - RBAC and Management (MOCKED)', () => {
         email: 'admin@test.com',
         name: 'Admin User',
         role: 'admin',
-        password: 'hashed_password',
+        passwordHash: 'hashed_password',
         emailVerified: true,
       },
     })
@@ -41,7 +41,7 @@ describe('Admin Service - RBAC and Management (MOCKED)', () => {
         email: 'lawyer@test.com',
         name: 'Lawyer User',
         role: 'lawyer',
-        password: 'hashed_password',
+        passwordHash: 'hashed_password',
         emailVerified: true,
       },
     })
@@ -51,7 +51,7 @@ describe('Admin Service - RBAC and Management (MOCKED)', () => {
         email: 'user1@test.com',
         name: 'User One',
         role: 'user',
-        password: 'hashed_password',
+        passwordHash: 'hashed_password',
         emailVerified: false,
       },
     })
@@ -61,7 +61,7 @@ describe('Admin Service - RBAC and Management (MOCKED)', () => {
         email: 'user2@test.com',
         name: 'User Two',
         role: 'user',
-        password: 'hashed_password',
+        passwordHash: 'hashed_password',
         emailVerified: false,
       },
     })

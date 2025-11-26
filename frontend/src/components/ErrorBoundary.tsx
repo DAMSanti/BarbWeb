@@ -34,6 +34,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Error logged - details captured for debugging in development mode
+    // Note: 'error' and 'errorInfo' intentionally not used - React DevTools captures them
+    void error
+    void errorInfo
   }
 
   handleReset = () => {

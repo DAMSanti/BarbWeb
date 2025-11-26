@@ -8,11 +8,16 @@ import request from 'supertest'
 import express from 'express'
 
 // Hoist mocks to be available in vi.mock() calls
-const { mockPrisma, mockEmailService, mockLogger, mockStripeInstance } = vi.hoisted(() => {
+const { mockPrisma, mockEmailService, mockLogger, mockStripeInstance, MockStripeConstructor } = vi.hoisted(() => {
   const mockStripeInstance = {
     webhooks: {
       constructEvent: vi.fn(),
     },
+  }
+
+  // Mock stripe - create a class that acts as constructor
+  class MockStripeConstructor {
+    webhooks = mockStripeInstance.webhooks
   }
   
   return {
@@ -38,13 +43,9 @@ const { mockPrisma, mockEmailService, mockLogger, mockStripeInstance } = vi.hois
       error: vi.fn(),
     },
     mockStripeInstance,
+    MockStripeConstructor,
   }
 })
-
-// Mock stripe - create a class that acts as constructor
-class MockStripeConstructor {
-  webhooks = mockStripeInstance.webhooks
-}
 
 vi.mock('stripe', () => {
   return {

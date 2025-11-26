@@ -82,7 +82,6 @@ function AppContent() {
           }
         }
       } catch (err) {
-        console.error('Failed to fetch user:', err)
         // Si falla, limpiar tokens
         const { logout } = useAppStore.getState()
         logout()

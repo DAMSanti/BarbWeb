@@ -187,33 +187,24 @@ export interface FilteredQuestionResponse {
 export async function filterQuestionWithBackend(
   question: string,
 ): Promise<FilteredQuestionResponse> {
-  console.log('[filterQuestionWithBackend] Starting with question:', question.substring(0, 50))
-  console.log('[filterQuestionWithBackend] API_URL:', getApiUrl())
-  
   try {
     const result = await retryAI(async () => {
-      console.log('[filterQuestionWithBackend] Making POST to /api/filter-question')
       const response = await apiClient.post('/api/filter-question', {
         question,
       })
-      console.log('[filterQuestionWithBackend] Full response:', response.data)
       
       // Backend devuelve {success: true, data: {...}}
       // Extraer el data correctamente
       const { data: responseData } = response
-      console.log('[filterQuestionWithBackend] ResponseData:', responseData)
       
       return {
         success: responseData.success,
         data: responseData.data,
       }
     })
-    console.log('[filterQuestionWithBackend] Final result:', result)
     return result
   } catch (error) {
-    console.error('[filterQuestionWithBackend] Error caught:', error)
     const frontendError = parseBackendError(error)
-    console.error('[filterQuestionWithBackend] Parsed error:', frontendError)
     return {
       success: false,
       error: frontendError.userMessage,
@@ -238,8 +229,6 @@ export async function generateDetailedResponse(
       return data.data?.response || null
     })
   } catch (error) {
-    const frontendError = parseBackendError(error)
-    console.error('Error generating response:', frontendError)
     return null
   }
 }
@@ -252,13 +241,10 @@ export async function checkBackendHealth(): Promise<boolean> {
   try {
     const result = await retryAsync(async () => {
       const { data } = await apiClient.get('/api/health')
-      console.log('[checkBackendHealth] Response:', data)
       return data.success === true
     })
-    console.log('[checkBackendHealth] Final result:', result)
     return result
   } catch (error) {
-    console.error('Backend health check failed:', parseBackendError(error))
     return false
   }
 }

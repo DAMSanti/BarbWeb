@@ -162,7 +162,7 @@ router.get('/google/callback', async (req: Request, res: Response): Promise<void
     // Redirect to frontend with tokens in URL fragment (safer than query)
     res.redirect(`${frontendUrl}?token=${accessToken}&refresh=${refreshToken}`)
   } catch (error: any) {
-    console.error('Google OAuth callback error:', error)
+    logger.error('Google OAuth callback error:', error)
     const frontendUrl = (globalThis as any).process?.env?.FRONTEND_URL || 'http://localhost:5173'
     res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(error.message)}`)
   }

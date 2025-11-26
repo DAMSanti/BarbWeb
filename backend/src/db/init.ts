@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { logger } from '../utils/logger.js'
 
 let prismaInstance: PrismaClient | null = null
 
@@ -20,9 +21,8 @@ export function getPrismaClient(): PrismaClient {
 export async function initializeDatabase() {
   try {
     const prisma = getPrismaClient()
-    console.log('🔄 Initializing database tables...')
-    console.log(`📍 Attempting to connect to Prisma with DATABASE_URL`)
-    console.log(`📍 Prisma connection test starting...`)
+    logger.info('🔄 Initializing database tables...')
+    logger.info(`📍 Prisma connection test starting...`)
 
     // Crear tabla users
     await prisma.$executeRaw`
@@ -122,15 +122,15 @@ export async function initializeDatabase() {
 
     await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "custom_agents_userId_idx" ON "custom_agents"("userId")`
 
-    console.log('✅ Database tables initialized successfully')
+    logger.info('✅ Database tables initialized successfully')
     return true
   } catch (error: any) {
     // Si el error es porque las tablas ya existen, no es un problema
     if (error.message?.includes('already exists')) {
-      console.log('✅ Database tables already exist')
+      logger.info('✅ Database tables already exist')
       return true
     }
-    console.error('⚠️ Database initialization error:', error.message)
+    logger.error('⚠️ Database initialization error:', error.message)
     return false
   }
 }

@@ -58,13 +58,13 @@ validateEnv()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-console.log('📋 Environment Check:')
-console.log(`  PORT: ${process.env.PORT || 3000}`)
-console.log(`  DATABASE_URL: ${process.env.DATABASE_URL ? '✅ Set' : '❌ NOT SET'}`)
-console.log(`  NODE_ENV: ${process.env.NODE_ENV || 'development'}`)
-console.log(`  APP_DOMAIN: ${process.env.APP_DOMAIN || 'not set'}`)
-console.log(`  VITE_API_URL: ${process.env.VITE_API_URL || 'not set (defaulted via frontend or window.location)'}`)
-console.log('---')
+logger.info('📋 Environment Check:')
+logger.info(`  PORT: ${process.env.PORT || 3000}`)
+logger.info(`  DATABASE_URL: ${process.env.DATABASE_URL ? '✅ Set' : '❌ NOT SET'}`)
+logger.info(`  NODE_ENV: ${process.env.NODE_ENV || 'development'}`)
+logger.info(`  APP_DOMAIN: ${process.env.APP_DOMAIN || 'not set'}`)
+logger.info(`  VITE_API_URL: ${process.env.VITE_API_URL || 'not set (defaulted via frontend or window.location)'}`)
+logger.info('---')
 
 const app = express()
 const PORT = Number(process.env.PORT || 3000)
@@ -148,7 +148,7 @@ app.get('*', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
   res.sendFile(indexPath, (err) => {
     if (err) {
-      console.error('Error serving index.html:', err)
+      logger.error('Error serving index.html:', err)
       res.status(404).json({
         success: false,
         error: 'Frontend not found. Ensure frontend/dist is built.',
@@ -239,8 +239,7 @@ try {
     })
   })
 } catch (startupError: any) {
-  console.error('🚨 FATAL ERROR during startup:', startupError)
-  logger.error('FATAL ERROR during startup:', startupError)
+  logger.error('🚨 FATAL ERROR during startup:', startupError)
   process.exit(1)
 }
 

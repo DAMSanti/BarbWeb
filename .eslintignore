@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+coverage/
+*.config.js
+*.config.ts
+backend/generate-secrets.js
+backend/scripts/
+backend/test-import.mjs
+frontend/scripts/
+prisma/

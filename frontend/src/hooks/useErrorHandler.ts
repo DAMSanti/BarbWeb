@@ -37,9 +37,6 @@ export function useErrorHandler(): UseErrorHandlerReturn {
     const frontendError = parseBackendError(err)
     logError(context, frontendError)
     setError(frontendError)
-    
-    // DEBUG: Log que el error fue seteado
-    console.log('[useErrorHandler] Error establecido:', frontendError.message, frontendError.userMessage)
   }
 
   const clearError = () => {

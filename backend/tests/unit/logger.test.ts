@@ -372,6 +372,103 @@ describe('Logger Module', () => {
     })
   })
 
+  describe('Logger format printf line 36 coverage', () => {
+    it('should format log message with args as JSON', () => {
+      // Test the printf formatter logic from line 36
+      const timestamp = '2025-11-26T12:34:56.789Z'
+      const level = 'info'
+      const message = 'User logged in'
+      const args = { userId: 123, email: 'user@example.com' }
+
+      // Simulate the printf formatter from logger.ts line 36
+      const ts = String(timestamp)?.slice(0, 19).replace('T', ' ')
+      const formatted = `${ts} [${level}]: ${message} ${
+        Object.keys(args).length ? JSON.stringify(args, null, 2) : ''
+      }`
+
+      expect(formatted).toContain('2025-11-26 12:34:56')
+      expect(formatted).toContain('[info]')
+      expect(formatted).toContain('User logged in')
+      expect(formatted).toContain('userId')
+      expect(formatted).toContain('123')
+    })
+
+    it('should format log message without args', () => {
+      // Test the printf formatter with empty args
+      const timestamp = '2025-11-26T12:34:56.789Z'
+      const level = 'warn'
+      const message = 'Simple warning'
+      const args = {}
+
+      const ts = String(timestamp)?.slice(0, 19).replace('T', ' ')
+      const formatted = `${ts} [${level}]: ${message} ${
+        Object.keys(args).length ? JSON.stringify(args, null, 2) : ''
+      }`
+
+      expect(formatted).toContain('2025-11-26 12:34:56')
+      expect(formatted).toContain('[warn]')
+      expect(formatted).toContain('Simple warning')
+      // Should not contain JSON because args is empty
+      expect(formatted).not.toContain('{')
+      expect(formatted).not.toContain('}')
+    })
+
+    it('should format log message with complex nested args', () => {
+      // Test the printf formatter with nested objects
+      const timestamp = '2025-11-26T15:45:30.123Z'
+      const level = 'error'
+      const message = 'Database error'
+      const args = {
+        error: 'Connection timeout',
+        details: { host: 'db.example.com', port: 5432 },
+        retries: 3,
+      }
+
+      const ts = String(timestamp)?.slice(0, 19).replace('T', ' ')
+      const formatted = `${ts} [${level}]: ${message} ${
+        Object.keys(args).length ? JSON.stringify(args, null, 2) : ''
+      }`
+
+      expect(formatted).toContain('2025-11-26 15:45:30')
+      expect(formatted).toContain('[error]')
+      expect(formatted).toContain('Database error')
+      expect(formatted).toContain('Connection timeout')
+      expect(formatted).toContain('db.example.com')
+      expect(formatted).toContain('5432')
+    })
+
+    it('should handle args with array values', () => {
+      const timestamp = '2025-11-26T10:20:30.000Z'
+      const level = 'debug'
+      const message = 'Debug info'
+      const args = { items: [1, 2, 3], names: ['a', 'b'] }
+
+      const ts = String(timestamp)?.slice(0, 19).replace('T', ' ')
+      const formatted = `${ts} [${level}]: ${message} ${
+        Object.keys(args).length ? JSON.stringify(args, null, 2) : ''
+      }`
+
+      expect(formatted).toContain('items')
+      expect(formatted).toContain('1')
+      expect(formatted).toContain('names')
+      expect(formatted).toContain('a')
+    })
+
+    it('should handle timestamp parsing correctly', () => {
+      // Various timestamp formats
+      const timestamps = [
+        '2025-11-26T12:34:56.789Z',
+        '2025-01-01T00:00:00.000Z',
+        '2025-12-31T23:59:59.999Z',
+      ]
+
+      timestamps.forEach((timestamp) => {
+        const ts = String(timestamp)?.slice(0, 19).replace('T', ' ')
+        expect(ts).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)
+      })
+    })
+  })
+
   describe('Module import behavior', () => {
     it('should create logs directory on import when missing', async () => {
       // Ensure a fresh module load

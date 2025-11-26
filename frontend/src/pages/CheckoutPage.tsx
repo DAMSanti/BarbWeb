@@ -10,7 +10,7 @@ import { getApiUrl } from '../services/backendApi'
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
   const navigate = useNavigate()
-  const { consultations, tokens, isAuthInitialized, isAuthenticated, user } = useAppStore()
+  const { consultations, tokens, isAuthInitialized: _, isAuthenticated: __, user: ___ } = useAppStore()
 
   // Lazily load Stripe promise
   const stripePromise = useMemo(() => {

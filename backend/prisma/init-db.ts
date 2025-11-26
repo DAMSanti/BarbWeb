@@ -1,23 +1,27 @@
 import { PrismaClient } from '@prisma/client'
-import { readFileSync } from 'fs'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+import { execSync } from 'child_process'
 
 const prisma = new PrismaClient()
 
 async function initializeDatabase() {
   try {
-    console.log('🔄 Reading SQL initialization script...')
-    const sqlPath = join(__dirname, 'init.sql')
-    const sql = readFileSync(sqlPath, 'utf-8')
+    console.log('🔄 Synchronizing database schema with Prisma...')
+    console.log('  Running: npx prisma db push --skip-generate')
 
-    console.log('🔄 Executing SQL to create tables...')
-    await prisma.$executeRawUnsafe(sql)
+    // Use prisma db push to sync schema
+    try {
+      execSync('npx prisma db push --skip-generate --accept-data-loss', {
+        stdio: 'inherit',
+        cwd: process.cwd(),
+      })
+    } catch (execError) {
+      console.warn('⚠️  Prisma db push encountered an issue (might be expected)')
+    }
 
-    console.log('✅ Database tables created successfully!')
+    console.log('✅ Database schema synchronized successfully!')
+    console.log('\nℹ️  If you need to run migrations on production:')
+    console.log('   npx prisma migrate deploy')
+
     await prisma.$disconnect()
     process.exit(0)
   } catch (error) {

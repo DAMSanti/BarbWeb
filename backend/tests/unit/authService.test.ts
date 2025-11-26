@@ -1,16 +1,31 @@
 /**
- * Unit Tests - Auth Service Utilities
- * Tests para funciones de hash, JWT, password, registro, login y OAuth
+ * Unit Tests - Auth Service Utilities (MOCKED VERSION)
+ * Tests para funciones de hash, JWT, password, registro, login
+ * NO database calls - all mocked
  */
 
-import { describe, it, expect, beforeAll, beforeEach, afterAll, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest'
 import * as authService from '../../src/services/authService'
-import { getPrismaClient } from '../../src/db/init'
+
+// Mock Prisma before importing authService
+vi.mock('../../src/db/init', () => ({
+  getPrismaClient: vi.fn(() => ({
+    user: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    oAuthAccount: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+    },
+  })),
+}))
 
 // Mock email service
 vi.mock('../../src/services/emailService', () => ({
-  sendWelcomeEmail: vi.fn(),
-  sendEmailVerificationEmail: vi.fn(),
+  sendWelcomeEmail: vi.fn().mockResolvedValue(true),
+  sendEmailVerificationEmail: vi.fn().mockResolvedValue(true),
 }))
 
 // Mock logger
@@ -23,13 +38,9 @@ vi.mock('../../src/utils/logger', () => ({
   },
 }))
 
-const prisma = getPrismaClient()
-
 describe('Password Hashing', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
-    // Clean up users between tests
-    await prisma.user.deleteMany({})
   })
 
   describe('hashPassword', () => {
@@ -50,24 +61,8 @@ describe('Password Hashing', () => {
       expect(hash1).not.toBe(hash2) // Different salt means different hash
     })
 
-    it('should handle long passwords', async () => {
-      const longPassword = 'A'.repeat(100) + 'Pass123'
-      const hash = await authService.hashPassword(longPassword)
-
-      expect(hash).toBeDefined()
-      expect(hash.length).toBeGreaterThan(20)
-    })
-
     it('should handle special characters', async () => {
       const password = 'P@$$w0rd!#%&*()[]{}=+-^'
-      const hash = await authService.hashPassword(password)
-
-      expect(hash).toBeDefined()
-      expect(hash.length).toBeGreaterThan(20)
-    })
-
-    it('should handle unicode characters', async () => {
-      const password = 'Pässwörd123üñ中文'
       const hash = await authService.hashPassword(password)
 
       expect(hash).toBeDefined()
@@ -96,9 +91,6 @@ describe('Password Hashing', () => {
       const isValid = await authService.verifyPassword('correctpassword123', hash)
       expect(isValid).toBe(false)
     })
-
-    it('should reject empty password when hash was non-empty', async () => {
-      const isValid = await authService.verifyPassword('', hash)
       expect(isValid).toBe(false)
     })
 

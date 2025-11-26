@@ -12,9 +12,9 @@
 Se realizó un análisis automático y manual de todo el repositorio para identificar riesgos, inconsistencias y tareas pendientes no reflejadas.
 
 ### Hallazgos principales (✅ TODOS REVISADOS Y CORREGIDOS):
-- ⚠️ Linting: agregar ESLint rule `no-console` para producción (1h) - PENDIENTE
+- ✅ ESLint `no-console` rule en producción (1h) - EN PROGRESO (Nov 26)
+- ⚠️ Linting: agregar ESLint rule `no-console` para producción (1h) - EN PROGRESO
 - 🔴 Agregar tests con supertest para rutas API (40-60h) - PRÓXIMA FASE
-- 🟢 ESLint `no-console` rule en producción (1h) - PRÓXIMA FASE
 
 ---
 

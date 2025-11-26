@@ -1,0 +1,23 @@
+# Gitleaks configuration file
+# This prevents committed secrets from entering the repository
+
+title = "Gitleaks config"
+description = "Prevents secrets from being committed"
+version = 1
+
+[allowlists]
+  description = "Allowlist of known false positives"
+
+[[rules]]
+id = "nodejs-env-jwt"
+description = "Detects JWT_SECRET and similar patterns in .env files"
+regex = '''(?i)(JWT_SECRET|JWT_REFRESH_SECRET|SECRET_KEY|API_KEY|PRIVATE_KEY)\s*[=:]\s*[^\s]+'''
+path = '''\.(env|txt|js|ts)$'''
+entropy = 3.5
+
+[[rules]]
+id = "generic-api-keys"
+description = "Detects common API key patterns"
+regex = '''(?i)(api[_-]?key|secret|token|password|credentials)\s*[=:]\s*[a-zA-Z0-9\-_.]{16,}'''
+keywords = ["api", "secret", "key", "token", "password"]
+entropy = 3.0

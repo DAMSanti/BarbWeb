@@ -1,0 +1,26 @@
+name: Secret Scanning (Gitleaks)
+
+on:
+  push:
+    branches: [ master, main, develop ]
+  pull_request:
+    branches: [ master, main, develop ]
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    name: Gitleaks Secret Scan
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: true
+        with:
+          source: ${{ github.server_url }}/${{ github.repository }}.git
+          verbose: true
+          redact: false

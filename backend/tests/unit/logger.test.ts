@@ -1,13 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Hoisted mocks for fs and path so we can change behavior per-test
+const mockFs_existsSync = vi.hoisted(() => vi.fn(() => true))
+const mockFs_mkdirSync = vi.hoisted(() => vi.fn())
 const mockFs = {
-  existsSync: vi.fn(() => true),
-  mkdirSync: vi.fn(),
+  existsSync: mockFs_existsSync,
+  mkdirSync: mockFs_mkdirSync,
 }
 
+const mockPath_join = vi.hoisted(() => vi.fn((...args: any[]) => args.join('/')))
 const mockPath = {
-  join: vi.fn((...args: any[]) => args.join('/')),
+  join: mockPath_join,
 }
 
 // Mock winston
@@ -45,11 +48,24 @@ vi.mock('path', () => ({
   default: mockPath,
 }))
 
-import { logger, logInfo, logError, logWarn, logDebug, logHttp } from '../../src/utils/logger'
+// Module variables populated via dynamic imports in beforeEach
+let logger: any, logInfo: any, logError: any, logWarn: any, logDebug: any, logHttp: any
 
 describe('Logger Module', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
+    vi.resetModules()
+    // by default, pretend logs folder exists
+    mockFs_existsSync.mockReturnValue(true)
+    mockFs_mkdirSync.mockClear()
+
+    const mod = await import('../../src/utils/logger')
+    logger = mod.logger
+    logInfo = mod.logInfo
+    logError = mod.logError
+    logWarn = mod.logWarn
+    logDebug = mod.logDebug
+    logHttp = mod.logHttp
   })
 
   describe('Logger object', () => {

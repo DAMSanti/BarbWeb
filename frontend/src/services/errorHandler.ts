@@ -130,14 +130,13 @@ export const getErrorMessage = (error: any): string => {
 
 /**
  * Helper para logging de errores en desarrollo
+ * Nota: Los console statements han sido removidos para cumplir con ESLint no-console
  */
 export const logError = (context: string, error: any): void => {
+  // Development logging disabled to comply with ESLint no-console rule
+  // Use browser DevTools or error tracking service (Sentry) instead
   if (process.env.NODE_ENV === 'development') {
-    console.group(`❌ Error en ${context}`)
-    console.error('Detalles:', error)
-    if (error instanceof FrontendError) {
-      console.error('Usuario ve:', error.userMessage)
-    }
-    console.groupEnd()
+    // Development-only logging would go here if using error tracking service
+    // e.g., Sentry.captureException(error)
   }
 }

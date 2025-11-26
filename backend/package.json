@@ -31,7 +31,7 @@
     "db:migrate": "prisma migrate dev",
     "lint": "eslint src --ext ts --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --ext ts --fix",
-    "lint:console": "eslint src --ext ts --rule 'no-console: error'"
+    "lint:console": "node scripts/check-console.js || exit 1"
   },
   "keywords": [
     "law",

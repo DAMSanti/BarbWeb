@@ -9,7 +9,7 @@
     "build:html": "node scripts/build-html.js",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "lint:console": "eslint . --ext ts,tsx --rule 'no-console: error'",
+    "lint:console": "node scripts/check-console.js || exit 1",
     "preview": "vite preview",
     "start": "vite preview --host 0.0.0.0 --port 5173"
   },

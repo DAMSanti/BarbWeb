@@ -13,10 +13,10 @@ echo "📦 Installing dependencies..."
 cd /workspace
 npm install --legacy-peer-deps --force --workspaces=true
 
-# Step 2: Run ESLint to check for console statements
-echo "🔍 Running ESLint to check for console statements..."
+# Step 2: Run console check script
+echo "🔍 Checking for console statements in production code..."
 cd /workspace
-npm run lint:console || { echo "❌ ESLint found console statements. Build failed."; exit 1; }
+node scripts/check-console.js || { echo "❌ Console statements found. Build failed."; exit 1; }
 
 # Step 3: Build frontend
 echo "🎨 Building frontend..."

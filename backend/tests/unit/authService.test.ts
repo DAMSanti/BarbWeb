@@ -8,6 +8,17 @@ import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest'
 import * as authService from '../../src/services/authService'
 import { getPrismaClient } from '../../src/db/init.js'
 
+// Mock email service to prevent sending real emails
+vi.mock('../../src/services/emailService', () => ({
+  sendWelcomeEmail: vi.fn().mockResolvedValue(true),
+  sendEmailVerificationEmail: vi.fn().mockResolvedValue(true),
+  sendPasswordResetEmail: vi.fn().mockResolvedValue(true),
+  sendPaymentConfirmationEmail: vi.fn().mockResolvedValue(true),
+  sendLawyerNotificationEmail: vi.fn().mockResolvedValue(true),
+  sendPaymentFailedEmail: vi.fn().mockResolvedValue(true),
+  sendRefundConfirmationEmail: vi.fn().mockResolvedValue(true),
+}))
+
 // Get the mocked prisma client (already mocked in setup.ts)
 const prisma = getPrismaClient()
 

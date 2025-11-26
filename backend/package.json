@@ -28,7 +28,10 @@
     "db:push": "prisma db push --skip-generate --accept-data-loss",
     "db:seed": "node --loader ts-node/esm prisma/seed.ts",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev"
+    "db:migrate": "prisma migrate dev",
+    "lint": "eslint src --ext ts --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext ts --fix",
+    "lint:console": "eslint src --ext ts --rule 'no-console: error'"
   },
   "keywords": [
     "law",
@@ -60,6 +63,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^24.10.1",
@@ -68,6 +73,7 @@
     "@types/supertest": "^6.0.2",
     "@vitest/coverage-v8": "^4.0.0",
     "bcrypt": "^6.0.0",
+    "eslint": "^8.56.0",
     "prisma": "^5.7.0",
     "supertest": "^6.3.3",
     "ts-node": "^10.9.2",

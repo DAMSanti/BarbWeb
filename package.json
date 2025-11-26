@@ -18,7 +18,10 @@
     "dev:backend": "npm run dev --workspace backend",
     "build:do": "bash backend/build.sh",
     "generate:secrets:backend": "npm run generate:secrets:value --workspace bufete-backend",
-    "check:console": "node scripts/check-console.js"
+    "check:console": "node scripts/check-console.js",
+    "lint": "npm run lint --workspace frontend && npm run lint --workspace backend",
+    "lint:fix": "npm run lint:fix --workspace frontend && npm run lint:fix --workspace backend",
+    "lint:console": "npm run lint:console --workspace frontend && npm run lint:console --workspace backend"
   },
   "dependencies": {
     "pg": "^8.16.3"

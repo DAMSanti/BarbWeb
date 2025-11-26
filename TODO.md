@@ -12,10 +12,8 @@
 Se realizó un análisis automático y manual de todo el repositorio para identificar riesgos, inconsistencias y tareas pendientes no reflejadas.
 
 ### Hallazgos principales (✅ TODOS REVISADOS Y CORREGIDOS):
-- ✅ Console logs en producción: múltiples `console.log` y `console.error` en frontend y backend (4-6h) - COMPLETADO (Nov 26)
 - ⚠️ Linting: agregar ESLint rule `no-console` para producción (1h) - PENDIENTE
 - 🔴 Agregar tests con supertest para rutas API (40-60h) - PRÓXIMA FASE
-- 🟠 Reemplazar `console.log` por `logger` en backend y error handlers en frontend (4-6h) - COMPLETADO (Nov 26)
 - 🟢 ESLint `no-console` rule en producción (1h) - PRÓXIMA FASE
 
 ---

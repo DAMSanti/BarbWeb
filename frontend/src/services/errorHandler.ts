@@ -132,11 +132,11 @@ export const getErrorMessage = (error: any): string => {
  * Helper para logging de errores en desarrollo
  * Nota: Los console statements han sido removidos para cumplir con ESLint no-console
  */
-export const logError = (context: string, error: any): void => {
+export const logError = (_context: string, _error: any): void => {
   // Development logging disabled to comply with ESLint no-console rule
   // Use browser DevTools or error tracking service (Sentry) instead
   if (process.env.NODE_ENV === 'development') {
     // Development-only logging would go here if using error tracking service
-    // e.g., Sentry.captureException(error)
+    // e.g., Sentry.captureException(_error)
   }
 }

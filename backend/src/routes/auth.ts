@@ -15,6 +15,7 @@ import { validate } from '../middleware/validation.js'
 import { asyncHandler } from '../middleware/errorHandler.js'
 import { authLimiter } from '../middleware/security.js'
 import { getPrismaClient } from '../db/init.js'
+import { logger } from '../utils/logger.js'
 import {
   RegisterSchema,
   LoginSchema,

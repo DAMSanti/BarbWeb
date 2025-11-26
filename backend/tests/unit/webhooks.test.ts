@@ -6,42 +6,47 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import request from 'supertest'
 import express from 'express'
-import Stripe from 'stripe'
 
 // Hoist mocks to be available in vi.mock() calls
-const { mockPrisma, mockEmailService, mockLogger, mockStripe } = vi.hoisted(() => ({
-  mockPrisma: {
-    payment: {
-      findFirst: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-    },
-    user: {
-      findUnique: vi.fn(),
-    },
-  },
-  mockEmailService: {
-    sendPaymentConfirmationEmail: vi.fn(),
-    sendLawyerNotificationEmail: vi.fn(),
-    sendPaymentFailedEmail: vi.fn(),
-    sendRefundConfirmationEmail: vi.fn(),
-  },
-  mockLogger: {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  },
-  mockStripe: {
+const { mockPrisma, mockEmailService, mockLogger, mockStripe } = vi.hoisted(() => {
+  const mockStripeInstance = {
     webhooks: {
       constructEvent: vi.fn(),
     },
-  },
-}))
+  }
+  
+  return {
+    mockPrisma: {
+      payment: {
+        findFirst: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+      },
+      user: {
+        findUnique: vi.fn(),
+      },
+    },
+    mockEmailService: {
+      sendPaymentConfirmationEmail: vi.fn(),
+      sendLawyerNotificationEmail: vi.fn(),
+      sendPaymentFailedEmail: vi.fn(),
+      sendRefundConfirmationEmail: vi.fn(),
+    },
+    mockLogger: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    },
+    mockStripe: mockStripeInstance,
+  }
+})
 
-// Mock stripe
-vi.mock('stripe', () => ({
-  default: vi.fn(() => mockStripe),
-}))
+// Mock stripe - needs to be a constructor
+vi.mock('stripe', () => {
+  return {
+    default: vi.fn().mockImplementation(() => mockStripe),
+  }
+})
 
 vi.mock('../../src/db/init', () => ({
   getPrismaClient: () => mockPrisma,

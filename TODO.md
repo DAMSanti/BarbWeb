@@ -14,7 +14,6 @@ Se realizó un análisis automático y manual de todo el repositorio para identi
 ### Hallazgos principales (✅ TODOS REVISADOS Y CORREGIDOS):
 - ✅ Console logs en producción: múltiples `console.log` y `console.error` en frontend y backend (4-6h) - COMPLETADO (Nov 26)
 - ⚠️ Linting: agregar ESLint rule `no-console` para producción (1h) - PENDIENTE
-- ✅ Arreglar tests rotos
 - 🔴 Agregar tests con supertest para rutas API (40-60h) - PRÓXIMA FASE
 - 🟠 Reemplazar `console.log` por `logger` en backend y error handlers en frontend (4-6h) - COMPLETADO (Nov 26)
 - 🟢 ESLint `no-console` rule en producción (1h) - PRÓXIMA FASE
@@ -26,9 +25,9 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 
 - [x] `backend/secrets.txt` - ✅ ELIMINADO (Nov 26)
 - [x] `backend/generate-secrets.js` - ✅ REVISADO - mantiene logs controlados (Nov 26)
-- [ ] `backend/src/index.ts` - Reemplazar `console.log` por `logger` (0.5-1h) ✅ DONE
-- [ ] `frontend/src/services/backendApi.ts` - Reemplazar `console.log` y `console.error` por logger (1-2h) ✅ DONE
-- [ ] `frontend/src/pages/CheckoutPage.tsx` - Reemplazar `console.log` por logger (0.5-1h) ✅ DONE
+- [x] `backend/src/index.ts` - Reemplazar `console.log` por `logger` (0.5-1h)
+- [x] `frontend/src/services/backendApi.ts` - Reemplazar `console.log` y `console.error` por logger (1-2h)
+- [x] `frontend/src/pages/CheckoutPage.tsx` - Reemplazar `console.log` por logger (0.5-1h)
 - [ ] `frontend/scripts/build-html.js` - Avoid printing full env values (0.5h)
 - [ ] `backend/src/services/emailService.ts` - Add unit tests (4-6h)
 - [x] `backend/src/services/openaiService.ts` - Add unit tests (3-5h)

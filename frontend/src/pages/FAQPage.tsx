@@ -30,10 +30,7 @@ export default function FAQPage() {
   // Verificar conexión con backend al montar (para logs)
   useEffect(() => {
     const checkBackend = async () => {
-      const isConnected = await checkBackendHealth()
-      if (!isConnected) {
-        console.warn('Backend health check failed - will still try to connect on search')
-      }
+      await checkBackendHealth()
     }
     checkBackend()
   }, [])

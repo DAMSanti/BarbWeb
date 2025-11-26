@@ -3,7 +3,7 @@ import { logger } from '../utils/logger.js'
 
 // Validar que la API key esté configurada
 if (!process.env.GEMINI_API_KEY) {
-  console.warn('⚠️  WARNING: GEMINI_API_KEY not configured. AI features will be disabled.')
+  logger.warn('GEMINI_API_KEY not configured. AI features will be disabled.')
 }
 
 function getGenAI() {
@@ -132,7 +132,7 @@ Pregunta: ${question}`
     
     return response.text() || 'No response generated'
   } catch (error) {
-    console.error('Error generating detailed response:', error)
+    logger.error('Error generating detailed response:', error)
     throw new Error('Failed to generate response')
   }
 }

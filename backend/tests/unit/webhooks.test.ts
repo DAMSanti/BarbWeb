@@ -399,6 +399,51 @@ describe('Webhooks Routes', () => {
         expect.any(Object)
       )
     })
+
+    it('should handle lawyer notification email failure gracefully', async () => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
+        id: 'evt_lawyer_email_fail_001',
+        type: 'payment_intent.succeeded',
+        data: {
+          object: {
+            id: 'pi_lawyer_fail_001',
+            amount: 25000,
+            currency: 'eur',
+            metadata: {
+              userId: 'user_lawyer_fail_001',
+              clientName: 'Test Client',
+              category: 'Legal',
+              consultationSummary: 'Test summary',
+            },
+            receipt_email: 'client@example.com',
+          },
+        },
+      }))
+
+      mockPrisma.payment.findFirst.mockImplementation(async () => null)
+      mockPrisma.payment.create.mockImplementation(async () => ({ id: 'payment_001' }))
+      mockPrisma.user.findUnique.mockImplementation(async () => ({
+        id: 'user_lawyer_fail_001',
+        email: 'client@example.com',
+        name: 'Test Client',
+      }))
+      mockEmailService.sendPaymentConfirmationEmail.mockImplementation(async () => true)
+      mockEmailService.sendLawyerNotificationEmail.mockImplementation(async () => {
+        throw new Error('Lawyer email service down')
+      })
+
+      const response = await request(app)
+        .post('/webhooks/stripe')
+        .set('stripe-signature', 'sig_123')
+        .send(Buffer.from(JSON.stringify({})))
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toBe(200)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error enviando notificación al abogado',
+        expect.any(Object)
+      )
+    })
   })
 
   describe('payment_intent.payment_failed event', () => {
@@ -470,6 +515,44 @@ describe('Webhooks Routes', () => {
       expect(response.status).toBe(200)
       expect(mockEmailService.sendPaymentFailedEmail).toHaveBeenCalledWith(
         'nouser_fail@example.com',
+        expect.any(Object)
+      )
+    })
+
+    it('should handle payment failed email sending failure gracefully', async () => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
+        id: 'evt_failed_email_error_001',
+        type: 'payment_intent.payment_failed',
+        data: {
+          object: {
+            id: 'pi_failed_email_error_001',
+            amount: 30000,
+            currency: 'eur',
+            metadata: { userId: 'user_failed_email_error_001' },
+            receipt_email: 'failed_email_error@example.com',
+            last_payment_error: { message: 'Card expired' },
+          },
+        },
+      }))
+
+      mockPrisma.user.findUnique.mockImplementation(async () => ({
+        id: 'user_failed_email_error_001',
+        email: 'failed_email_error@example.com',
+        name: 'Failed User',
+      }))
+      mockEmailService.sendPaymentFailedEmail.mockImplementation(async () => {
+        throw new Error('Email service unavailable')
+      })
+
+      const response = await request(app)
+        .post('/webhooks/stripe')
+        .set('stripe-signature', 'sig_123')
+        .send(Buffer.from(JSON.stringify({})))
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toBe(200)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error enviando email de pago fallido',
         expect.any(Object)
       )
     })
@@ -548,6 +631,92 @@ describe('Webhooks Routes', () => {
 
       expect(response.status).toBe(200)
       expect(mockPrisma.payment.update).not.toHaveBeenCalled()
+    })
+
+    it('should send refund email using user email when no receipt_email', async () => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
+        id: 'evt_refund_user_email_001',
+        type: 'charge.refunded',
+        data: {
+          object: {
+            id: 'ch_user_email_001',
+            payment_intent: 'pi_user_email_001',
+            amount_refunded: 30000,
+            currency: 'eur',
+            // No receipt_email
+          },
+        },
+      }))
+
+      mockPrisma.payment.findFirst.mockImplementation(async () => ({
+        id: 'payment_user_email_001',
+        userId: 'user_refund_email_001',
+        stripeSessionId: 'pi_user_email_001',
+      }))
+      mockPrisma.payment.update.mockImplementation(async () => ({
+        id: 'payment_user_email_001',
+        status: 'refunded',
+      }))
+      mockPrisma.user.findUnique.mockImplementation(async () => ({
+        id: 'user_refund_email_001',
+        email: 'user_fallback@example.com',
+        name: 'Fallback User',
+      }))
+      mockEmailService.sendRefundConfirmationEmail.mockImplementation(async () => true)
+
+      const response = await request(app)
+        .post('/webhooks/stripe')
+        .set('stripe-signature', 'sig_123')
+        .send(Buffer.from(JSON.stringify({})))
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toBe(200)
+      expect(mockEmailService.sendRefundConfirmationEmail).toHaveBeenCalledWith(
+        'user_fallback@example.com',
+        expect.any(Object)
+      )
+    })
+
+    it('should handle refund email sending failure gracefully', async () => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
+        id: 'evt_refund_email_fail_001',
+        type: 'charge.refunded',
+        data: {
+          object: {
+            id: 'ch_email_fail_001',
+            payment_intent: 'pi_email_fail_001',
+            amount_refunded: 20000,
+            currency: 'eur',
+            receipt_email: 'email_fail@example.com',
+          },
+        },
+      }))
+
+      mockPrisma.payment.findFirst.mockImplementation(async () => ({
+        id: 'payment_email_fail_001',
+        userId: 'user_email_fail_001',
+        stripeSessionId: 'pi_email_fail_001',
+      }))
+      mockPrisma.payment.update.mockImplementation(async () => ({
+        id: 'payment_email_fail_001',
+        status: 'refunded',
+      }))
+      mockPrisma.user.findUnique.mockImplementation(async () => null)
+      mockEmailService.sendRefundConfirmationEmail.mockImplementation(async () => {
+        throw new Error('Email service unavailable')
+      })
+
+      const response = await request(app)
+        .post('/webhooks/stripe')
+        .set('stripe-signature', 'sig_123')
+        .send(Buffer.from(JSON.stringify({})))
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toBe(200)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error enviando email de reembolso',
+        expect.any(Object)
+      )
     })
 
     it('should handle invalid payment_intent type in refund', async () => {

@@ -816,5 +816,27 @@ describe('Auth Routes', () => {
       expect(response.status).toBe(302)
       expect(response.headers.location).toContain('token=token_123')
     })
+
+    it('should redirect to frontend with error on Google OAuth failure', async () => {
+      mockOauthHelper.exchangeGoogleCode.mockRejectedValueOnce(
+        new Error('Google auth failed')
+      )
+
+      const response = await request(app).get('/auth/google/callback?code=invalid_code')
+
+      expect(response.status).toBe(302)
+      expect(response.headers.location).toContain('/login?error=')
+    })
+
+    it('should redirect to frontend with error on Microsoft OAuth failure', async () => {
+      mockOauthHelper.exchangeMicrosoftCode.mockRejectedValueOnce(
+        new Error('Microsoft auth failed')
+      )
+
+      const response = await request(app).get('/auth/microsoft/callback?code=invalid_code')
+
+      expect(response.status).toBe(302)
+      expect(response.headers.location).toContain('/login?error=')
+    })
   })
 })

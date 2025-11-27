@@ -215,13 +215,14 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - [x] Test restore de backup ✅ (Disponible desde panel DO → Fork/Restore)
 - [x] Documentar proceso de backup/restore ✅ (DO Dashboard → Databases → Backups)
 
-### Security Enhancements (8-10 horas) 🔄 EN PROGRESO
+### Security Enhancements (8-10 horas) ✅ COMPLETADO (Nov 27)
 - [x] Instalar DOMPurify: `npm install dompurify` ✅
 - [x] Sanitizar inputs en frontend ✅ (Register, Login, FAQ, Consultation)
-- [ ] Implementar CSRF tokens si se migra a cookies
-- [ ] Revisar y endurecer CSP headers
-- [ ] Implementar HSTS preload
-- [ ] Security audit completo
+- [x] CSRF tokens ✅ N/A - Usamos JWT en headers (inmune a CSRF, estándar de industria para SPAs)
+- [x] Tokens en localStorage ✅ Aceptable con DOMPurify + JWT 15min expiry + refresh rotation
+- [x] Revisar y endurecer CSP headers ✅ (Helmet con CSP estricto + Sentry + Stripe)
+- [x] Implementar HSTS preload ✅ (Header configurado: max-age=1año, includeSubDomains, preload)
+- [x] Security audit completo ✅ (XSS: DOMPurify, CSRF: N/A JWT, SQLi: Prisma, Headers: Helmet)
 
 ### Email Additional Templates (4-6 horas)
 - [ ] Implementar welcome email (enviar post-registro)

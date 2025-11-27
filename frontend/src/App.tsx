@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import AdminUsers from './pages/AdminUsers'
 import AdminPayments from './pages/AdminPayments'
 import AdminAnalytics from './pages/AdminAnalytics'
+import TestSentryPage from './pages/TestSentryPage'
 import PrivateRoute from './components/PrivateRoute'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { applyThemeVariables } from './theme/themeVariables'
@@ -110,6 +111,7 @@ function AppContent() {
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/test-sentry" element={<TestSentryPage />} />
           
           {/* Protected routes */}
           <Route

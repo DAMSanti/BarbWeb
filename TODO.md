@@ -194,13 +194,13 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - [x] Generar OpenAPI specification (`/api-docs.json`)
 - [x] Host documentation endpoint (`/api-docs`)
 
-### Monitoring & Error Tracking (2-4 horas)
-- [ ] Instalar Sentry: `npm install @sentry/node @sentry/tracing`
-- [ ] Configurar Sentry en backend
-- [ ] Configurar Sentry en frontend
-- [ ] Setup error alerts
-- [ ] Test error tracking
-- [ ] Configure email alerts para errores críticos
+### Monitoring & Error Tracking (2-4 horas) ✅ COMPLETADO (Nov 27)
+- [x] Instalar Sentry: `@sentry/node` y `@sentry/react`
+- [x] Configurar Sentry en backend (`backend/src/config/sentry.ts`)
+- [x] Configurar Sentry en frontend (`frontend/src/utils/sentry.ts`)
+- [x] Setup error alerts ✅
+- [x] Test error tracking ✅ Verificado funcionando
+- [x] Filtrado de datos sensibles (tokens, passwords)
 
 ### Database & Backups (2-3 horas)
 - [ ] Verificar DigitalOcean backups configurados

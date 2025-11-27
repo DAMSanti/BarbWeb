@@ -4,6 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import swaggerUi from 'swagger-ui-express'
 import { swaggerSpec } from './config/swagger.js'
+import { initializeSentry, setupSentryErrorHandler } from './config/sentry.js'
 import apiRoutes from './routes/api.js'
 import authRoutes from './routes/auth.js'
 import paymentRoutes from './routes/payments.js'
@@ -17,6 +18,9 @@ import { logger } from './utils/logger.js'
 
 // Force DigitalOcean rebuild - Database initialization v3
 dotenv.config()
+
+// Initialize Sentry BEFORE anything else
+initializeSentry()
 
 // Validate critical environment variables (secure secrets, API keys, etc.)
 function validateEnv() {
@@ -174,6 +178,9 @@ app.get('*', (req, res) => {
 // 404 handler
 app.use(notFoundHandler)
 
+// Sentry error handler (MUST be before custom error handler)
+setupSentryErrorHandler(app)
+
 // Error handler (MUST be last, and MUST have 4 parameters)
 app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   errorHandler(error, req, res, next)
@@ -185,6 +192,7 @@ try {
     logger.info(`✅ Server running on http://0.0.0.0:${PORT}`)
     logger.info(`📚 API Documentation: http://0.0.0.0:${PORT}/api-docs`)
     logger.info(`🔗 CORS enabled for all origins`)
+    logger.info(`🛡️ Sentry: ${process.env.SENTRY_DSN ? '✅ Error tracking enabled' : '⚠️ Not configured'}`)
     logger.info(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
     logger.info(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)
     logger.info(`📝 Logging: ✅ Winston logger configured`)

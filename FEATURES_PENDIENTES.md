@@ -177,23 +177,11 @@ GET    /api/admin/analytics - Estadísticas generales
 ### 💡 FEATURES DESEABLES (FASE 7-8)
 
 **NO IMPLEMENTADOS - Baja Prioridad**:
-1. **Chat en Vivo** - Soporte real-time con socket.io
-   - Tiempo: 16-24 horas
-   - Complejidad: Alta
-   
-2. **Sistema de Ratings** - Reviews de servicios
-   - Tiempo: 8-12 horas
-   - Complejidad: Media
-   
-3. **Multi-idioma** - i18n para otros idiomas (inglés, francés)
-   - Tiempo: 12-16 horas
-   - Complejidad: Media
-   
-4. **Análitica Avanzada** - Dashboard de estadísticas detalladas
+1. **Análitica Avanzada** - Dashboard de estadísticas detalladas
    - Tiempo: 16-20 horas
    - Complejidad: Alta
 
-5. **Historial de Usuario** - Ver consultas antiguas
+2. **Historial de Usuario** - Ver consultas antiguas
    - Tiempo: 4-6 horas
    - Complejidad: Baja
 
@@ -219,10 +207,7 @@ GET    /api/admin/analytics - Estadísticas generales
 **Total**: ~42-58 horas
 
 ### 🟢 BAJA PRIORIDAD (v1.2+)
-1. Chat en vivo (16-24h)
-2. Sistema de ratings (8-12h)
-3. Multi-idioma (12-16h)
-4. Analytics avanzado (16-20h)
+1. Analytics avanzado (16-20h)
 5. DOMPurify sanitization (2-3h)
 
 **Total**: ~54-75 horas
@@ -261,8 +246,6 @@ Total: 16-22 horas
 ### Fase Expansion (v1.2 - Semanas 14+)
 ```
 Evaluar según métricas de usuarios y feedback:
-- Chat en vivo si hay demanda alta
-- Multi-idioma si hay usuarios internacionales
 - Analytics avanzado si se necesitan insights
 ```
 
@@ -280,10 +263,10 @@ Evaluar según métricas de usuarios y feedback:
 
 5. **SEO y Performance** pueden esperar hasta después del lanzamiento inicial, pero deben priorizarse en v1.1 para mejorar adquisición de usuarios.
 
-6. **Chat en vivo y features avanzadas** son deseables pero NO críticas. Evaluar según demanda real de usuarios.
+6. **Features avanzadas** como Analytics son deseables pero NO críticas. Evaluar según demanda real de usuarios.
 
 ---
 
 **Documento creado**: Noviembre 13, 2025
-**Próxima revisión**: Después de completar Admin Panel
+**Última actualización**: Noviembre 27, 2025
 **Owner**: Development Team

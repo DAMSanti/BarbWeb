@@ -20,7 +20,7 @@ interface SitemapEntry {
 const sitemapUrls: SitemapEntry[] = [
   // Homepage
   {
-    loc: 'https://damsanti.app',
+    loc: 'https://www.damsanti.app',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'weekly',
     priority: 1.0,
@@ -28,21 +28,21 @@ const sitemapUrls: SitemapEntry[] = [
 
   // Main pages
   {
-    loc: 'https://damsanti.app/faq',
+    loc: 'https://www.damsanti.app/faq',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'weekly',
     priority: 0.9,
   },
 
   {
-    loc: 'https://damsanti.app/about',
+    loc: 'https://www.damsanti.app/about',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'monthly',
     priority: 0.8,
   },
 
   {
-    loc: 'https://damsanti.app/contact',
+    loc: 'https://www.damsanti.app/contact',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'monthly',
     priority: 0.7,
@@ -50,14 +50,14 @@ const sitemapUrls: SitemapEntry[] = [
 
   // Auth pages (public)
   {
-    loc: 'https://damsanti.app/login',
+    loc: 'https://www.damsanti.app/login',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'never',
     priority: 0.6,
   },
 
   {
-    loc: 'https://damsanti.app/register',
+    loc: 'https://www.damsanti.app/register',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'never',
     priority: 0.6,
@@ -65,14 +65,14 @@ const sitemapUrls: SitemapEntry[] = [
 
   // Legal pages
   {
-    loc: 'https://damsanti.app/privacy',
+    loc: 'https://www.damsanti.app/privacy',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'yearly',
     priority: 0.5,
   },
 
   {
-    loc: 'https://damsanti.app/terms',
+    loc: 'https://www.damsanti.app/terms',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'yearly',
     priority: 0.5,
@@ -122,6 +122,21 @@ router.get('/sitemap.xml', (_req, res) => {
  */
 router.get('/sitemap', (req, res) => {
   res.redirect('/sitemap.xml');
+});
+
+/**
+ * GET /robots.txt
+ * Returns robots.txt for search engine crawlers
+ */
+router.get('/robots.txt', (_req, res) => {
+  const robotsTxt = `User-agent: *
+Allow: /
+
+Sitemap: https://www.damsanti.app/sitemap.xml`;
+
+  res.type('text/plain');
+  res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+  res.send(robotsTxt);
 });
 
 export default router;

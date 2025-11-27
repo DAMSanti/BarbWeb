@@ -267,34 +267,7 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 
 ---
 
-## 🟢 FEATURES DESEABLES - v1.3+ (54-75 horas)
-
-### Chat en Vivo (16-24 horas)
-- [ ] Instalar Socket.io
-- [ ] Implementar WebSocket connection
-- [ ] Create chat UI components
-- [ ] Implement message persistence
-- [ ] Add typing indicators
-- [ ] Implement user status
-- [ ] Add chat history
-- [ ] Implement notifications
-
-### Sistema de Ratings (8-12 horas)
-- [ ] Create ratings database schema
-- [ ] Implement rating submission endpoint
-- [ ] Create rating UI component
-- [ ] Implement average rating calculation
-- [ ] Create ratings dashboard
-- [ ] Add review moderation
-
-### Multi-idioma i18n (12-16 horas)
-- [ ] Instalar react-i18next: `npm install react-i18next i18next`
-- [ ] Extraer todos los strings a translation files
-- [ ] Crear estructura de traducciones (es, en, fr)
-- [ ] Implementar language switcher
-- [ ] Setup automatic language detection
-- [ ] Translate backend endpoints response messages
-- [ ] Test all language switching flows
+## 🟢 FEATURES DESEABLES - v1.3+ 
 
 ### Analytics Avanzado (16-20 horas)
 - [ ] Setup Google Analytics 4

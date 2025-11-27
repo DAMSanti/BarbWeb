@@ -296,10 +296,7 @@ npm run test:coverage   # Generar reporte
 4. ⏳ **API Documentation** - Swagger/OpenAPI (4-6 horas)
 
 #### Deseable (Fase 7-8)
-1. **Chat en Vivo** - Soporte real-time con socket.io
-2. **Sistema de Ratings** - Reviews de servicios
-3. **Multi-idioma** - i18n para otros idiomas
-4. **Análitica Avanzada** - Dashboard de estadísticas
+1. **Análitica Avanzada** - Dashboard de estadísticas
 
 ---
 

@@ -631,10 +631,7 @@ Copyright © 2025 Bárbara & Abogados. Todos los derechos reservados.
 - [ ] Base de datos MongoDB para almacenar consultas y respuestas
 - [ ] Email notifications para confirmaciones
 - [ ] Panel de administración para abogados
-- [ ] Sistema de ratings y reviews
-- [ ] Chat en vivo con abogados
 - [ ] Historial de consultas para usuarios registrados
-- [ ] Multi-idioma support
 - [ ] Integración de IA (GPT) para respuestas más inteligentes
 
 ## 📞 Soporte

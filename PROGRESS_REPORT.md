@@ -438,10 +438,7 @@ El proyecto está 93% completo funcionalmente y ahora **72.35% testeado** ✅. S
 - ✅ Performance optimization ✅ COMPLETADO (Lighthouse: 98/93/100/92)
 - ⏳ Analytics dashboard (4-6h)
 
-#### 🟢 FEATURES - v1.3+ (54-75 horas)
-- ⏳ Chat en vivo (16-24h)
-- ⏳ Sistema de ratings (8-12h)
-- ⏳ Multi-idioma i18n (12-16h)
+#### 🟢 FEATURES - v1.3+ (16-20 horas)
 - ⏳ Analytics avanzado (16-20h)
 
 ### 🔧 Configuración Requerida
@@ -480,9 +477,6 @@ El proyecto está 93% completo funcionalmente y ahora **72.35% testeado** ✅. S
 - ✅ Dominio www.damsanti.app
 
 ### Largo Plazo (Post-Launch)
-- 🎯 Chat en vivo con Socket.io
-- 🎯 Sistema de ratings
-- 🎯 Multi-idioma i18n
 - 🎯 Analytics avanzado
 - 🎯 Cambiar Stripe a modo LIVE cuando tests estén OK
 - 🎯 **LAUNCH PRODUCCIÓN 🚀** (Cuando alcance 70% coverage)

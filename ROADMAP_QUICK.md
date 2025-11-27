@@ -275,9 +275,6 @@ RESTANTE:        ~40-50 horas / 2-3 semanas ⏱️ (7%)
 15. ✅ SEO completo (Nov 27)
 16. ✅ Performance optimization (Lighthouse >90)
 17. ⏳ Analytics avanzado
-18. ⏳ Chat en vivo
-19. ⏳ Multi-idioma
-20. ⏳ Sistema de ratings
 
 ---
 
@@ -396,11 +393,8 @@ TOTAL CON SENTRY:        $80-300/mes
 2. Performance (6-8h) - Code splitting, bundle analysis
 3. Lighthouse >90 (4-6h) - Asset optimization
 
-### ⭐ Features Deseables v1.3+ (54-75h)
-1. Chat en vivo (16-24h) - Socket.io real-time
-2. Sistema de ratings (8-12h) - Reviews de servicios
-3. Multi-idioma i18n (12-16h) - Inglés, francés
-4. Analytics avanzado (16-20h) - Dashboards, insights
+### ⭐ Features Deseables v1.3+ (16-20h)
+1. Analytics avanzado (16-20h) - Dashboards, insights
 
 ---
 

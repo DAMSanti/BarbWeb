@@ -164,6 +164,47 @@ export const backendApi = {
       return data
     })
   },
+
+  // Email verification
+  async verifyEmail(token: string) {
+    return retryAuth(async () => {
+      const { data } = await apiClient.post('/auth/verify-email', { token })
+      return data
+    })
+  },
+
+  async resendVerification(email: string) {
+    return retryAuth(async () => {
+      const { data } = await apiClient.post('/auth/resend-verification', { email })
+      return data
+    })
+  },
+
+  // Password recovery
+  async forgotPassword(email: string) {
+    return retryAuth(async () => {
+      const { data } = await apiClient.post('/auth/forgot-password', { email })
+      return data
+    })
+  },
+
+  async resetPassword(token: string, password: string) {
+    return retryAuth(async () => {
+      const { data } = await apiClient.post('/auth/reset-password', { token, password })
+      return data
+    })
+  },
+
+  async changePassword(accessToken: string, currentPassword: string, newPassword: string) {
+    return retryAuth(async () => {
+      const { data } = await apiClient.post(
+        '/auth/change-password',
+        { currentPassword, newPassword },
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      )
+      return data
+    })
+  },
 }
 
 export interface FilteredQuestionResponse {

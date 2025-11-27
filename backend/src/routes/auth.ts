@@ -8,6 +8,12 @@ import {
   logoutUser,
   linkOAuthAccount,
   setupAdmin,
+  requestPasswordReset,
+  resetPassword,
+  changePassword,
+  createPendingRegistration,
+  completeRegistration,
+  resendVerificationEmail,
 } from '../services/authService.js'
 import { verifyToken, isAuthenticated } from '../middleware/auth.js'
 import { exchangeGoogleCode, exchangeMicrosoftCode } from '../utils/oauthHelper.js'
@@ -70,13 +76,13 @@ router.post(
   asyncHandler(async (req: Request, res: Response): Promise<void> => {
     const { email, password, name } = req.body
 
-    const result = await registerUser(email, password, name)
+    // Nuevo sistema: crear registro pendiente y enviar email de verificación
+    const result = await createPendingRegistration(email, password, name)
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: 'User registered successfully',
-      user: result.user,
-      tokens: result.tokens,
+      message: result.message,
+      requiresVerification: true,
     })
   }),
 )
@@ -133,8 +139,8 @@ router.post(
  * @swagger
  * /auth/verify-email:
  *   post:
- *     summary: Verificar email
- *     description: Verificar el email del usuario con el token enviado por correo
+ *     summary: Verificar email y completar registro
+ *     description: Verificar el email del usuario con el token enviado por correo. Crea la cuenta y devuelve tokens.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -147,7 +153,16 @@ router.post(
  *               token: { type: string, description: Token de verificación }
  *     responses:
  *       200:
- *         description: Email verificado exitosamente
+ *         description: Email verificado y cuenta creada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 message: { type: string }
+ *                 user: { $ref: '#/components/schemas/User' }
+ *                 tokens: { $ref: '#/components/schemas/AuthTokens' }
  *       400:
  *         description: Token inválido o expirado
  */
@@ -161,42 +176,55 @@ router.post(
       return
     }
 
-    // Hash the token to find it in DB
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
-
-    // Find and verify the token
-    const prisma = getPrismaClient()
-    const verificationRecord = await prisma.emailVerificationToken.findUnique({
-      where: { token: hashedToken },
-    })
-
-    if (!verificationRecord) {
-      res.status(400).json({ error: 'Invalid or expired verification token' })
-      return
-    }
-
-    if (new Date() > verificationRecord.expiresAt) {
-      res.status(400).json({ error: 'Verification token has expired' })
-      return
-    }
-
-    // Mark user as verified
-    await prisma.user.update({
-      where: { id: verificationRecord.userId },
-      data: {
-        emailVerified: true,
-        emailVerifiedAt: new Date(),
-      },
-    })
-
-    // Delete the used token
-    await prisma.emailVerificationToken.delete({
-      where: { id: verificationRecord.id },
-    })
+    // Complete registration using the new system
+    const result = await completeRegistration(token)
 
     res.json({
       success: true,
-      message: 'Email verified successfully',
+      message: 'Email verificado exitosamente. ¡Bienvenido!',
+      user: result.user,
+      tokens: result.tokens,
+    })
+  }),
+)
+
+/**
+ * @swagger
+ * /auth/resend-verification:
+ *   post:
+ *     summary: Reenviar email de verificación
+ *     description: Reenviar el email de verificación para un registro pendiente
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200:
+ *         description: Email de verificación reenviado (si existe)
+ */
+router.post(
+  '/resend-verification',
+  authLimiter,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body
+
+    if (!email) {
+      res.status(400).json({ error: 'Email required' })
+      return
+    }
+
+    await resendVerificationEmail(email)
+
+    // Always return success to prevent email enumeration
+    res.json({
+      success: true,
+      message: 'Si existe un registro pendiente, recibirás un nuevo email de verificación.',
     })
   }),
 )
@@ -679,6 +707,152 @@ router.post(
       message: 'Admin user created/updated successfully',
       user: result.user,
       tokens: result.tokens,
+    })
+  }),
+)
+
+// ============================================================
+// PASSWORD RECOVERY
+// ============================================================
+
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Solicitar recuperación de contraseña
+ *     description: Envía un email con un enlace para restablecer la contraseña
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email: { type: string, format: email }
+ *     responses:
+ *       200:
+ *         description: Email enviado (si existe la cuenta)
+ *       429:
+ *         description: Rate limit excedido
+ */
+router.post(
+  '/forgot-password',
+  authLimiter,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body
+
+    if (!email) {
+      res.status(400).json({ error: 'Email is required' })
+      return
+    }
+
+    await requestPasswordReset(email)
+
+    // Always return success to prevent email enumeration
+    res.json({
+      success: true,
+      message: 'Si el email está registrado, recibirás un enlace para restablecer tu contraseña.',
+    })
+  }),
+)
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Restablecer contraseña
+ *     description: Cambiar la contraseña usando el token de recuperación
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, password]
+ *             properties:
+ *               token: { type: string, description: Token de recuperación }
+ *               password: { type: string, minLength: 8, description: Nueva contraseña }
+ *     responses:
+ *       200:
+ *         description: Contraseña restablecida exitosamente
+ *       400:
+ *         description: Token inválido o expirado
+ */
+router.post(
+  '/reset-password',
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { token, password } = req.body
+
+    if (!token || !password) {
+      res.status(400).json({ error: 'Token and password are required' })
+      return
+    }
+
+    if (password.length < 8) {
+      res.status(400).json({ error: 'Password must be at least 8 characters' })
+      return
+    }
+
+    await resetPassword(token, password)
+
+    res.json({
+      success: true,
+      message: 'Contraseña restablecida exitosamente. Ya puedes iniciar sesión.',
+    })
+  }),
+)
+
+/**
+ * @swagger
+ * /auth/change-password:
+ *   post:
+ *     summary: Cambiar contraseña
+ *     description: Cambiar la contraseña del usuario autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [currentPassword, newPassword]
+ *             properties:
+ *               currentPassword: { type: string, description: Contraseña actual }
+ *               newPassword: { type: string, minLength: 8, description: Nueva contraseña }
+ *     responses:
+ *       200:
+ *         description: Contraseña cambiada exitosamente
+ *       401:
+ *         description: Contraseña actual incorrecta o no autenticado
+ */
+router.post(
+  '/change-password',
+  verifyToken,
+  isAuthenticated,
+  asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { currentPassword, newPassword } = req.body
+    const userId = req.user!.userId
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ error: 'Current password and new password are required' })
+      return
+    }
+
+    if (newPassword.length < 8) {
+      res.status(400).json({ error: 'New password must be at least 8 characters' })
+      return
+    }
+
+    await changePassword(userId, currentPassword, newPassword)
+
+    res.json({
+      success: true,
+      message: 'Contraseña cambiada exitosamente. Se han cerrado todas tus sesiones.',
     })
   }),
 )

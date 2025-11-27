@@ -33,6 +33,7 @@ model User {
   customAgents      CustomAgent[]
   oauthAccounts     OAuthAccount[]
   emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
 }
@@ -133,4 +134,36 @@ model EmailVerificationToken {
   @@index([userId])
   @@index([token])
   @@map("email_verification_tokens")
+}
+
+// Password Reset Token model - Para recuperación de contraseña
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique // Hash del token para almacenar de forma segura
+  expiresAt DateTime // Expira después de 1 hora
+  used      Boolean  @default(false) // Para invalidar después de usar
+  
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@map("password_reset_tokens")
+}
+
+// Pending Registration model - Para usuarios pendientes de verificación de email
+model PendingRegistration {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  token        String   @unique // Hash del token de verificación
+  expiresAt    DateTime // Expira después de 24 horas
+  
+  createdAt    DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@map("pending_registrations")
 }

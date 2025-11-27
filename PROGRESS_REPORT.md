@@ -1,20 +1,28 @@
 # 📊 PROGRESO DEL PROYECTO - 27 de Noviembre de 2025
 
-## 🎯 HITO COMPLETADO: FASE 5.1 - SWAGGER + SENTRY + MONITORING ✅
+## 🎯 HITO COMPLETADO: FASE 5.2 - GOOGLE ANALYTICS 4 ✅
 
 ### 📈 Logros de Hoy (Nov 27)
 - ✅ **Swagger API Documentation**: 29 endpoints documentados, disponible en `/api-docs`
 - ✅ **Sentry Error Tracking**: Backend + Frontend configurados y verificados
-- ✅ **CSP Security**: Actualizado para Sentry ingest + Session Replay
-- ✅ **Build Pipeline**: Variables VITE_SENTRY_DSN inyectadas correctamente
+- ✅ **Web Vitals Monitoring**: LCP, FID, CLS, TTFB, FCP tracking en Sentry (Score 100)
+- ✅ **Google Analytics 4**: Implementado con event tracking completo
+  - Page views tracking
+  - User funnel tracking (LANDING → FAQ → CHECKOUT → PAYMENT)
+  - E-commerce tracking (purchase, begin_checkout, payment_failed)
+  - Auth tracking (login, sign_up)
+  - GDPR consent management
+- ✅ **CSP Security**: Actualizado para Sentry + Google Analytics
+- ✅ **Build Pipeline**: Variables VITE_GA_MEASUREMENT_ID + VITE_SENTRY_DSN inyectadas
 
 ### 📈 Progreso General
 ```
-████████████████████████████░░░ 93% Completado
+████████████████████████████░░ 95% Completado
 Semanas: 10 / 10 completadas (100%)
-Horas: ~150 / 153 completadas (98%)
+Horas: ~155 / 160 completadas (97%)
 Código: 100% Implementado ✅
 Testeado: 83.79% (✅ SUPERA 70% - EXCELENTE) ✅
+Monitoring: Sentry + GA4 ✅
 ```
 
 ### ✅ COMPLETADO ESTA SESIÓN

@@ -8,6 +8,7 @@ import {
   sendLawyerNotificationEmail,
   sendPaymentFailedEmail,
   sendRefundConfirmationEmail,
+  sendInvoiceEmail,
 } from '../services/emailService.js'
 
 const router = Router()
@@ -175,6 +176,37 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       } catch (emailError) {
         logger.error('Error enviando notificación al abogado', {
           error: emailError instanceof Error ? emailError.message : String(emailError),
+        })
+      }
+    }
+
+    // Send invoice email to client
+    if (clientEmail && payment) {
+      try {
+        const invoiceDate = new Date()
+        const invoiceNumber = `INV-${invoiceDate.getFullYear()}${String(invoiceDate.getMonth() + 1).padStart(2, '0')}${String(invoiceDate.getDate()).padStart(2, '0')}-${payment.id.slice(-6).toUpperCase()}`
+        const baseAmount = paymentIntent.amount / 100
+        const taxRate = 0.21 // 21% IVA
+        const taxAmount = baseAmount * taxRate
+        const totalAmount = baseAmount + taxAmount
+
+        await sendInvoiceEmail(clientEmail, {
+          clientName,
+          invoiceNumber,
+          date: invoiceDate.toLocaleDateString('es-ES', { dateStyle: 'long' }),
+          category,
+          description: `Consulta legal profesional - ${category}`,
+          amount: baseAmount,
+          currency: paymentIntent.currency,
+          taxAmount,
+          totalAmount,
+          paymentIntentId: paymentIntent.id,
+        })
+        logger.info('Factura enviada al cliente', { email: clientEmail, invoiceNumber })
+      } catch (emailError) {
+        logger.error('Error enviando factura', {
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+          email: clientEmail,
         })
       }
     }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { Mail, Lock, User, AlertCircle, Loader, CheckCircle } from 'lucide-react'
+import { Mail, Lock, User, AlertCircle, Loader, CheckCircle, MailCheck } from 'lucide-react'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 import { backendApi } from '../services/backendApi.js'
@@ -11,7 +11,7 @@ import { trackSignUp, trackFormSubmit } from '../utils/analytics'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const { register, setIsLoading, isLoading } = useAppStore()
+  const { setIsLoading, isLoading } = useAppStore()
   const { error, handleError, clearError, errorMessage } = useErrorHandler()
   
   const [formData, setFormData] = useState({
@@ -22,6 +22,7 @@ export default function RegisterPage() {
     agreeTerms: false,
   })
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [registrationSuccess, setRegistrationSuccess] = useState(false)
 
   const calculatePasswordStrength = (password: string) => {
     let strength = 0
@@ -87,7 +88,7 @@ export default function RegisterPage() {
       const cleanEmail = sanitizeEmail(formData.email)
       const cleanName = sanitizeName(formData.name)
 
-      // Make API call
+      // Make API call - now returns verification message instead of tokens
       const response = await backendApi.register(
         cleanEmail,
         formData.password,
@@ -95,15 +96,17 @@ export default function RegisterPage() {
         cleanName
       )
 
-      // Store tokens and user
-      register(response.user, response.tokens)
-      
       // Track successful registration in Google Analytics
       trackSignUp('email')
       trackFormSubmit('register', true)
       
-      // Redirect to home
-      navigate('/')
+      // Show success message - user needs to verify email
+      if (response.requiresVerification) {
+        setRegistrationSuccess(true)
+      } else {
+        // Fallback for old behavior (shouldn't happen with new system)
+        navigate('/login')
+      }
     } catch (err: any) {
       // Use parseBackendError through handleError hook
       handleError(err, 'RegisterPage.handleSubmit')
@@ -126,6 +129,127 @@ export default function RegisterPage() {
     if (passwordStrength === 2) return 'Regular'
     if (passwordStrength === 3) return 'Fuerte'
     return 'Muy fuerte'
+  }
+
+  // Show success message after registration
+  if (registrationSuccess) {
+    return (
+      <div className="w-full overflow-hidden relative min-h-screen">
+        <SEO
+          title="Verifica tu Email - Barbara & Abogados"
+          description="Revisa tu bandeja de entrada para verificar tu cuenta."
+          image="https://damsanti.app/og-default.png"
+          url="https://damsanti.app/register"
+        />
+        <ChessboardBackground
+          imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"
+          opacity={0.1}
+          blurAmount={15}
+          parallaxIntensity={0.4}
+        />
+
+        <style>{`
+          .success-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            padding: 2rem 1rem;
+          }
+
+          .success-card {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            animation: fadeInUp 0.6s ease-out;
+          }
+
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+          }
+
+          .success-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-500, #d4af37), var(--accent-500, #d946ef));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          }
+
+          .success-text {
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+          }
+
+          .email-highlight {
+            font-weight: 600;
+            color: var(--primary-500, #d4af37);
+          }
+
+          .success-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--primary-500, #d4af37);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+          }
+
+          .success-link:hover {
+            color: var(--accent-500, #d946ef);
+          }
+        `}</style>
+
+        <div className="success-container">
+          <div className="success-card">
+            <div className="success-icon">
+              <MailCheck size={40} color="white" />
+            </div>
+            <h1 className="success-title">¡Revisa tu Email!</h1>
+            <p className="success-text">
+              Hemos enviado un enlace de verificación a<br />
+              <span className="email-highlight">{formData.email}</span>
+            </p>
+            <p className="success-text" style={{ fontSize: '0.9rem', opacity: 0.6 }}>
+              Haz clic en el enlace del email para activar tu cuenta.<br />
+              El enlace expira en 24 horas.
+            </p>
+            <Link to="/login" className="success-link">
+              ← Volver a Iniciar Sesión
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

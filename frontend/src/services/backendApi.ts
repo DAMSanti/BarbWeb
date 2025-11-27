@@ -3,21 +3,38 @@ import { parseBackendError } from './errorHandler.js'
 import { retryAsync, retryAuth, retryAI } from '../utils/retry.js'
 import { useAppStore } from '../store/appStore.js'
 
-// En producción, el frontend se sirve desde la raíz '/' en el mismo dominio que la API
-// Usar una URL relativa (sin dominio) para que funcione tanto en local como en producción
+// En producción, el frontend se sirve desde www.damsanti.app y la API desde api.damsanti.app
 // LAZY EVALUATION: No evaluar import.meta.env en el scope global
 export const getApiUrl = (): string => {
   try {
-    return import.meta.env.VITE_API_URL || (
-      typeof window !== 'undefined' && (window.location.origin.includes('damsanti.app') || window.location.origin.includes('ondigitalocean.app'))
-        ? window.location.origin
-        : 'http://localhost:3000'
-    )
+    // Si hay una URL de API configurada, usarla
+    if (import.meta.env.VITE_API_URL) {
+      return import.meta.env.VITE_API_URL
+    }
+    
+    // En producción (damsanti.app), la API está en api.damsanti.app
+    if (typeof window !== 'undefined') {
+      if (window.location.origin.includes('damsanti.app')) {
+        return 'https://api.damsanti.app'
+      }
+      // Para ondigitalocean.app, usar el mismo origin (la API y frontend están juntos)
+      if (window.location.origin.includes('ondigitalocean.app')) {
+        return window.location.origin
+      }
+    }
+    
+    return 'http://localhost:3000'
   } catch (e) {
-    // Fallback si import.meta.env no está disponible (esbuild en producción)
-    return typeof window !== 'undefined' && (window.location.origin.includes('damsanti.app') || window.location.origin.includes('ondigitalocean.app'))
-      ? window.location.origin
-      : 'http://localhost:3000'
+    // Fallback si import.meta.env no está disponible
+    if (typeof window !== 'undefined') {
+      if (window.location.origin.includes('damsanti.app')) {
+        return 'https://api.damsanti.app'
+      }
+      if (window.location.origin.includes('ondigitalocean.app')) {
+        return window.location.origin
+      }
+    }
+    return 'http://localhost:3000'
   }
 }
 

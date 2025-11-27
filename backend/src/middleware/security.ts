@@ -39,7 +39,16 @@ export const helmetConfig = helmet({
         }
       }
 
-      const allowedConnectSrc = ["'self'", apiOrigin, 'https://api.stripe.com', 'https://js.stripe.com', 'https://api.resend.com']
+      const allowedConnectSrc = [
+        "'self'", 
+        apiOrigin, 
+        'https://api.stripe.com', 
+        'https://js.stripe.com', 
+        'https://api.resend.com',
+        // Sentry error tracking
+        'https://*.ingest.sentry.io',
+        'https://*.ingest.de.sentry.io',
+      ]
       if (appDomainOrigin && !allowedConnectSrc.includes(appDomainOrigin)) {
         allowedConnectSrc.push(appDomainOrigin)
       }
@@ -59,6 +68,7 @@ export const helmetConfig = helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'", 'https://js.stripe.com'],
+      workerSrc: ["'self'", 'blob:'], // Sentry Session Replay uses blob workers
       imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: allowedConnectSrc,
       frameSrc: ["'self'", 'https://js.stripe.com', 'https://hooks.stripe.com'],

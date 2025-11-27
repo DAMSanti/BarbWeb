@@ -66,10 +66,28 @@ try {
 
   // Step 3: Bundle JavaScript with esbuild
   console.log('📦 Bundling JavaScript...');
-  const define = {};
+  const define = {
+    // Define import.meta.env as an object with all properties
+    'import.meta.env': JSON.stringify({
+      ...envVars,
+      DEV: false,
+      PROD: true,
+      MODE: 'production',
+      BASE_URL: '/',
+      SSR: false,
+    }),
+    // Also define individual properties for direct access
+    'import.meta.env.DEV': 'false',
+    'import.meta.env.PROD': 'true',
+    'import.meta.env.MODE': '"production"',
+    'import.meta.env.BASE_URL': '"/"',
+    'import.meta.env.SSR': 'false',
+  };
+  
+  // Add each VITE_ variable individually
   Object.entries(envVars).forEach(([key, value]) => {
-    define[`process.env.${key}`] = JSON.stringify(value);
     define[`import.meta.env.${key}`] = JSON.stringify(value);
+    define[`process.env.${key}`] = JSON.stringify(value);
   });
 
   await esbuild.build({

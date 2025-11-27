@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { MapPin, Phone, Mail, Linkedin, Twitter } from 'lucide-react'
 
 export default function Footer() {
@@ -22,12 +23,12 @@ export default function Footer() {
           <div>
             <h4 className="footer-heading text-lg font-bold mb-4">Áreas de Práctica</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="footer-link">Derecho Civil</a></li>
-              <li><a href="#" className="footer-link">Derecho Penal</a></li>
-              <li><a href="#" className="footer-link">Derecho Laboral</a></li>
-              <li><a href="#" className="footer-link">Derecho Administrativo</a></li>
-              <li><a href="#" className="footer-link">Derecho Mercantil</a></li>
-              <li><a href="#" className="footer-link">Derecho de Familia</a></li>
+              <li><Link to="/faq" className="footer-link">Derecho Civil</Link></li>
+              <li><Link to="/faq" className="footer-link">Derecho Penal</Link></li>
+              <li><Link to="/faq" className="footer-link">Derecho Laboral</Link></li>
+              <li><Link to="/faq" className="footer-link">Derecho Administrativo</Link></li>
+              <li><Link to="/faq" className="footer-link">Derecho Mercantil</Link></li>
+              <li><Link to="/faq" className="footer-link">Derecho de Familia</Link></li>
             </ul>
           </div>
 
@@ -36,15 +37,15 @@ export default function Footer() {
             <h4 className="footer-heading text-lg font-bold mb-4">Contacto</h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-center space-x-2 footer-text">
-                <MapPin size={16} className="footer-icon" />
+                <MapPin size={16} className="footer-icon" aria-hidden="true" />
                 <span>Blv. Demetrio Herrero 1, Entlo A<br />Torrelabega, Cantabria<br />España</span>
               </li>
               <li className="flex items-center space-x-2 footer-text">
-                <Phone size={16} className="footer-icon" />
+                <Phone size={16} className="footer-icon" aria-hidden="true" />
                 <a href="tel:+34672722452" className="footer-link">+34 672 722 452</a>
               </li>
               <li className="flex items-center space-x-2 footer-text">
-                <Mail size={16} className="footer-icon" />
+                <Mail size={16} className="footer-icon" aria-hidden="true" />
                 <a href="mailto:abogados.bgarcia@gmail.com" className="footer-link">abogados.bgarcia@gmail.com</a>
               </li>
             </ul>
@@ -54,15 +55,15 @@ export default function Footer() {
           <div>
             <h4 className="footer-heading text-lg font-bold mb-4">Síguenos</h4>
             <div className="flex space-x-4">
-              <a href="#" className="footer-link text-base">
-                <Linkedin size={20} />
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="footer-link text-base" aria-label="LinkedIn">
+                <Linkedin size={20} aria-hidden="true" />
               </a>
-              <a href="#" className="footer-link text-base">
-                <Twitter size={20} />
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="footer-link text-base" aria-label="Twitter">
+                <Twitter size={20} aria-hidden="true" />
               </a>
-              <a href="#" className="footer-link text-base">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 22.5C6.2 22.5 1.5 17.8 1.5 12S6.2 1.5 12 1.5 22.5 6.2 22.5 12 17.8 22.5 12 22.5z" />
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="footer-link text-base" aria-label="Facebook">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </a>
             </div>
@@ -74,9 +75,9 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center text-sm">
             <p className="footer-copy">&copy; {currentYear} Barbara & Abogados. Todos los derechos reservados.</p>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="#" className="footer-link">Política de Privacidad</a>
-              <a href="#" className="footer-link">Términos de Servicio</a>
-              <a href="#" className="footer-link">Aviso Legal</a>
+              <Link to="/privacy" className="footer-link">Política de Privacidad</Link>
+              <Link to="/terms" className="footer-link">Términos de Servicio</Link>
+              <Link to="/terms" className="footer-link">Aviso Legal</Link>
             </div>
           </div>
         </div>

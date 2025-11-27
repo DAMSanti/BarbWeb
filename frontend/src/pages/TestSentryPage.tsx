@@ -1,6 +1,18 @@
 import { useState } from 'react'
 import { captureException, captureMessage } from '../utils/sentry'
 
+// Safe check for Sentry DSN
+const getSentryDsn = (): boolean => {
+  try {
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      return !!import.meta.env.VITE_SENTRY_DSN
+    }
+  } catch {
+    // Fallback
+  }
+  return false
+}
+
 /**
  * Página de prueba para verificar que Sentry funciona en el frontend
  * Acceder via: /test-sentry
@@ -9,7 +21,7 @@ import { captureException, captureMessage } from '../utils/sentry'
  */
 export default function TestSentryPage() {
   const [status, setStatus] = useState<string>('')
-  const hasSentryDsn = !!import.meta.env.VITE_SENTRY_DSN
+  const hasSentryDsn = getSentryDsn()
 
   const handleTestError = () => {
     try {

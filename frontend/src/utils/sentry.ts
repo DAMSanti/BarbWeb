@@ -24,9 +24,6 @@ const getEnv = () => {
 // Cache the env to avoid repeated access
 const env = getEnv()
 
-// Check if we're in development mode
-const isDev = env.DEV === true
-
 /**
  * Initialize Sentry error tracking for the frontend
  * 
@@ -37,10 +34,7 @@ export function initializeSentry(): void {
   const dsn = env.VITE_SENTRY_DSN
 
   if (!dsn) {
-    // Only log in dev mode
-    if (isDev && globalThis.console?.warn) {
-      globalThis.console.warn('⚠️ VITE_SENTRY_DSN not configured - Frontend error tracking disabled')
-    }
+    // Sentry not configured - silent return in production
     return
   }
 
@@ -116,13 +110,9 @@ export function initializeSentry(): void {
       ],
     })
 
-    if (isDev && globalThis.console?.info) {
-      globalThis.console.info('✅ Sentry initialized for frontend error tracking')
-    }
-  } catch (error) {
-    if (isDev && globalThis.console?.error) {
-      globalThis.console.error('Failed to initialize Sentry:', error)
-    }
+    // Sentry initialized successfully
+  } catch {
+    // Sentry initialization failed - silent in production
   }
 }
 
@@ -152,9 +142,7 @@ export function clearUser(): void {
  */
 export function captureException(error: Error, context?: Record<string, unknown>): void {
   if (!env.VITE_SENTRY_DSN) {
-    if (isDev && globalThis.console?.error) {
-      globalThis.console.error('Untracked error (Sentry disabled):', error)
-    }
+    // Sentry not configured - error not tracked
     return
   }
   

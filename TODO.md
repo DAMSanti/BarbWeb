@@ -432,7 +432,7 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 **Resultado**: Sitio optimizado y monitoreado
 
 ### Fase 2+ (Features Deseables)
-Evaluar según métricas de usuarios:
+Evaluar según métricas de usuarios: 
 - Analytics si se necesita más insights
 
 ---

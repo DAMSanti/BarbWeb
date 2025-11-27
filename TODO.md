@@ -258,12 +258,12 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - [ ] Image optimization - opcional
 - [ ] Lazy loading de imágenes - opcional
 
-### Performance Monitoring (4-6 horas)
-- [ ] Configurar performance monitoring en Sentry
-- [ ] Setup Web Vitals tracking
-- [ ] Monitor time to interactive
-- [ ] Monitor cumulative layout shift
-- [ ] Create performance dashboard
+### Performance Monitoring (4-6 horas) ✅ COMPLETADO (Nov 27)
+- [x] Configurar performance monitoring en Sentry ✅ (browserTracingIntegration activo)
+- [x] Setup Web Vitals tracking ✅ (LCP, FID, CLS, TTFB, FCP con PerformanceObserver)
+- [x] Monitor time to interactive ✅ (FCP + LCP tracking)
+- [x] Monitor cumulative layout shift ✅ (CLS tracking con layout-shift observer)
+- [x] Create performance dashboard ✅ (Sentry Performance → Web Vitals)
 
 ---
 

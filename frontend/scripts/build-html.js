@@ -43,10 +43,12 @@ try {
   // Step 2: Define environment variables for esbuild
   console.log('🔐 Preparing environment variables...');
   const envVars = {
-    VITE_STRIPE_PUBLISHABLE_KEY: process.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_51OKuXmIH4F5G2x4nKL5mN6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3f4g5h6',
+    VITE_STRIPE_PUBLISHABLE_KEY: process.env.VITE_STRIPE_PUBLISHABLE_KEY || '',
     VITE_API_URL: process.env.VITE_API_URL || 'http://localhost:3000',
     VITE_GOOGLE_CLIENT_ID: process.env.VITE_GOOGLE_CLIENT_ID || '',
     VITE_MICROSOFT_CLIENT_ID: process.env.VITE_MICROSOFT_CLIENT_ID || '',
+    VITE_SENTRY_DSN: process.env.VITE_SENTRY_DSN || '',
+    VITE_FRONTEND_URL: process.env.VITE_FRONTEND_URL || '',
   };
   
   // Helper function to redact sensitive values
@@ -60,6 +62,7 @@ try {
   
   console.log('  ✓ VITE_STRIPE_PUBLISHABLE_KEY:', redactValue(envVars.VITE_STRIPE_PUBLISHABLE_KEY, 'key'));
   console.log('  ✓ VITE_API_URL:', redactValue(envVars.VITE_API_URL, 'url'));
+  console.log('  ✓ VITE_SENTRY_DSN:', envVars.VITE_SENTRY_DSN ? '✅ configured' : '❌ not set');
 
   // Step 3: Bundle JavaScript with esbuild
   console.log('📦 Bundling JavaScript...');

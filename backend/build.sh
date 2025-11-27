@@ -20,6 +20,8 @@ node scripts/check-console.js || { echo "❌ Console statements found. Build fai
 
 # Step 3: Build frontend
 echo "🎨 Building frontend..."
+echo "📋 VITE environment variables available:"
+env | grep VITE_ || echo "  (none found)"
 cd /workspace
 npm run build:frontend
 

@@ -6,6 +6,7 @@ import { useAppStore } from '../store/appStore'
 import { backendApi } from '../services/backendApi.js'
 import { useErrorHandler } from '../hooks/useErrorHandler.js'
 import { SEO } from '../components/SEO'
+import { sanitizeEmail } from '../utils/sanitize'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -44,8 +45,11 @@ export default function LoginPage() {
         return
       }
 
+      // Sanitize email before sending
+      const cleanEmail = sanitizeEmail(formData.email)
+
       // Make API call
-      const response = await backendApi.login(formData.email, formData.password)
+      const response = await backendApi.login(cleanEmail, formData.password)
 
       // Store tokens and user
       login(response.user, response.tokens)

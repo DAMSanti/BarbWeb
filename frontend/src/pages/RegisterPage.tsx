@@ -6,6 +6,7 @@ import { useAppStore } from '../store/appStore'
 import { backendApi } from '../services/backendApi.js'
 import { useErrorHandler } from '../hooks/useErrorHandler.js'
 import { SEO } from '../components/SEO'
+import { sanitizeName, sanitizeEmail } from '../utils/sanitize'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -81,12 +82,16 @@ export default function RegisterPage() {
         return
       }
 
+      // Sanitize inputs before sending
+      const cleanEmail = sanitizeEmail(formData.email)
+      const cleanName = sanitizeName(formData.name)
+
       // Make API call
       const response = await backendApi.register(
-        formData.email,
+        cleanEmail,
         formData.password,
         formData.confirmPassword,
-        formData.name
+        cleanName
       )
 
       // Store tokens and user

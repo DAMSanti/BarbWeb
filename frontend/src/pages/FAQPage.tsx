@@ -5,6 +5,7 @@ import ChessboardBackground from '../components/ChessboardBackground'
 import { LegalCategory } from '../types'
 import { useAppStore } from '../store/appStore'
 import { filterQuestionWithBackend, checkBackendHealth } from '../services/backendApi'
+import { sanitizeUserInput } from '../utils/sanitize'
 
 const CONSULTATION_PRICE = 29.99
 
@@ -55,8 +56,11 @@ export default function FAQPage() {
         return
       }
 
+      // Sanitize user input before sending
+      const cleanQuestion = sanitizeUserInput(question)
+
       // SIEMPRE intentar backend (no confiar en checkBackendHealth)
-      const result = await filterQuestionWithBackend(question)
+      const result = await filterQuestionWithBackend(cleanQuestion)
 
       if (!result.success || !result.data) {
         setErrorMessage(result.error || 'Error al procesar tu pregunta')

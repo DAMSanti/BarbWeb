@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Send, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
+import { sanitizeText, sanitizeUserInput } from '../utils/sanitize'
 
 interface ConsultationFormData {
   subject: string
@@ -54,14 +55,18 @@ export default function ConsultationPage() {
     setIsLoading(true)
 
     try {
+      // Sanitize inputs before creating consultation
+      const cleanSubject = sanitizeText(formData.subject)
+      const cleanDetails = sanitizeUserInput(formData.details)
+
       // Crear la consulta en el store local primero
       const consultation = {
         id: `consult-${Date.now()}`,
         clientName: user?.name || '',
         clientEmail: user?.email || '',
-        question: formData.details,
+        question: cleanDetails,
         category: 'General',
-        subject: formData.subject,
+        subject: cleanSubject,
         price: CONSULTATION_PRICE,
         isPaid: false,
         createdAt: new Date(),

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { CheckCircle, XCircle, Loader, Mail } from 'lucide-react'
 import ChessboardBackground from '../components/ChessboardBackground'

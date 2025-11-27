@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate, useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { Lock, AlertCircle, Loader, CheckCircle, ArrowLeft, KeyRound } from 'lucide-react'
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
@@ -8,7 +8,6 @@ import { useErrorHandler } from '../hooks/useErrorHandler.js'
 import { SEO } from '../components/SEO'
 
 export default function ResetPasswordPage() {
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { setIsLoading, isLoading } = useAppStore()
   const { error, handleError, clearError, errorMessage } = useErrorHandler()

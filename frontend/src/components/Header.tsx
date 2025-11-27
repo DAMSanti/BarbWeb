@@ -40,9 +40,9 @@ export default function Header() {
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="site-header-inner flex items-center justify-between h-16 relative">
             {/* Logo - Left */}
-            <Link to="/" className="logo-link flex items-center space-x-3 flex-shrink-0 z-10">
+            <Link to="/" className="logo-link flex items-center space-x-3 flex-shrink-0 z-10" aria-label="Barbara & Abogados - Inicio">
               <div className="logo-mark w-10 h-10 rounded-lg flex items-center justify-center shadow-md">
-                <Scale className="logo-mark-icon" size={24} />
+                <Scale className="logo-mark-icon" size={24} aria-hidden="true" />
               </div>
               <div className="hidden sm:block">
                 <h1 className="logo-title text-xl font-bold">BARBARA & ABOGADOS</h1>
@@ -143,8 +143,10 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="header-mobile-btn md:hidden p-2 rounded-lg z-20"
               style={{ color: '#fbbf24' }}
+              aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={mobileMenuOpen}
             >
-              <svg className="header-mobile-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="header-mobile-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
               </svg>
             </button>

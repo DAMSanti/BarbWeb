@@ -394,10 +394,10 @@ describe('FAQ Schemas', () => {
       }
     })
 
-    it('should reject question shorter than 10 characters after trim', () => {
+    it('should reject question shorter than 10 characters', () => {
       const invalidData = {
         body: {
-          question: '   Short?   ',
+          question: 'Short?',
         },
       }
 

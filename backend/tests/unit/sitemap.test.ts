@@ -7,12 +7,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
 
-// Mock logger para capturar errores
-const mockLogger = {
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-}
+// Mock logger para capturar errores - debe usar vi.hoisted
+const { mockLogger } = vi.hoisted(() => ({
+  mockLogger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}))
 
 vi.mock('../../src/utils/logger', () => ({
   logger: mockLogger,

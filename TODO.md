@@ -1,12 +1,13 @@
 # 📋 TODO LIST - Barbara & Abogados
 ## Tareas Pendientes Ordenadas por Prioridad
 
-**Actualizado**: Noviembre 27, 2025 (11:00 AM)  
+**Actualizado**: Noviembre 27, 2025 (6:00 PM)  
 **Total Items**: 47  
 **Blocker Items**: 0 ✅  
 **Coverage**: 83.79% ✅ (Supera 70% requerido)  
 **Swagger**: ✅ Completado  
-**Sentry**: ✅ Completado (Backend + Frontend)
+**Sentry**: ✅ Completado (Backend + Frontend + Web Vitals)  
+**Performance**: ✅ Score 100 en Sentry Web Vitals
 
 ---
 
@@ -251,12 +252,12 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - [x] Minify and compress assets ✅ (esbuild minify)
 - [x] Enable gzip compression ✅ (DigitalOcean App Platform)
 - [x] Optimize CSS delivery ✅ (CSS embebido en HTML)
-- [x] Fix robots.txt ✅ (sintaxis corregida)
+- [x] Fix robots.txt ✅ (ruta dinámica en backend, no SPA catch-all)
 - [x] Fix accessibility links ✅ (aria-labels añadidos)
-- [ ] Implementar code splitting (React.lazy) - opcional
-- [ ] Bundle analysis - opcional
-- [ ] Image optimization - opcional
-- [ ] Lazy loading de imágenes - opcional
+- [x] Code splitting ✅ N/A - Lighthouse 98, no necesario
+- [x] Bundle analysis ✅ N/A - esbuild ya optimiza, bundle <300KB
+- [x] Image optimization ✅ N/A - Solo iconos SVG (Lucide)
+- [x] Lazy loading imágenes ✅ N/A - No hay imágenes pesadas
 
 ### Performance Monitoring (4-6 horas) ✅ COMPLETADO (Nov 27)
 - [x] Configurar performance monitoring en Sentry ✅ (browserTracingIntegration activo)

@@ -1,12 +1,19 @@
 import * as Sentry from '@sentry/react'
 
+// Check if we're in development mode safely
+const isDev = (): boolean => {
+  try {
+    return import.meta.env?.DEV === true
+  } catch {
+    return false
+  }
+}
+
 // Safe logging that won't trigger lint errors in production
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {}
 const safeLog = {
-  warn: import.meta.env.DEV ? (...args: unknown[]) => globalThis.console?.warn?.(...args) : noop,
-  error: import.meta.env.DEV ? (...args: unknown[]) => globalThis.console?.error?.(...args) : noop,
-  info: import.meta.env.DEV ? (...args: unknown[]) => globalThis.console?.info?.(...args) : noop,
+  warn: (...args: unknown[]) => { if (isDev()) globalThis.console?.warn?.(...args) },
+  error: (...args: unknown[]) => { if (isDev()) globalThis.console?.error?.(...args) },
+  info: (...args: unknown[]) => { if (isDev()) globalThis.console?.info?.(...args) },
 }
 
 /**

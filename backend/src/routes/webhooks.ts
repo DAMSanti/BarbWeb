@@ -271,7 +271,6 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
       }
     }
   } catch (error) {
-    /* v8 ignore next 1 */
     logger.error('Error procesando reembolso', {
       error: error instanceof Error ? error.message : String(error),
       chargeId: charge.id,

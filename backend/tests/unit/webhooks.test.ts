@@ -742,6 +742,41 @@ describe('Webhooks Routes', () => {
       expect(response.status).toBe(200)
       expect(mockPrisma.payment.findFirst).not.toHaveBeenCalled()
     })
+
+    it('should handle database error in refund processing', async () => {
+      mockStripeInstance.webhooks.constructEvent.mockImplementation(() => ({
+        id: 'evt_refund_db_error_001',
+        type: 'charge.refunded',
+        data: {
+          object: {
+            id: 'ch_db_error_001',
+            payment_intent: 'pi_db_error_refund_001',
+            amount_refunded: 25000,
+            currency: 'eur',
+          },
+        },
+      }))
+
+      // Make findFirst throw an error to trigger the outer catch block
+      mockPrisma.payment.findFirst.mockImplementation(async () => {
+        throw new Error('Database connection lost')
+      })
+
+      const response = await request(app)
+        .post('/webhooks/stripe')
+        .set('stripe-signature', 'sig_123')
+        .send(Buffer.from(JSON.stringify({})))
+        .set('Content-Type', 'application/json')
+
+      expect(response.status).toBe(200)
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Error procesando reembolso',
+        expect.objectContaining({
+          error: 'Database connection lost',
+          chargeId: 'ch_db_error_001',
+        })
+      )
+    })
   })
 
   describe('Unknown webhook events', () => {

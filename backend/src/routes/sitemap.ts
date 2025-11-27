@@ -4,7 +4,6 @@
  */
 
 import { Router } from 'express';
-import { logger } from '../utils/logger.js';
 
 const router = Router();
 
@@ -98,29 +97,23 @@ function generateUrlEntry(entry: SitemapEntry): string {
  * GET /sitemap.xml
  * Returns dynamic sitemap for search engines
  */
-router.get('/sitemap.xml', (req, res) => {
-  try {
-    // Generate XML header
-    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+router.get('/sitemap.xml', (_req, res) => {
+  // Generate XML header
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-    // Add all URLs
-    sitemapUrls.forEach(url => {
-      xml += generateUrlEntry(url) + '\n';
-    });
+  // Add all URLs
+  sitemapUrls.forEach(url => {
+    xml += generateUrlEntry(url) + '\n';
+  });
 
-    // Close XML
-    xml += '</urlset>';
+  // Close XML
+  xml += '</urlset>';
 
-    // Set proper content type and headers
-    res.type('application/xml');
-    res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-    res.send(xml);
-  } catch (error) {
-    /* v8 ignore next 3 */
-    logger.error('Error generating sitemap:', error);
-    res.status(500).send('Error generating sitemap');
-  }
+  // Set proper content type and headers
+  res.type('application/xml');
+  res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+  res.send(xml);
 });
 
 /**

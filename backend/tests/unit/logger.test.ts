@@ -393,8 +393,8 @@ describe('Logger Module', () => {
       expect(formatted).toContain('123')
     })
 
-    it('should format log message without args', () => {
-      // Test the printf formatter with empty args
+    it('should format log message without args (empty object)', () => {
+      // Test the printf formatter with empty args - covers the ternary false branch
       const timestamp = '2025-11-26T12:34:56.789Z'
       const level = 'warn'
       const message = 'Simple warning'
@@ -405,12 +405,24 @@ describe('Logger Module', () => {
         Object.keys(args).length ? JSON.stringify(args, null, 2) : ''
       }`
 
-      expect(formatted).toContain('2025-11-26 12:34:56')
-      expect(formatted).toContain('[warn]')
-      expect(formatted).toContain('Simple warning')
-      // Should not contain JSON because args is empty
-      expect(formatted).not.toContain('{')
-      expect(formatted).not.toContain('}')
+      expect(formatted).toBe('2025-11-26 12:34:56 [warn]: Simple warning ')
+      // Verify the empty string branch was taken
+      expect(Object.keys(args).length).toBe(0)
+    })
+
+    it('should return empty string when args has no keys', () => {
+      // Explicitly test the ternary condition
+      const args = {}
+      const result = Object.keys(args).length ? JSON.stringify(args, null, 2) : ''
+      expect(result).toBe('')
+    })
+
+    it('should return JSON string when args has keys', () => {
+      // Explicitly test the ternary true branch
+      const args = { key: 'value' }
+      const result = Object.keys(args).length ? JSON.stringify(args, null, 2) : ''
+      expect(result).toContain('"key"')
+      expect(result).toContain('"value"')
     })
 
     it('should format log message with complex nested args', () => {

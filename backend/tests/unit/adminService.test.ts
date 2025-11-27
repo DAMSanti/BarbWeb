@@ -772,5 +772,54 @@ describe('Admin Service - Analytics', () => {
       expect(result.summary.totalRevenue).toBe(0)
       expect(result.summary.averagePayment).toBe(0)
     })
+
+    it('should create new grouped entry when user date has no payments', async () => {
+      // This test covers the case when a user exists on a date where no payment exists
+      // The grouped[key] will be created fresh for the user's date
+      const paymentDate = new Date('2025-11-25')
+      const userOnlyDate = new Date('2025-11-26') // Different date with no payments
+
+      mockPrisma.payment.findMany.mockResolvedValue([
+        { amount: new MockDecimal(100), createdAt: paymentDate },
+      ])
+      mockPrisma.user.findMany.mockResolvedValue([
+        { createdAt: userOnlyDate }, // User on different date creates new group
+      ])
+      mockPrisma.user.count.mockResolvedValue(5)
+
+      const result = await adminService.getAnalyticsTrend('day')
+
+      // Should have 2 trend items: one for payment date, one for user-only date
+      expect(result.trend.length).toBe(2)
+      
+      // Find the user-only date entry
+      const userOnlyEntry = result.trend.find(t => t.date === '2025-11-26')
+      expect(userOnlyEntry).toBeDefined()
+      expect(userOnlyEntry?.revenue).toBe(0)
+      expect(userOnlyEntry?.payments).toBe(0)
+      expect(userOnlyEntry?.users).toBe(1)
+    })
+
+    it('should initialize grouped entry with zeros when first item is a user', async () => {
+      // Only users, no payments - each user date creates a new grouped entry
+      const userDate1 = new Date('2025-11-20')
+      const userDate2 = new Date('2025-11-21')
+
+      mockPrisma.payment.findMany.mockResolvedValue([]) // No payments
+      mockPrisma.user.findMany.mockResolvedValue([
+        { createdAt: userDate1 },
+        { createdAt: userDate2 },
+      ])
+      mockPrisma.user.count.mockResolvedValue(2)
+
+      const result = await adminService.getAnalyticsTrend('day')
+
+      expect(result.trend.length).toBe(2)
+      result.trend.forEach(entry => {
+        expect(entry.revenue).toBe(0)
+        expect(entry.payments).toBe(0)
+        expect(entry.users).toBe(1)
+      })
+    })
   })
 })

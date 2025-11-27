@@ -7,8 +7,31 @@ import { apiRateLimit } from '../middleware/rateLimit.js'
 import { FilterQuestionSchema, GenerateDetailedResponseSchema } from '../schemas/faq.schemas.js'
 import { logger } from '../utils/logger.js'
 import { sendPaymentConfirmationEmail } from '../services/emailService.js'
+import { captureException } from '../config/sentry.js'
 
 const router = Router()
+
+/**
+ * @swagger
+ * /api/test-sentry:
+ *   get:
+ *     summary: Test Sentry integration
+ *     description: Throws a test error to verify Sentry is working
+ *     tags: [Health]
+ *     responses:
+ *       500:
+ *         description: Test error thrown and captured by Sentry
+ */
+router.get('/test-sentry', (req: Request, res: Response) => {
+  const testError = new Error('🧪 Test error from Sentry integration - ' + new Date().toISOString())
+  captureException(testError, { test: true, timestamp: Date.now() })
+  logger.error('Sentry test error triggered', { error: testError.message })
+  res.status(500).json({
+    success: false,
+    error: 'Test error sent to Sentry',
+    message: 'Check your Sentry dashboard for this error',
+  })
+})
 
 interface FilterQuestionResponse {
   success: boolean

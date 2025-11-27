@@ -116,11 +116,13 @@ router.get('/sitemap.xml', (req, res) => {
     res.type('application/xml');
     res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
     res.send(xml);
-  } catch (error) /* istanbul ignore next */ {
+    /* c8 ignore start */
+  } catch (error) {
     // Defensive error handling - unlikely to be triggered as XML generation is simple
     logger.error('Error generating sitemap:', error);
     res.status(500).send('Error generating sitemap');
   }
+  /* c8 ignore stop */
 });
 
 /**

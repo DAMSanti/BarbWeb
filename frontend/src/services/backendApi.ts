@@ -17,7 +17,7 @@ export const getApiUrl = (): string => {
     if (typeof window !== 'undefined') {
       if (window.location.origin.includes('damsanti.app')) {
         // Backend está en back-jqdv9.ondigitalocean.app
-        return 'https://back-jqdv9.ondigitalocean.app'
+        return 'https://api.damsanti.app'
       }
       if (window.location.origin.includes('ondigitalocean.app')) {
         return window.location.origin
@@ -29,7 +29,7 @@ export const getApiUrl = (): string => {
     // Fallback si import.meta.env no está disponible
     if (typeof window !== 'undefined') {
       if (window.location.origin.includes('damsanti.app')) {
-        return 'https://back-jqdv9.ondigitalocean.app'
+        return 'https://api.damsanti.app'
       }
       if (window.location.origin.includes('ondigitalocean.app')) {
         return window.location.origin

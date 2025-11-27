@@ -35,13 +35,13 @@ const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || ''
  */
 export function initializeAnalytics(): void {
   if (!GA_MEASUREMENT_ID) {
-    console.warn('[Analytics] GA_MEASUREMENT_ID not configured. Analytics disabled.')
+    // Analytics disabled - no measurement ID configured
     return
   }
 
   // Skip in development unless explicitly enabled
   if (import.meta.env.DEV && !import.meta.env.VITE_ENABLE_ANALYTICS_DEV) {
-    console.log('[Analytics] Disabled in development mode')
+    // Analytics disabled in development mode
     return
   }
 
@@ -67,7 +67,7 @@ export function initializeAnalytics(): void {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
   document.head.appendChild(script)
 
-  console.log('[Analytics] Google Analytics 4 initialized')
+  // GA4 initialized successfully
 }
 
 /**
@@ -556,20 +556,14 @@ export function enableDebugMode(): void {
     debug_mode: true,
   })
   
-  console.log('[Analytics] Debug mode enabled')
+  // Debug mode enabled - check GA4 DebugView in Google Analytics
 }
 
 /**
  * Log all events to console (development only)
+ * Note: This function is intentionally a no-op in production builds
  */
 export function logEventsToConsole(): void {
-  if (typeof window === 'undefined') return
-
-  const originalGtag = window.gtag
-  window.gtag = function(...args: unknown[]) {
-    console.log('[Analytics Event]', ...args)
-    if (originalGtag) {
-      originalGtag(...args)
-    }
-  }
+  // This function only works in development with browser console
+  // In production, use Google Analytics DebugView instead
 }

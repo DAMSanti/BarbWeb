@@ -215,19 +215,25 @@ describe('Sitemap Routes', () => {
   })
 
   describe('Error handling', () => {
-    it('should return 500 and log error when sitemap generation fails', async () => {
-      // Create a new app with a route that throws an error
+    it('should return 500 and log error when res.type throws', async () => {
+      // Create a custom app that intercepts the response
       const errorApp = express()
       
-      // Mock router that throws error
-      errorApp.get('/sitemap.xml', (_req, res) => {
-        try {
-          throw new Error('Simulated sitemap generation error')
-        } catch (error) {
-          mockLogger.error('Error generating sitemap:', error)
-          res.status(500).send('Error generating sitemap')
+      // Add middleware that makes res.type throw
+      errorApp.use((_req, res, next) => {
+        const originalType = res.type.bind(res)
+        res.type = () => {
+          throw new Error('Simulated res.type error')
         }
+        // Restore after first call fails
+        setTimeout(() => {
+          res.type = originalType
+        }, 0)
+        next()
       })
+      
+      // Mount the real sitemap router
+      errorApp.use(sitemapRouter)
 
       const response = await request(errorApp).get('/sitemap.xml')
 
@@ -239,22 +245,26 @@ describe('Sitemap Routes', () => {
       )
     })
 
-    it('should handle errors gracefully without crashing', async () => {
-      // Create app with middleware that causes error
+    it('should return 500 and log error when res.send throws', async () => {
       const errorApp = express()
       
-      // Middleware that corrupts response
-      errorApp.get('/sitemap.xml', (_req, res) => {
-        try {
-          // Simulate error during XML generation
-          const badData: unknown = null
-          // This will throw when trying to iterate
-          ;(badData as unknown[]).forEach(() => {})
-        } catch (error) {
-          mockLogger.error('Error generating sitemap:', error)
-          res.status(500).send('Error generating sitemap')
+      // Add middleware that makes res.send throw after type is set
+      errorApp.use((_req, res, next) => {
+        const originalSend = res.send.bind(res)
+        let callCount = 0
+        res.send = (body?: unknown) => {
+          callCount++
+          // First call (from the try block) should throw
+          if (callCount === 1 && typeof body === 'string' && body.includes('<?xml')) {
+            throw new Error('Simulated res.send error')
+          }
+          // Second call (from catch block) should work
+          return originalSend(body)
         }
+        next()
       })
+      
+      errorApp.use(sitemapRouter)
 
       const response = await request(errorApp).get('/sitemap.xml')
 

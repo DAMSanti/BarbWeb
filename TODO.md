@@ -433,8 +433,6 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 
 ### Fase 2+ (Features Deseables)
 Evaluar según métricas de usuarios:
-- Chat en vivo si hay demanda alta
-- Multi-idioma si hay usuarios internacionales
 - Analytics si se necesita más insights
 
 ---

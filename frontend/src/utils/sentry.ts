@@ -1,20 +1,31 @@
 import * as Sentry from '@sentry/react'
 
-// Check if we're in development mode safely
-const isDev = (): boolean => {
+// Safe environment variable access - Vite replaces these at build time
+// but we need to handle cases where it might not be available
+const getEnv = () => {
   try {
-    return import.meta.env?.DEV === true
+    // Vite injects import.meta.env at build time
+    // In production, this should always work if built with Vite
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      return import.meta.env
+    }
   } catch {
-    return false
+    // Fallback for non-Vite environments
+  }
+  return {
+    DEV: false,
+    PROD: true,
+    MODE: 'production',
+    VITE_SENTRY_DSN: '',
+    VITE_APP_VERSION: '1.0.0',
   }
 }
 
-// Safe logging that won't trigger lint errors in production
-const safeLog = {
-  warn: (...args: unknown[]) => { if (isDev()) globalThis.console?.warn?.(...args) },
-  error: (...args: unknown[]) => { if (isDev()) globalThis.console?.error?.(...args) },
-  info: (...args: unknown[]) => { if (isDev()) globalThis.console?.info?.(...args) },
-}
+// Cache the env to avoid repeated access
+const env = getEnv()
+
+// Check if we're in development mode
+const isDev = env.DEV === true
 
 /**
  * Initialize Sentry error tracking for the frontend
@@ -23,21 +34,24 @@ const safeLog = {
  * - VITE_SENTRY_DSN: Your Sentry DSN from sentry.io (frontend project)
  */
 export function initializeSentry(): void {
-  const dsn = import.meta.env.VITE_SENTRY_DSN
+  const dsn = env.VITE_SENTRY_DSN
 
   if (!dsn) {
-    safeLog.warn('⚠️ VITE_SENTRY_DSN not configured - Frontend error tracking disabled')
+    // Only log in dev mode
+    if (isDev && globalThis.console?.warn) {
+      globalThis.console.warn('⚠️ VITE_SENTRY_DSN not configured - Frontend error tracking disabled')
+    }
     return
   }
 
   try {
     Sentry.init({
       dsn,
-      environment: import.meta.env.MODE || 'development',
-      release: `bufete-frontend@${import.meta.env.VITE_APP_VERSION || '1.0.0'}`,
+      environment: env.MODE || 'production',
+      release: `bufete-frontend@${env.VITE_APP_VERSION || '1.0.0'}`,
       
       // Performance Monitoring
-      tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
+      tracesSampleRate: env.PROD ? 0.1 : 1.0,
       
       // Session Replay for debugging user issues
       replaysSessionSampleRate: 0.1, // 10% of sessions
@@ -102,9 +116,13 @@ export function initializeSentry(): void {
       ],
     })
 
-    safeLog.info('✅ Sentry initialized for frontend error tracking')
+    if (isDev && globalThis.console?.info) {
+      globalThis.console.info('✅ Sentry initialized for frontend error tracking')
+    }
   } catch (error) {
-    safeLog.error('Failed to initialize Sentry:', error)
+    if (isDev && globalThis.console?.error) {
+      globalThis.console.error('Failed to initialize Sentry:', error)
+    }
   }
 }
 
@@ -112,7 +130,7 @@ export function initializeSentry(): void {
  * Set user context for error tracking
  */
 export function setUser(user: { id: string; email?: string }): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return
+  if (!env.VITE_SENTRY_DSN) return
   
   Sentry.setUser({
     id: user.id,
@@ -124,7 +142,7 @@ export function setUser(user: { id: string; email?: string }): void {
  * Clear user context (on logout)
  */
 export function clearUser(): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return
+  if (!env.VITE_SENTRY_DSN) return
   
   Sentry.setUser(null)
 }
@@ -133,8 +151,10 @@ export function clearUser(): void {
  * Capture an exception manually
  */
 export function captureException(error: Error, context?: Record<string, unknown>): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) {
-    safeLog.error('Untracked error (Sentry disabled):', error)
+  if (!env.VITE_SENTRY_DSN) {
+    if (isDev && globalThis.console?.error) {
+      globalThis.console.error('Untracked error (Sentry disabled):', error)
+    }
     return
   }
   
@@ -147,7 +167,7 @@ export function captureException(error: Error, context?: Record<string, unknown>
  * Capture a message manually
  */
 export function captureMessage(message: string, level: Sentry.SeverityLevel = 'info'): void {
-  if (!import.meta.env.VITE_SENTRY_DSN) return
+  if (!env.VITE_SENTRY_DSN) return
   
   Sentry.captureMessage(message, level)
 }

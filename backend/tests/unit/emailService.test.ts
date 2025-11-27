@@ -6,14 +6,20 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
-// Mock Resend before importing emailService
-vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: {
-      send: vi.fn().mockResolvedValue({ id: 'mock-email-id', error: null }),
-    },
-  })),
+// Mock Resend before importing emailService using vi.hoisted
+const { mockSend } = vi.hoisted(() => ({
+  mockSend: vi.fn().mockResolvedValue({ data: { id: 'mock-email-id' }, error: null }),
 }))
+
+vi.mock('resend', () => {
+  return {
+    Resend: class MockResend {
+      emails = {
+        send: mockSend,
+      }
+    },
+  }
+})
 
 // Import after mocking
 import {

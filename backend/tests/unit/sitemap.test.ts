@@ -46,14 +46,14 @@ describe('Sitemap Routes', () => {
       const response = await request(app).get('/sitemap.xml')
 
       expect(response.status).toBe(200)
-      expect(response.text).toContain('https://damsanti.app')
-      expect(response.text).toContain('https://damsanti.app/faq')
-      expect(response.text).toContain('https://damsanti.app/about')
-      expect(response.text).toContain('https://damsanti.app/contact')
-      expect(response.text).toContain('https://damsanti.app/login')
-      expect(response.text).toContain('https://damsanti.app/register')
-      expect(response.text).toContain('https://damsanti.app/privacy')
-      expect(response.text).toContain('https://damsanti.app/terms')
+      expect(response.text).toContain('https://www.damsanti.app')
+      expect(response.text).toContain('https://www.damsanti.app/faq')
+      expect(response.text).toContain('https://www.damsanti.app/about')
+      expect(response.text).toContain('https://www.damsanti.app/contact')
+      expect(response.text).toContain('https://www.damsanti.app/login')
+      expect(response.text).toContain('https://www.damsanti.app/register')
+      expect(response.text).toContain('https://www.damsanti.app/privacy')
+      expect(response.text).toContain('https://www.damsanti.app/terms')
     })
 
     it('should include lastmod, changefreq, and priority for each URL', async () => {
@@ -170,7 +170,7 @@ describe('Sitemap Routes', () => {
       expect(response.status).toBe(200)
       // Homepage should have priority 1 (1.0 in JavaScript becomes 1)
       expect(response.text).toMatch(
-        /<url>\s*<loc>https:\/\/barbweb\.com<\/loc>[\s\S]*?<priority>1<\/priority>/
+        /<url>\s*<loc>https:\/\/www\.damsanti\.app<\/loc>[\s\S]*?<priority>1<\/priority>/
       )
     })
 

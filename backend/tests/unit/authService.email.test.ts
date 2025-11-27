@@ -291,37 +291,48 @@ describe('Password Reset Flow', () => {
   })
 })
 
-describe('Email Verification (existing users)', () => {
+describe('Email Verification (pending registrations)', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     await prisma.user.deleteMany({})
+    await prisma.pendingRegistration.deleteMany({})
     await prisma.emailVerificationToken.deleteMany({})
   })
 
   describe('resendVerificationEmail', () => {
-    it('should resend verification email for unverified user', async () => {
-      // Create user (not verified)
-      await authService.registerUser('unverified@example.com', 'pass', 'Unverified User')
+    it('should resend verification email for pending registration', async () => {
+      // Create pending registration
+      await authService.createPendingRegistration('pending@example.com', 'pass', 'Pending User')
+      vi.clearAllMocks() // Clear the first call
 
-      await authService.resendVerificationEmail('unverified@example.com')
+      await authService.resendVerificationEmail('pending@example.com')
 
-      // Should have been called twice - once in registerUser, once in resend
-      expect(emailService.sendEmailVerificationEmail).toHaveBeenCalledTimes(2)
+      // Should have been called once for resend
+      expect(emailService.sendEmailVerificationEmail).toHaveBeenCalledTimes(1)
     })
 
-    it('should throw error for non-existent user', async () => {
+    it('should not throw for non-existent email (security)', async () => {
+      // For security, we don't reveal if email exists
       await expect(
         authService.resendVerificationEmail('nonexistent@example.com')
-      ).rejects.toThrow()
+      ).resolves.not.toThrow()
+      
+      // Should NOT send email
+      expect(emailService.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
 
-    it('should throw error for already verified user', async () => {
-      // Create and verify user via OAuth (which sets emailVerified = true)
-      await authService.oauthLogin('google', 'google-123', 'verified@example.com', 'Verified User')
+    it('should not throw for already registered user email (security)', async () => {
+      // Create a real user (already verified/registered)
+      await authService.registerUser('registered@example.com', 'pass', 'Registered User')
+      vi.clearAllMocks()
 
+      // Should not throw but also should not send email (no pending registration)
       await expect(
-        authService.resendVerificationEmail('verified@example.com')
-      ).rejects.toThrow()
+        authService.resendVerificationEmail('registered@example.com')
+      ).resolves.not.toThrow()
+      
+      // No email sent because there's no pending registration for this email
+      expect(emailService.sendEmailVerificationEmail).not.toHaveBeenCalled()
     })
   })
 })

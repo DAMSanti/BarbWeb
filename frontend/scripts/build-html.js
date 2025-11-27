@@ -49,6 +49,7 @@ try {
     VITE_MICROSOFT_CLIENT_ID: process.env.VITE_MICROSOFT_CLIENT_ID || '',
     VITE_SENTRY_DSN: process.env.VITE_SENTRY_DSN || '',
     VITE_FRONTEND_URL: process.env.VITE_FRONTEND_URL || '',
+    VITE_GA_MEASUREMENT_ID: process.env.VITE_GA_MEASUREMENT_ID || '',
   };
   
   // Helper function to redact sensitive values

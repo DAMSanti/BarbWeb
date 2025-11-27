@@ -128,8 +128,8 @@ export default function RegisterPage() {
       <SEO
         title="Crear Cuenta - Barbara & Abogados"
         description="Crea tu cuenta en Barbara & Abogados. Acceso inmediato a consultas legales de expertos."
-        image="https://barbweb.com/og-default.png"
-        url="https://barbweb.com/register"
+        image="https://damsanti.app/og-default.png"
+        url="https://damsanti.app/register"
       />
       <ChessboardBackground
         imageUrl="https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg"

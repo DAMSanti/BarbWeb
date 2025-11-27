@@ -46,14 +46,14 @@ describe('Sitemap Routes', () => {
       const response = await request(app).get('/sitemap.xml')
 
       expect(response.status).toBe(200)
-      expect(response.text).toContain('https://barbweb.com')
-      expect(response.text).toContain('https://barbweb.com/faq')
-      expect(response.text).toContain('https://barbweb.com/about')
-      expect(response.text).toContain('https://barbweb.com/contact')
-      expect(response.text).toContain('https://barbweb.com/login')
-      expect(response.text).toContain('https://barbweb.com/register')
-      expect(response.text).toContain('https://barbweb.com/privacy')
-      expect(response.text).toContain('https://barbweb.com/terms')
+      expect(response.text).toContain('https://damsanti.app')
+      expect(response.text).toContain('https://damsanti.app/faq')
+      expect(response.text).toContain('https://damsanti.app/about')
+      expect(response.text).toContain('https://damsanti.app/contact')
+      expect(response.text).toContain('https://damsanti.app/login')
+      expect(response.text).toContain('https://damsanti.app/register')
+      expect(response.text).toContain('https://damsanti.app/privacy')
+      expect(response.text).toContain('https://damsanti.app/terms')
     })
 
     it('should include lastmod, changefreq, and priority for each URL', async () => {

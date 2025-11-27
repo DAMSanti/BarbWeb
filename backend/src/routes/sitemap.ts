@@ -20,7 +20,7 @@ interface SitemapEntry {
 const sitemapUrls: SitemapEntry[] = [
   // Homepage
   {
-    loc: 'https://barbweb.com',
+    loc: 'https://damsanti.app',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'weekly',
     priority: 1.0,
@@ -28,21 +28,21 @@ const sitemapUrls: SitemapEntry[] = [
 
   // Main pages
   {
-    loc: 'https://barbweb.com/faq',
+    loc: 'https://damsanti.app/faq',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'weekly',
     priority: 0.9,
   },
 
   {
-    loc: 'https://barbweb.com/about',
+    loc: 'https://damsanti.app/about',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'monthly',
     priority: 0.8,
   },
 
   {
-    loc: 'https://barbweb.com/contact',
+    loc: 'https://damsanti.app/contact',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'monthly',
     priority: 0.7,
@@ -50,14 +50,14 @@ const sitemapUrls: SitemapEntry[] = [
 
   // Auth pages (public)
   {
-    loc: 'https://barbweb.com/login',
+    loc: 'https://damsanti.app/login',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'never',
     priority: 0.6,
   },
 
   {
-    loc: 'https://barbweb.com/register',
+    loc: 'https://damsanti.app/register',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'never',
     priority: 0.6,
@@ -65,14 +65,14 @@ const sitemapUrls: SitemapEntry[] = [
 
   // Legal pages
   {
-    loc: 'https://barbweb.com/privacy',
+    loc: 'https://damsanti.app/privacy',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'yearly',
     priority: 0.5,
   },
 
   {
-    loc: 'https://barbweb.com/terms',
+    loc: 'https://damsanti.app/terms',
     lastmod: new Date().toISOString().split('T')[0],
     changefreq: 'yearly',
     priority: 0.5,

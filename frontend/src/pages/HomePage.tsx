@@ -7,8 +7,8 @@ export default function HomePage() {
       <SEO
         title="Consultas Legales Online - Respuestas Inmediatas"
         description="Obtén respuestas de abogados expertos en 5 minutos. Consultas legales online seguras y confidenciales."
-        image="https://barbweb.com/og-home.png"
-        url="https://barbweb.com"
+        image="https://damsanti.app/og-home.png"
+        url="https://damsanti.app"
         schema={schemaPresets.localBusiness}
       />
       <MinimalistLayout />

@@ -6,8 +6,8 @@ export default function TermsPage() {
       <SEO
         title="Términos y Condiciones"
         description="Lee nuestros términos y condiciones de uso. Acuerdo legal para usar Barbara & Abogados."
-        image="https://barbweb.com/og-default.png"
-        url="https://barbweb.com/terms"
+        image="https://damsanti.app/og-default.png"
+        url="https://damsanti.app/terms"
       />
 
       <div className="min-h-screen bg-black py-12 px-4">
@@ -89,7 +89,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-2xl font-bold text-gold mb-3">9. Contacto</h2>
-              <p>Para preguntas sobre estos términos, contacta a: info@barbweb.com</p>
+              <p>Para preguntas sobre estos términos, contacta a: info@damsanti.app</p>
             </section>
           </div>
         </div>

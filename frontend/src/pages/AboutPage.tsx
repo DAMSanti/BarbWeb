@@ -6,19 +6,19 @@ export default function AboutPage() {
       <SEO
         title="Sobre Barbara & Abogados - Consultas Legales Online"
         description="Conoce nuestro equipo de abogados expertos. 15+ años de experiencia en consultas legales online con respuestas inmediatas."
-        image="https://barbweb.com/og-about.png"
-        url="https://barbweb.com/about"
+        image="https://damsanti.app/og-about.png"
+        url="https://damsanti.app/about"
         schema={{
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: 'Barbara & Abogados',
           description: 'Plataforma de consultas legales online con respuestas inmediatas',
-          url: 'https://barbweb.com',
+          url: 'https://damsanti.app',
           foundingDate: '2010',
           contactPoint: {
             '@type': 'ContactPoint',
             contactType: 'Customer Support',
-            email: 'info@barbweb.com'
+            email: 'info@damsanti.app'
           }
         }}
       />

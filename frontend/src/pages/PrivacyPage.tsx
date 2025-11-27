@@ -6,8 +6,8 @@ export default function PrivacyPage() {
       <SEO
         title="Política de Privacidad"
         description="Lee nuestra política de privacidad. Cómo protegemos tus datos personales en Barbara & Abogados."
-        image="https://barbweb.com/og-default.png"
-        url="https://barbweb.com/privacy"
+        image="https://damsanti.app/og-default.png"
+        url="https://damsanti.app/privacy"
       />
 
       <div className="min-h-screen bg-black py-12 px-4">
@@ -68,7 +68,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-2xl font-bold text-gold mb-3">6. Contacto</h2>
-              <p>Para preguntas sobre privacidad, contacta a: info@barbweb.com</p>
+              <p>Para preguntas sobre privacidad, contacta a: info@damsanti.app</p>
             </section>
           </div>
         </div>

@@ -6,8 +6,8 @@ export default function ContactPage() {
       <SEO
         title="Contacto - Barbara & Abogados"
         description="¿Preguntas sobre nuestros servicios? Contacta con nosotros. Respuesta garantizada en 24h."
-        image="https://barbweb.com/og-default.png"
-        url="https://barbweb.com/contact"
+        image="https://damsanti.app/og-default.png"
+        url="https://damsanti.app/contact"
         schema={{
           '@context': 'https://schema.org',
           '@type': 'LocalBusiness',
@@ -16,7 +16,7 @@ export default function ContactPage() {
             '@type': 'ContactPoint',
             contactType: 'Customer Service',
             telephone: '+34-900-123-456',
-            email: 'info@barbweb.com'
+            email: 'info@damsanti.app'
           }
         }}
       />
@@ -88,7 +88,7 @@ export default function ContactPage() {
 
               <div>
                 <h3 className="font-bold text-gold mb-2">📧 Email</h3>
-                <p>info@barbweb.com</p>
+                <p>info@damsanti.app</p>
                 <p className="text-sm text-gray-400 mt-1">Respuesta en 24h garantizada</p>
               </div>
 
@@ -117,7 +117,7 @@ export default function ContactPage() {
 
               <div className="bg-gray-900 p-4 rounded mt-6">
                 <h3 className="font-bold text-gold mb-2">¿Eres abogado/a?</h3>
-                <p className="text-sm">Si quieres unirte a nuestro equipo, envíanos tu CV a careers@barbweb.com</p>
+                <p className="text-sm">Si quieres unirte a nuestro equipo, envíanos tu CV a careers@damsanti.app</p>
               </div>
             </div>
           </div>

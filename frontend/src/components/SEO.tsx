@@ -18,21 +18,21 @@ interface SEOProps {
  *   title="Page Title"
  *   description="Page description"
  *   image="og-image.png"
- *   url="https://barbweb.com/page"
+ *   url="https://damsanti.app/page"
  * />
  */
 export function SEO({
   title,
   description,
-  image = 'https://barbweb.com/og-default.png',
-  url = typeof window !== 'undefined' ? window.location.href : 'https://barbweb.com',
+  image = 'https://damsanti.app/og-default.png',
+  url = typeof window !== 'undefined' ? window.location.href : 'https://damsanti.app',
   type = 'website',
   author,
   publishedDate,
   schema,
 }: SEOProps) {
   const fullTitle = `${title} - Barbara & Abogados`;
-  const siteUrl = 'https://barbweb.com';
+  const siteUrl = 'https://damsanti.app';
 
   // Default schema for organization
   const defaultSchema = {
@@ -44,7 +44,7 @@ export function SEO({
     logo: `${siteUrl}/logo.png`,
     image: image,
     telephone: '+34-XXX-XXX-XXX',
-    email: 'info@barbweb.com',
+    email: 'info@damsanti.app',
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Calle Principal, 123',
@@ -130,7 +130,7 @@ export const schemaPresets = {
     '@type': 'Organization',
     name: 'Barbara & Abogados',
     description: 'Consultas legales online',
-    url: 'https://barbweb.com',
+    url: 'https://damsanti.app',
   },
 
   service: (name: string, description: string, price?: string) => ({
@@ -149,9 +149,9 @@ export const schemaPresets = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Barbara & Abogados',
-    image: 'https://barbweb.com/logo.png',
+    image: 'https://damsanti.app/logo.png',
     description: 'Consultas legales online con abogados expertos',
-    url: 'https://barbweb.com',
+    url: 'https://damsanti.app',
     telephone: '+34-XXX-XXX-XXX',
     address: {
       '@type': 'PostalAddress',

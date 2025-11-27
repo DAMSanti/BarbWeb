@@ -97,7 +97,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
             {/* Footer */}
             <p className="text-xs text-slate-500 text-center mt-4">
               Si el problema persiste, contacta con{' '}
-              <a href="mailto:support@barbweb.com" className="text-primary-600 hover:underline">
+              <a href="mailto:support@damsanti.app" className="text-primary-600 hover:underline">
                 soporte
               </a>
             </p>

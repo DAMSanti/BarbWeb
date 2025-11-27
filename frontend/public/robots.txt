@@ -24,4 +24,4 @@ Allow: /
 Crawl-delay: 1
 
 # Location of sitemap
-Sitemap: https://barbweb.com/sitemap.xml
+Sitemap: https://damsanti.app/sitemap.xml

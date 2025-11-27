@@ -52,7 +52,7 @@ export function Breadcrumb({ items, className = '' }: BreadcrumbProps) {
     '@type': 'ListItem',
     position: index + 1,
     name: item.label,
-    item: `https://barbweb.com${item.path}`,
+    item: `https://damsanti.app${item.path}`,
   }))
 
   const schema = {

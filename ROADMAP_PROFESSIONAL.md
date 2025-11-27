@@ -551,7 +551,7 @@ curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json
 
 #### Paso 2: Intentar registro sin password
 ```bash
-curl -X POST http://https://back-jqdv9.ondigitalocean.app/auth/register \
+curl -X POST http://https://www.damsanti.app/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email": "user@test.com", "name": "John"}'
 ```
@@ -1171,7 +1171,7 @@ Backend (DigitalOcean):
 ✅ DATABASE_URL = postgresql://doadmin:...
 
 Frontend (DigitalOcean):
-✅ VITE_API_URL = https://back-jqdv9.ondigitalocean.app
+✅ VITE_API_URL = https://www.damsanti.app
 ✅ VITE_STRIPE_PUBLISHED_KEY = pk_test_51SRv4h45tnQTEOzd...
 ```
 

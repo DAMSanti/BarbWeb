@@ -59,7 +59,7 @@ Impacto: Si se ejecutan estas tareas, podremos desbloquear el _BLOCKER_ de tests
 ### SEMANA 7: CONFIGURACIÓN PRODUCCIÓN Y TESTING (4-6 horas) 🚀
 
 #### ✅ Paso 1: DigitalOcean Environment Variables ✅ COMPLETADO
-- [x] ✅ Configurar `VITE_API_URL = https://back-jqdv9.ondigitalocean.app`
+- [x] ✅ Configurar `VITE_API_URL = https://www.damsanti.app`
 - [x] ✅ Configurar `VITE_STRIPE_PUBLISHED_KEY = pk_test_51SRv4h...`
 - [x] ✅ Esperar redeploy automático (5-10 min)
 - [x] ✅ Verificar que CheckoutPage carga

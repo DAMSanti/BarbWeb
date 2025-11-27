@@ -431,7 +431,7 @@ function getPaymentFailedTemplate(data: {
               </ul>
               
               <div style="margin-top: 30px; text-align: center;">
-                <a href="https://back-jqdv9.ondigitalocean.app/checkout" style="display: inline-block; background-color: #0369a1; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                <a href="https://www.damsanti.app/checkout" style="display: inline-block; background-color: #0369a1; color: #ffffff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
                   Intentar de Nuevo
                 </a>
               </div>

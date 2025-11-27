@@ -164,9 +164,9 @@ Testeado: 83.79% (✅ SUPERA 70% - EXCELENTE) ✅
 
 **Variables de Entorno Frontend:**
 ```
-✅ VITE_API_URL = https://back-jqdv9.ondigitalocean.app
+✅ VITE_API_URL = https://www.damsanti.app
 ✅ VITE_STRIPE_PUBLISHED_KEY = pk_test_51SRv4h...
-✅ VITE_FRONTEND_URL = https://back-jqdv9.ondigitalocean.app/
+✅ VITE_FRONTEND_URL = https://www.damsanti.app/
 ✅ VITE_GOOGLE_CLIENT_ID
 ✅ VITE_MICROSOFT_CLIENT_ID
 ```

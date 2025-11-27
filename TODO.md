@@ -244,7 +244,7 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - [x] Agregar Open Graph tags completos ✅ (og:title, og:description, og:image, etc.)
 - [x] Configurar canonical URLs ✅ (rel="canonical" en SEO component)
 - [x] Actualizar URLs a dominio damsanti.app ✅
-- [ ] Submit sitemap a Google Search Console (manual)
+- [x] Submit sitemap a Google Search Console ✅ (verificado Nov 27)
 
 ### Performance Optimization (6-8 horas)
 - [ ] Implementar code splitting (React.lazy)

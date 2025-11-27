@@ -9,13 +9,13 @@ import { useAppStore } from '../store/appStore.js'
 export const getApiUrl = (): string => {
   try {
     return import.meta.env.VITE_API_URL || (
-      typeof window !== 'undefined' && window.location.origin.includes('ondigitalocean.app')
+      typeof window !== 'undefined' && (window.location.origin.includes('damsanti.app') || window.location.origin.includes('ondigitalocean.app'))
         ? window.location.origin
         : 'http://localhost:3000'
     )
   } catch (e) {
     // Fallback si import.meta.env no está disponible (esbuild en producción)
-    return typeof window !== 'undefined' && window.location.origin.includes('ondigitalocean.app')
+    return typeof window !== 'undefined' && (window.location.origin.includes('damsanti.app') || window.location.origin.includes('ondigitalocean.app'))
       ? window.location.origin
       : 'http://localhost:3000'
   }

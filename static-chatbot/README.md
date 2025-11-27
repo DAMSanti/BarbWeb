@@ -24,6 +24,6 @@ git push origin master
 
 Consideraciones de seguridad:
 - No incluyas claves secretas en el frontend. Si necesitas proteger llamadas, crea un proxy en el backend.
-- El ejemplo apunta por defecto a `https://back-jqdv9.ondigitalocean.app` — cámbialo si tu backend está en otra URL.
+- El ejemplo apunta por defecto a `https://www.damsanti.app` — cámbialo si tu backend está en otra URL.
 
 ¿Quieres que haga el commit y cree la App con `doctl` por ti? Si es así, dame el permiso para crear el `app-static.yaml` (ya incluido en el repo) o indica si prefieres hacerlo desde el panel web.

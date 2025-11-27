@@ -311,11 +311,11 @@ VITE_MICROSOFT_REDIRECT_URI=http://localhost:3000/auth/microsoft/callback- Respu
 
 - `POST /auth/register` - Crear cuenta
 
-- `POST /auth/login` - Iniciar sesión- **Frontend**: https://back-jqdv9.ondigitalocean.app/cp .env.example .env.local
+- `POST /auth/login` - Iniciar sesión- **Frontend**: https://www.damsanti.app/cp .env.example .env.local
 
 - `POST /auth/refresh` - Renovar token
 
-- `POST /auth/logout` - Cerrar sesión- **API**: https://back-jqdv9.ondigitalocean.app/api/```
+- `POST /auth/logout` - Cerrar sesión- **API**: https://www.damsanti.app/api/```
 
 - `GET /auth/google` - OAuth Google
 

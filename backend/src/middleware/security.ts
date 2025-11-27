@@ -53,12 +53,15 @@ export const helmetConfig = helmet({
         allowedConnectSrc.push(appDomainOrigin)
       }
 
-      // TEMPORARY: fallback for the DigitalOcean default app domain (if not included by envs)
-      // TODO: Remove fallback after domain/env is validated and VITE_API_URL / APP_DOMAIN correctly set in production
+      // Production domain
+      const productionDomain = 'https://www.damsanti.app'
+      if (!allowedConnectSrc.includes(productionDomain)) {
+        allowedConnectSrc.push(productionDomain)
+      }
+      // Fallback for DigitalOcean default app domain
       const doFallback = 'https://back-jqdv9.ondigitalocean.app'
       if (!allowedConnectSrc.includes(doFallback)) {
         allowedConnectSrc.push(doFallback)
-        logger.warn(`CSP fallback: added DO default backend domain ${doFallback} to connect-src`) 
       }
 
       // Log the effective connect-src list for debugging (helps confirm headers)

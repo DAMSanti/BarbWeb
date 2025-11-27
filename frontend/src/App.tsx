@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
@@ -19,11 +19,29 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { applyThemeVariables } from './theme/themeVariables'
 import { useAppStore } from './store/appStore'
 import { getApiUrl } from './services/backendApi'
+import { trackPageView, trackFunnelStep, setUserId, setUserProperties } from './utils/analytics'
 
 function AppContent() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { login, tokens, setIsAuthInitialized } = useAppStore()
+
+  // Track page views on route change (Google Analytics 4)
+  useEffect(() => {
+    trackPageView(location.pathname, document.title)
+    
+    // Track specific funnel steps based on route
+    if (location.pathname === '/') {
+      trackFunnelStep('LANDING')
+    } else if (location.pathname === '/faq') {
+      trackFunnelStep('VIEW_FAQ')
+    } else if (location.pathname === '/login') {
+      trackFunnelStep('VIEW_LOGIN')
+    } else if (location.pathname === '/register') {
+      trackFunnelStep('VIEW_REGISTER')
+    }
+  }, [location.pathname])
 
   // Handle OAuth callback - extract tokens from URL
   useEffect(() => {
@@ -80,6 +98,15 @@ function AppContent() {
               role: data.user.role || 'user',
             })
             setIsAuthenticated(true)
+            
+            // Track user in Google Analytics
+            const userId = data.user.userId || data.user.id
+            if (userId) {
+              setUserId(userId)
+              setUserProperties({
+                user_type: data.user.role === 'admin' ? 'admin' : 'registered',
+              })
+            }
           }
         }
       } catch (err) {

@@ -7,6 +7,7 @@ import { backendApi } from '../services/backendApi.js'
 import { useErrorHandler } from '../hooks/useErrorHandler.js'
 import { SEO } from '../components/SEO'
 import { sanitizeName, sanitizeEmail } from '../utils/sanitize'
+import { trackSignUp, trackFormSubmit } from '../utils/analytics'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -96,6 +97,10 @@ export default function RegisterPage() {
 
       // Store tokens and user
       register(response.user, response.tokens)
+      
+      // Track successful registration in Google Analytics
+      trackSignUp('email')
+      trackFormSubmit('register', true)
       
       // Redirect to home
       navigate('/')

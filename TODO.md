@@ -270,14 +270,29 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 
 ## 🟢 FEATURES DESEABLES - v1.3+ 
 
-### Analytics Avanzado (16-20 horas)
-- [ ] Setup Google Analytics 4
-- [ ] Implement event tracking
-- [ ] Create custom dashboard
-- [ ] Track user funnels
-- [ ] Setup conversion tracking
-- [ ] Create revenue reports
-- [ ] Implement A/B testing framework
+### Analytics Avanzado (16-20 horas) ✅ COMPLETADO (Nov 27)
+- [x] Setup Google Analytics 4 ✅ (analytics.ts utility creado)
+- [x] Implement event tracking ✅ (trackEvent, trackButtonClick, trackFormSubmit)
+- [x] Track user funnels ✅ (FunnelSteps: LANDING → FAQ → QUESTION → CHECKOUT → PAYMENT)
+- [x] Setup conversion tracking ✅ (trackPurchase para e-commerce)
+- [x] Page view tracking ✅ (trackPageView en App.tsx)
+- [x] User identification ✅ (setUserId, setUserProperties)
+- [x] GDPR consent management ✅ (setDefaultConsent, updateConsent)
+- [ ] Create custom dashboard (en Google Analytics Console)
+- [ ] Create revenue reports (en Google Analytics Console)
+- [ ] Implement A/B testing framework (Post-Launch, usar Google Optimize)
+
+**Eventos Trackeados**:
+- `page_view` - Cada cambio de ruta
+- `sign_up` / `login` - Autenticación (email/google/microsoft)
+- `faq_question` - Preguntas en FAQ
+- `begin_checkout` - Inicio de pago
+- `purchase` - Pago completado (CONVERSIÓN)
+- `payment_failed` - Pago fallido
+- Funnel steps: LANDING, VIEW_FAQ, ASK_QUESTION, START_CHECKOUT, COMPLETE_PAYMENT
+
+**Configuración requerida**:
+- Añadir `VITE_GA_MEASUREMENT_ID` en DigitalOcean (ej: G-XXXXXXXXXX)
 
 ---
 

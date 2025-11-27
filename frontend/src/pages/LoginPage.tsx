@@ -7,6 +7,7 @@ import { backendApi } from '../services/backendApi.js'
 import { useErrorHandler } from '../hooks/useErrorHandler.js'
 import { SEO } from '../components/SEO'
 import { sanitizeEmail } from '../utils/sanitize'
+import { trackLogin, trackFormSubmit } from '../utils/analytics'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -53,6 +54,10 @@ export default function LoginPage() {
 
       // Store tokens and user
       login(response.user, response.tokens)
+      
+      // Track successful login in Google Analytics
+      trackLogin('email')
+      trackFormSubmit('login', true)
       
       // Redirect to home
       navigate('/')

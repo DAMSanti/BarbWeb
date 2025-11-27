@@ -6,6 +6,12 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import ChessboardBackground from '../components/ChessboardBackground'
 import { useAppStore } from '../store/appStore'
 import { getApiUrl } from '../services/backendApi'
+import { 
+  trackBeginCheckout, 
+  trackPurchase, 
+  trackPaymentFailed,
+  trackFunnelStep 
+} from '../utils/analytics'
 
 export default function CheckoutPage() {
   const { consultationId } = useParams<{ consultationId: string }>()
@@ -34,6 +40,10 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!consultation) return
     if (clientSecret) return // No crear un nuevo intent si ya tenemos uno
+
+    // Track checkout start in Google Analytics
+    trackBeginCheckout(consultationId!, consultation.category, consultation.price)
+    trackFunnelStep('START_CHECKOUT', { consultation_id: consultationId })
 
     const createPaymentIntent = async () => {
       try {
@@ -410,6 +420,17 @@ function CheckoutForm({
           // Backend confirmation failed - no blocking of flow
         }
 
+        // Track successful purchase in Google Analytics (CONVERSION EVENT)
+        const price = consultation.price
+        const tax = price * 0.21
+        trackPurchase(
+          paymentIntent.id,
+          consultationId,
+          consultation.category,
+          price,
+          tax
+        )
+
         // Actualizar el estado local
         updateConsultation(consultationId, {
           clientName,
@@ -422,6 +443,8 @@ function CheckoutForm({
         throw new Error('El pago no se completó correctamente')
       }
     } catch (err: any) {
+      // Track payment failure in Google Analytics
+      trackPaymentFailed(consultationId, err.message || 'Unknown error')
       setError(err.message || 'Error al procesar el pago. Por favor, intenta de nuevo.')
     } finally {
       setIsProcessing(false)

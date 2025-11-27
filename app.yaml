@@ -27,6 +27,8 @@ services:
         value: ${VITE_MICROSOFT_CLIENT_ID}
       - key: VITE_SENTRY_DSN
         value: ${VITE_SENTRY_DSN}
+      - key: VITE_GA_MEASUREMENT_ID
+        value: ${VITE_GA_MEASUREMENT_ID}
       - key: ALLOW_ALL_CORS
         value: "0"
     http_port: 3000

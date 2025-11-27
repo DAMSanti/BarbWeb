@@ -6,6 +6,7 @@ import { LegalCategory } from '../types'
 import { useAppStore } from '../store/appStore'
 import { filterQuestionWithBackend, checkBackendHealth } from '../services/backendApi'
 import { sanitizeUserInput } from '../utils/sanitize'
+import { trackFAQQuestion, trackRequestConsultation, trackFunnelStep } from '../utils/analytics'
 
 const CONSULTATION_PRICE = 29.99
 
@@ -78,6 +79,14 @@ export default function FAQPage() {
         complexity: result.data.complexity,
       })
 
+      // Track FAQ question in Google Analytics
+      trackFAQQuestion(
+        cleanQuestion,
+        result.data.category,
+        !result.data.needsProfessionalConsultation
+      )
+      trackFunnelStep('ASK_QUESTION', { category: result.data.category })
+
       // Guardar categoría para consulta futura
       setSelectedCategory(result.data.category as LegalCategory)
     } catch (error) {
@@ -88,6 +97,10 @@ export default function FAQPage() {
   }
 
   const handleRequestConsultation = () => {
+    // Track consultation request in Google Analytics
+    if (selectedCategory) {
+      trackRequestConsultation(selectedCategory)
+    }
     navigate('/consultation')
   }
 

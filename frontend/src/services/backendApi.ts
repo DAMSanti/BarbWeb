@@ -3,7 +3,7 @@ import { parseBackendError } from './errorHandler.js'
 import { retryAsync, retryAuth, retryAI } from '../utils/retry.js'
 import { useAppStore } from '../store/appStore.js'
 
-// En producción, el frontend se sirve desde www.damsanti.app y la API desde api.damsanti.app
+// En producción, usar VITE_API_URL o detectar automáticamente
 // LAZY EVALUATION: No evaluar import.meta.env en el scope global
 export const getApiUrl = (): string => {
   try {
@@ -12,12 +12,13 @@ export const getApiUrl = (): string => {
       return import.meta.env.VITE_API_URL
     }
     
-    // En producción (damsanti.app), la API está en api.damsanti.app
+    // En producción, usar el mismo origin (frontend y backend en mismo dominio)
+    // o la URL hardcodeada del backend en DigitalOcean
     if (typeof window !== 'undefined') {
       if (window.location.origin.includes('damsanti.app')) {
-        return 'https://api.damsanti.app'
+        // Backend está en back-jqdv9.ondigitalocean.app
+        return 'https://back-jqdv9.ondigitalocean.app'
       }
-      // Para ondigitalocean.app, usar el mismo origin (la API y frontend están juntos)
       if (window.location.origin.includes('ondigitalocean.app')) {
         return window.location.origin
       }
@@ -28,7 +29,7 @@ export const getApiUrl = (): string => {
     // Fallback si import.meta.env no está disponible
     if (typeof window !== 'undefined') {
       if (window.location.origin.includes('damsanti.app')) {
-        return 'https://api.damsanti.app'
+        return 'https://back-jqdv9.ondigitalocean.app'
       }
       if (window.location.origin.includes('ondigitalocean.app')) {
         return window.location.origin

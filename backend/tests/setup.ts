@@ -23,6 +23,8 @@ const dataStore = {
   oAuthAccounts: new Map<string, any>(),
   emailVerificationTokens: new Map<string, any>(),
   refreshTokens: new Map<string, any>(),
+  pendingRegistrations: new Map<string, any>(),
+  passwordResetTokens: new Map<string, any>(),
 }
 
 // Helper to generate IDs
@@ -32,6 +34,8 @@ let consultationIdCounter = 1
 let oAuthIdCounter = 1
 let emailVerificationIdCounter = 1
 let refreshTokenIdCounter = 1
+let pendingRegistrationIdCounter = 1
+let passwordResetTokenIdCounter = 1
 
 // Create a single mock instance that persists across calls
 let mockPrismaInstance: any = null
@@ -528,6 +532,155 @@ function createPrismaMock() {
         deleteMany: vi.fn(async () => {
           const count = dataStore.emailVerificationTokens.size
           dataStore.emailVerificationTokens.clear()
+          return { count }
+        }),
+      },
+      pendingRegistration: {
+        create: vi.fn(async ({ data }: any) => {
+          const id = `pending_reg_${pendingRegistrationIdCounter++}`
+          const registration = { 
+            id, 
+            ...data, 
+            createdAt: new Date(),
+            expiresAt: data.expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000)
+          }
+          dataStore.pendingRegistrations.set(id, registration)
+          return registration
+        }),
+        findUnique: vi.fn(async ({ where }: any) => {
+          if (where.id) return dataStore.pendingRegistrations.get(where.id) || null
+          if (where.email) {
+            for (const reg of dataStore.pendingRegistrations.values()) {
+              if (reg.email === where.email) return reg
+            }
+          }
+          if (where.token) {
+            for (const reg of dataStore.pendingRegistrations.values()) {
+              if (reg.token === where.token) return reg
+            }
+          }
+          return null
+        }),
+        findMany: vi.fn(async ({ where }: any) => {
+          let results = Array.from(dataStore.pendingRegistrations.values())
+          if (where?.email) {
+            results = results.filter(r => r.email === where.email)
+          }
+          return results
+        }),
+        update: vi.fn(async ({ where, data }: any) => {
+          let registration = null
+          if (where.id) registration = dataStore.pendingRegistrations.get(where.id)
+          if (where.email) {
+            for (const reg of dataStore.pendingRegistrations.values()) {
+              if (reg.email === where.email) {
+                registration = reg
+                break
+              }
+            }
+          }
+          if (!registration) throw new Error('Pending registration not found')
+          const updated = { ...registration, ...data }
+          dataStore.pendingRegistrations.set(registration.id, updated)
+          return updated
+        }),
+        delete: vi.fn(async ({ where }: any) => {
+          let registration = null
+          let keyToDelete = null
+          if (where.id) {
+            registration = dataStore.pendingRegistrations.get(where.id)
+            keyToDelete = where.id
+          }
+          if (where.email) {
+            for (const [key, reg] of dataStore.pendingRegistrations.entries()) {
+              if (reg.email === where.email) {
+                registration = reg
+                keyToDelete = key
+                break
+              }
+            }
+          }
+          if (!registration) throw new Error('Pending registration not found')
+          dataStore.pendingRegistrations.delete(keyToDelete)
+          return registration
+        }),
+        deleteMany: vi.fn(async () => {
+          const count = dataStore.pendingRegistrations.size
+          dataStore.pendingRegistrations.clear()
+          return { count }
+        }),
+      },
+      passwordResetToken: {
+        create: vi.fn(async ({ data }: any) => {
+          const id = `pwd_reset_${passwordResetTokenIdCounter++}`
+          const token = { 
+            id, 
+            ...data, 
+            used: data.used || false,
+            createdAt: new Date(),
+            expiresAt: data.expiresAt || new Date(Date.now() + 60 * 60 * 1000) // 1 hour
+          }
+          dataStore.passwordResetTokens.set(id, token)
+          return token
+        }),
+        findUnique: vi.fn(async ({ where }: any) => {
+          if (where.id) return dataStore.passwordResetTokens.get(where.id) || null
+          if (where.token) {
+            for (const token of dataStore.passwordResetTokens.values()) {
+              if (token.token === where.token) return token
+            }
+          }
+          return null
+        }),
+        findFirst: vi.fn(async ({ where }: any) => {
+          for (const token of dataStore.passwordResetTokens.values()) {
+            let matches = true
+            if (where?.token && token.token !== where.token) matches = false
+            if (where?.used !== undefined && token.used !== where.used) matches = false
+            if (where?.expiresAt?.gt && !(new Date(token.expiresAt) > where.expiresAt.gt)) matches = false
+            if (matches) return token
+          }
+          return null
+        }),
+        findMany: vi.fn(async ({ where }: any) => {
+          let results = Array.from(dataStore.passwordResetTokens.values())
+          if (where?.userId) {
+            results = results.filter(t => t.userId === where.userId)
+          }
+          if (where?.used !== undefined) {
+            results = results.filter(t => t.used === where.used)
+          }
+          return results
+        }),
+        update: vi.fn(async ({ where, data }: any) => {
+          const token = dataStore.passwordResetTokens.get(where.id)
+          if (!token) throw new Error('Password reset token not found')
+          const updated = { ...token, ...data }
+          dataStore.passwordResetTokens.set(where.id, updated)
+          return updated
+        }),
+        delete: vi.fn(async ({ where }: any) => {
+          const token = dataStore.passwordResetTokens.get(where.id)
+          if (!token) throw new Error('Password reset token not found')
+          dataStore.passwordResetTokens.delete(where.id)
+          return token
+        }),
+        deleteMany: vi.fn(async (params?: any) => {
+          const where = params?.where
+          if (!where) {
+            const count = dataStore.passwordResetTokens.size
+            dataStore.passwordResetTokens.clear()
+            return { count }
+          }
+          let count = 0
+          for (const [key, token] of dataStore.passwordResetTokens.entries()) {
+            let shouldDelete = true
+            if (where.userId && token.userId !== where.userId) shouldDelete = false
+            if (shouldDelete) {
+              dataStore.passwordResetTokens.delete(key)
+              count++
+            }
+          }
           return { count }
         }),
       },

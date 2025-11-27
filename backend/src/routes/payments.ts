@@ -26,6 +26,39 @@ const confirmPaymentSchema = z.object({
   consultationId: z.string().optional(),
 })
 
+/**
+ * @swagger
+ * /api/payments/create-payment-intent:
+ *   post:
+ *     summary: Crear intención de pago
+ *     description: Crear un PaymentIntent de Stripe para procesar un pago
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePaymentIntentRequest'
+ *     responses:
+ *       200:
+ *         description: PaymentIntent creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 clientSecret: { type: string, description: Client secret para Stripe.js }
+ *                 paymentIntentId: { type: string }
+ *       400:
+ *         description: Datos de pago inválidos
+ *       401:
+ *         description: No autenticado
+ *       429:
+ *         description: Rate limit excedido
+ */
 // POST /api/payments/create-payment-intent
 // Crear un PaymentIntent para cobrar
 router.post(
@@ -79,6 +112,42 @@ router.post(
   })
 )
 
+/**
+ * @swagger
+ * /api/payments/confirm-payment:
+ *   post:
+ *     summary: Confirmar pago
+ *     description: Verificar que un pago fue completado exitosamente en Stripe
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [paymentIntentId]
+ *             properties:
+ *               paymentIntentId: { type: string }
+ *               consultationId: { type: string }
+ *     responses:
+ *       200:
+ *         description: Pago confirmado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 message: { type: string }
+ *                 paymentIntentId: { type: string }
+ *                 amount: { type: number }
+ *       400:
+ *         description: Estado de pago inválido
+ *       401:
+ *         description: No autenticado o pago no pertenece al usuario
+ */
 // POST /api/payments/confirm-payment
 // Confirmar un pago (backend verification)
 // NOTE: El pago se guarda en la BD solo a través del webhook de Stripe
@@ -139,6 +208,31 @@ router.post(
   })
 )
 
+/**
+ * @swagger
+ * /api/payments/history:
+ *   get:
+ *     summary: Historial de pagos
+ *     description: Obtener el historial de pagos del usuario autenticado
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de pagos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 payments:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Payment'
+ *       401:
+ *         description: No autenticado
+ */
 // GET /api/payments/history
 // Obtener historial de pagos del usuario
 router.get(
@@ -189,6 +283,39 @@ router.get(
   })
 )
 
+/**
+ * @swagger
+ * /api/payments/{paymentId}/refund:
+ *   post:
+ *     summary: Solicitar reembolso
+ *     description: Solicitar reembolso de un pago completado
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: paymentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del pago a reembolsar
+ *     responses:
+ *       200:
+ *         description: Reembolso procesado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 message: { type: string }
+ *                 refundId: { type: string }
+ *                 amount: { type: number }
+ *       400:
+ *         description: Pago no encontrado o no elegible para reembolso
+ *       401:
+ *         description: No autenticado o sin permiso
+ */
 // POST /api/payments/:id/refund
 // Refundar un pago (solo pagos completados)
 router.post(

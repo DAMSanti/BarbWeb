@@ -2,6 +2,8 @@ import express from 'express'
 import dotenv from 'dotenv'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './config/swagger.js'
 import apiRoutes from './routes/api.js'
 import authRoutes from './routes/auth.js'
 import paymentRoutes from './routes/payments.js'
@@ -114,6 +116,18 @@ app.get('/health', (req, res) => {
 // SEO Routes (Sitemap, Robots.txt)
 app.use('/', sitemapRoutes)
 
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Barbara & Abogados API Docs',
+}))
+
+// Swagger JSON endpoint
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.send(swaggerSpec)
+})
+
 // Rutas de la API - ANTES que las rutas estáticas
 app.use('/api', apiRoutes)
 
@@ -169,6 +183,7 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 try {
   const server = app.listen(PORT, '0.0.0.0', () => {
     logger.info(`✅ Server running on http://0.0.0.0:${PORT}`)
+    logger.info(`📚 API Documentation: http://0.0.0.0:${PORT}/api-docs`)
     logger.info(`🔗 CORS enabled for all origins`)
     logger.info(`🤖 Gemini AI integration: ${process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'}`)
     logger.info(`🔐 JWT Authentication: ✅ Configured (JWT + OAuth2)`)

@@ -39,8 +39,49 @@ router.use(apiRateLimit)
 // ============================================
 
 /**
- * GET /api/admin/users
- * Get all users with pagination and filters
+ * @swagger
+ * /api/admin/users:
+ *   get:
+ *     summary: Listar usuarios
+ *     description: Obtener lista paginada de usuarios con filtros
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *       - in: query
+ *         name: role
+ *         schema: { type: string, enum: [user, admin] }
+ *       - in: query
+ *         name: search
+ *         schema: { type: string }
+ *         description: Buscar por nombre o email
+ *       - in: query
+ *         name: sortBy
+ *         schema: { type: string, default: createdAt }
+ *       - in: query
+ *         name: sortOrder
+ *         schema: { type: string, enum: [asc, desc], default: desc }
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data: { type: array, items: { $ref: '#/components/schemas/User' } }
+ *                 pagination: { $ref: '#/components/schemas/Pagination' }
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado (requiere rol admin)
  */
 router.get(
   '/users',
@@ -67,8 +108,24 @@ router.get(
 )
 
 /**
- * GET /api/admin/users/:id
- * Get user details by ID
+ * @swagger
+ * /api/admin/users/{id}:
+ *   get:
+ *     summary: Detalle de usuario
+ *     description: Obtener información detallada de un usuario
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Detalle del usuario
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.get(
   '/users/:id',
@@ -86,8 +143,33 @@ router.get(
 )
 
 /**
- * PATCH /api/admin/users/:id/role
- * Update user role
+ * @swagger
+ * /api/admin/users/{id}/role:
+ *   patch:
+ *     summary: Actualizar rol de usuario
+ *     description: Cambiar el rol de un usuario (user/admin)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [role]
+ *             properties:
+ *               role: { type: string, enum: [user, admin] }
+ *     responses:
+ *       200:
+ *         description: Rol actualizado
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.patch(
   '/users/:id/role',
@@ -113,8 +195,26 @@ router.patch(
 )
 
 /**
- * DELETE /api/admin/users/:id
- * Delete user and all related data
+ * @swagger
+ * /api/admin/users/{id}:
+ *   delete:
+ *     summary: Eliminar usuario
+ *     description: Eliminar un usuario y todos sus datos relacionados
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Usuario eliminado
+ *       400:
+ *         description: No puedes eliminarte a ti mismo
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.delete(
   '/users/:id',
@@ -150,8 +250,50 @@ router.delete(
 // ============================================
 
 /**
- * GET /api/admin/payments
- * Get all payments with pagination and filters
+ * @swagger
+ * /api/admin/payments:
+ *   get:
+ *     summary: Listar pagos
+ *     description: Obtener lista paginada de todos los pagos con filtros
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10 }
+ *       - in: query
+ *         name: status
+ *         schema: { type: string, enum: [pending, completed, failed, refunded] }
+ *       - in: query
+ *         name: userId
+ *         schema: { type: string }
+ *       - in: query
+ *         name: startDate
+ *         schema: { type: string, format: date }
+ *       - in: query
+ *         name: endDate
+ *         schema: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: Lista de pagos con resumen
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data: { type: array, items: { $ref: '#/components/schemas/Payment' } }
+ *                 pagination: { $ref: '#/components/schemas/Pagination' }
+ *                 summary:
+ *                   type: object
+ *                   properties:
+ *                     totalRevenue: { type: number }
+ *                     totalPayments: { type: integer }
+ *                     averagePayment: { type: number }
  */
 router.get(
   '/payments',
@@ -181,8 +323,24 @@ router.get(
 )
 
 /**
- * GET /api/admin/payments/:id
- * Get payment details
+ * @swagger
+ * /api/admin/payments/{id}:
+ *   get:
+ *     summary: Detalle de pago
+ *     description: Obtener información detallada de un pago
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Detalle del pago
+ *       404:
+ *         description: Pago no encontrado
  */
 router.get(
   '/payments/:id',
@@ -201,8 +359,33 @@ router.get(
 )
 
 /**
- * POST /api/admin/payments/:id/refund
- * Refund a payment
+ * @swagger
+ * /api/admin/payments/{id}/refund:
+ *   post:
+ *     summary: Reembolsar pago (Admin)
+ *     description: Procesar reembolso de un pago como administrador
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               reason: { type: string, description: Motivo del reembolso }
+ *     responses:
+ *       200:
+ *         description: Reembolso procesado
+ *       400:
+ *         description: Pago no elegible para reembolso
+ *       404:
+ *         description: Pago no encontrado
  */
 router.post(
   '/payments/:id/refund',
@@ -233,8 +416,31 @@ router.post(
 // ============================================
 
 /**
- * GET /api/admin/analytics
- * Get analytics summary (users, payments, revenue)
+ * @swagger
+ * /api/admin/analytics:
+ *   get:
+ *     summary: Resumen de analytics
+ *     description: Obtener métricas generales de usuarios, pagos e ingresos
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         schema: { type: string, format: date }
+ *       - in: query
+ *         name: endDate
+ *         schema: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: Métricas de analytics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data: { $ref: '#/components/schemas/Analytics' }
  */
 router.get(
   '/analytics',
@@ -256,8 +462,51 @@ router.get(
 )
 
 /**
- * GET /api/admin/analytics/trend
- * Get analytics trend data (daily, weekly, or monthly)
+ * @swagger
+ * /api/admin/analytics/trend:
+ *   get:
+ *     summary: Tendencias de analytics
+ *     description: Obtener datos de tendencia agrupados por día, semana o mes
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: groupBy
+ *         schema: { type: string, enum: [day, week, month], default: day }
+ *       - in: query
+ *         name: startDate
+ *         schema: { type: string, format: date }
+ *       - in: query
+ *         name: endDate
+ *         schema: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: Datos de tendencia
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     trend:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           date: { type: string }
+ *                           payments: { type: integer }
+ *                           revenue: { type: number }
+ *                           users: { type: integer }
+ *                     summary:
+ *                       type: object
+ *                       properties:
+ *                         totalRevenue: { type: number }
+ *                         totalPayments: { type: integer }
+ *                         activeUsers: { type: integer }
  */
 router.get(
   '/analytics/trend',

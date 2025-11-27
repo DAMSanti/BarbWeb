@@ -25,9 +25,31 @@ interface FilterQuestionResponse {
 }
 
 /**
- * POST /api/filter-question
- * Filtra una pregunta legal usando OpenAI
- * Validaciones: pregunta 10-1000 caracteres
+ * @swagger
+ * /api/filter-question:
+ *   post:
+ *     summary: Filtrar pregunta legal
+ *     description: Analiza una pregunta legal usando IA (Gemini) para categorizarla y proporcionar una respuesta breve
+ *     tags: [FAQ]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/FilterQuestionRequest'
+ *     responses:
+ *       200:
+ *         description: Pregunta analizada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FilterQuestionResponse'
+ *       400:
+ *         description: Pregunta inválida (muy corta o muy larga)
+ *       429:
+ *         description: Rate limit excedido
+ *       500:
+ *         description: Error en el servicio de IA
  */
 router.post(
   '/filter-question',
@@ -66,9 +88,49 @@ router.post(
 )
 
 /**
- * POST /api/generate-response
- * Genera una respuesta detallada para una pregunta específica
- * Validaciones: pregunta 10-1000 chars, categoría 2-100 chars
+ * @swagger
+ * /api/generate-response:
+ *   post:
+ *     summary: Generar respuesta detallada
+ *     description: Genera una respuesta legal detallada para una pregunta específica usando IA
+ *     tags: [FAQ]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [question, category]
+ *             properties:
+ *               question:
+ *                 type: string
+ *                 minLength: 10
+ *                 maxLength: 1000
+ *                 example: '¿Cuántos días de vacaciones me corresponden?'
+ *               category:
+ *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 100
+ *                 example: 'Derecho Laboral'
+ *     responses:
+ *       200:
+ *         description: Respuesta generada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     question: { type: string }
+ *                     category: { type: string }
+ *                     response: { type: string }
+ *       400:
+ *         description: Datos inválidos
+ *       429:
+ *         description: Rate limit excedido
  */
 router.post(
   '/generate-response',
@@ -94,8 +156,23 @@ router.post(
 )
 
 /**
- * GET /api/health
- * Health check endpoint
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Health check
+ *     description: Verificar que el servidor está funcionando
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Servidor funcionando
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean }
+ *                 status: { type: string, example: 'ok' }
+ *                 timestamp: { type: string, format: date-time }
  */
 router.get('/health', (req: Request, res: Response) => {
   res.json({
@@ -106,8 +183,17 @@ router.get('/health', (req: Request, res: Response) => {
 })
 
 /**
- * GET /api/list-models
- * List available Gemini models
+ * @swagger
+ * /api/list-models:
+ *   get:
+ *     summary: Listar modelos de IA
+ *     description: Listar los modelos de Gemini disponibles
+ *     tags: [Health]
+ *     responses:
+ *       200:
+ *         description: Lista de modelos
+ *       500:
+ *         description: API key no configurada
  */
 router.get(
   '/list-models',
@@ -132,8 +218,29 @@ router.get(
 )
 
 /**
- * POST /api/test-email
- * Test email service (development only)
+ * @swagger
+ * /api/test-email:
+ *   post:
+ *     summary: Probar servicio de email
+ *     description: Enviar un email de prueba (solo desarrollo)
+ *     tags: [Health]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [to, clientName]
+ *             properties:
+ *               to: { type: string, format: email }
+ *               clientName: { type: string }
+ *     responses:
+ *       200:
+ *         description: Email enviado
+ *       400:
+ *         description: Campos faltantes
+ *       500:
+ *         description: Error enviando email
  */
 router.post(
   '/test-email',

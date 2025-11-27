@@ -3,15 +3,28 @@
  * Tests para generación de sitemap.xml para SEO
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import request from 'supertest'
 import express from 'express'
+
+// Mock logger para capturar errores
+const mockLogger = {
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+}
+
+vi.mock('../../src/utils/logger', () => ({
+  logger: mockLogger,
+}))
+
 import sitemapRouter from '../../src/routes/sitemap'
 
 describe('Sitemap Routes', () => {
   let app: express.Application
 
   beforeEach(() => {
+    vi.clearAllMocks()
     app = express()
     app.use(sitemapRouter)
   })
@@ -110,6 +123,15 @@ describe('Sitemap Routes', () => {
       const closeUrlCount = (response.text.match(/<\/url>/g) || []).length
       expect(closeUrlCount).toBe(urlCount)
     })
+
+    it('should include <loc> tag for each URL', async () => {
+      const response = await request(app).get('/sitemap.xml')
+
+      expect(response.status).toBe(200)
+      const locCount = (response.text.match(/<loc>/g) || []).length
+      const urlCount = (response.text.match(/<url>/g) || []).length
+      expect(locCount).toBe(urlCount)
+    })
   })
 
   describe('GET /sitemap', () => {
@@ -172,6 +194,21 @@ describe('Sitemap Routes', () => {
           expect(value).toBeLessThanOrEqual(1)
         })
       }
+    })
+
+    it('should generate valid XML even with special characters in URLs', async () => {
+      const response = await request(app).get('/sitemap.xml')
+
+      expect(response.status).toBe(200)
+      // No hay & sin escapar
+      expect(response.text).not.toMatch(/&(?!amp;|lt;|gt;|quot;|apos;)/)
+    })
+
+    it('should have proper content-type header', async () => {
+      const response = await request(app).get('/sitemap.xml')
+
+      expect(response.status).toBe(200)
+      expect(response.headers['content-type']).toContain('application/xml')
     })
   })
 })

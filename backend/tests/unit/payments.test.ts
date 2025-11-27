@@ -410,5 +410,158 @@ describe('Payment Routes', () => {
         data: { status: 'refunded' },
       })
     })
+
+    it('should reject refund for payment without stripeSessionId', async () => {
+      const mockPayment = {
+        id: 'pay_1',
+        userId: 'user123',
+        status: 'completed',
+        amount: 100,
+        stripeSessionId: null, // No Stripe ID
+      }
+
+      mockPrisma.payment.findUnique.mockResolvedValueOnce(mockPayment)
+
+      const response = await request(app)
+        .post('/api/payments/pay_1/refund')
+        .set('Authorization', `Bearer valid_token`)
+
+      expect(response.status).toBeGreaterThanOrEqual(400)
+    })
+
+    it('should handle Stripe refund API errors', async () => {
+      const mockPayment = {
+        id: 'pay_1',
+        userId: 'user123',
+        status: 'completed',
+        amount: 100,
+        stripeSessionId: 'pi_test123',
+      }
+
+      mockPrisma.payment.findUnique.mockResolvedValueOnce(mockPayment)
+      mockStripeInstance.refunds.create.mockRejectedValueOnce(new Error('Stripe API Error'))
+
+      const response = await request(app)
+        .post('/api/payments/pay_1/refund')
+        .set('Authorization', `Bearer valid_token`)
+
+      expect(response.status).toBeGreaterThanOrEqual(400)
+    })
+  })
+
+  describe('Error handling', () => {
+    it('should handle Stripe API errors on create-payment-intent', async () => {
+      mockStripeInstance.paymentIntents.create.mockRejectedValueOnce(
+        new Error('Stripe connection failed')
+      )
+
+      const response = await request(app)
+        .post('/api/payments/create-payment-intent')
+        .set('Authorization', `Bearer valid_token`)
+        .send({
+          amount: 50,
+          currency: 'usd',
+        })
+
+      expect(response.status).toBeGreaterThanOrEqual(400)
+    })
+
+    it('should handle Stripe API errors on confirm-payment', async () => {
+      mockStripeInstance.paymentIntents.retrieve.mockRejectedValueOnce(
+        new Error('Payment intent not found')
+      )
+
+      const response = await request(app)
+        .post('/api/payments/confirm-payment')
+        .set('Authorization', `Bearer valid_token`)
+        .send({
+          paymentIntentId: 'pi_invalid',
+        })
+
+      expect(response.status).toBeGreaterThanOrEqual(400)
+    })
+
+    it('should handle database errors on history', async () => {
+      mockPrisma.payment.findMany.mockRejectedValueOnce(
+        new Error('Database connection failed')
+      )
+
+      const response = await request(app)
+        .get('/api/payments/history')
+        .set('Authorization', `Bearer valid_token`)
+
+      expect(response.status).toBeGreaterThanOrEqual(400)
+    })
+
+    it('should include consultationId in metadata when provided', async () => {
+      mockStripeInstance.paymentIntents.create.mockResolvedValueOnce({
+        id: 'pi_test123',
+        client_secret: 'pi_test123_secret',
+      })
+
+      const response = await request(app)
+        .post('/api/payments/create-payment-intent')
+        .set('Authorization', `Bearer valid_token`)
+        .send({
+          amount: 50,
+          currency: 'usd',
+          consultationId: 'consult_123',
+        })
+
+      expect(response.status).toBe(200)
+      expect(mockStripeInstance.paymentIntents.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            consultationId: 'consult_123',
+          }),
+        })
+      )
+    })
+
+    it('should use default consultationId when not provided', async () => {
+      mockStripeInstance.paymentIntents.create.mockResolvedValueOnce({
+        id: 'pi_test123',
+        client_secret: 'pi_test123_secret',
+      })
+
+      const response = await request(app)
+        .post('/api/payments/create-payment-intent')
+        .set('Authorization', `Bearer valid_token`)
+        .send({
+          amount: 50,
+          currency: 'usd',
+        })
+
+      expect(response.status).toBe(200)
+      expect(mockStripeInstance.paymentIntents.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            consultationId: 'new',
+          }),
+        })
+      )
+    })
+
+    it('should use default description when not provided', async () => {
+      mockStripeInstance.paymentIntents.create.mockResolvedValueOnce({
+        id: 'pi_test123',
+        client_secret: 'pi_test123_secret',
+      })
+
+      const response = await request(app)
+        .post('/api/payments/create-payment-intent')
+        .set('Authorization', `Bearer valid_token`)
+        .send({
+          amount: 50,
+          currency: 'usd',
+        })
+
+      expect(response.status).toBe(200)
+      expect(mockStripeInstance.paymentIntents.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'Consulta Legal - Barbara & Abogados',
+        })
+      )
+    })
   })
 })

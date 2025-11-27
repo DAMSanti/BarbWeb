@@ -18,6 +18,11 @@ echo "--- /workspace/backend ---"
 ls -la /workspace/backend || true
 echo "======================================"
 
+echo "🔄 Running Prisma migrations..."
+npx prisma migrate deploy 2>&1 || echo "⚠️ Migration failed or no migrations to apply"
+echo "✅ Migrations complete"
+echo "======================================"
+
 echo "Starting application: node --trace-warnings dist/index.js"
 # Run node with trace warnings and capture exit code; redirect stderr to stdout so DO logs show everything
 node --trace-warnings dist/index.js 2>&1

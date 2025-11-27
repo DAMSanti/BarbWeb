@@ -501,7 +501,7 @@ export function setUserProperties(properties: {
  *   // ...
  * }
  */
-export function usePageTracking(pathname: string): void {
+export function usePageTracking(_pathname: string): void {
   // This will be called by the component
   // The actual useEffect should be in the component
 }

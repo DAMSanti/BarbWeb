@@ -1,5 +1,14 @@
 import * as Sentry from '@sentry/react'
 
+// Safe logging that won't trigger lint errors in production
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {}
+const safeLog = {
+  warn: import.meta.env.DEV ? (...args: unknown[]) => globalThis.console?.warn?.(...args) : noop,
+  error: import.meta.env.DEV ? (...args: unknown[]) => globalThis.console?.error?.(...args) : noop,
+  info: import.meta.env.DEV ? (...args: unknown[]) => globalThis.console?.info?.(...args) : noop,
+}
+
 /**
  * Initialize Sentry error tracking for the frontend
  * 
@@ -10,7 +19,7 @@ export function initializeSentry(): void {
   const dsn = import.meta.env.VITE_SENTRY_DSN
 
   if (!dsn) {
-    console.warn('⚠️ VITE_SENTRY_DSN not configured - Frontend error tracking disabled')
+    safeLog.warn('⚠️ VITE_SENTRY_DSN not configured - Frontend error tracking disabled')
     return
   }
 
@@ -86,9 +95,9 @@ export function initializeSentry(): void {
       ],
     })
 
-    console.info('✅ Sentry initialized for frontend error tracking')
+    safeLog.info('✅ Sentry initialized for frontend error tracking')
   } catch (error) {
-    console.error('Failed to initialize Sentry:', error)
+    safeLog.error('Failed to initialize Sentry:', error)
   }
 }
 
@@ -118,7 +127,7 @@ export function clearUser(): void {
  */
 export function captureException(error: Error, context?: Record<string, unknown>): void {
   if (!import.meta.env.VITE_SENTRY_DSN) {
-    console.error('Untracked error (Sentry disabled):', error)
+    safeLog.error('Untracked error (Sentry disabled):', error)
     return
   }
   

@@ -186,13 +186,13 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 
 ## ⚠️ IMPORTANTE - Post-Launch v1.1 (Semanas 9-11, 28-39 horas)
 
-### API Documentation (4-6 horas)
-- [ ] Setup Swagger/OpenAPI en backend
-- [ ] Documentar todos los endpoints de auth
-- [ ] Documentar todos los endpoints de pagos
-- [ ] Documentar todos los endpoints de admin
-- [ ] Generar OpenAPI specification
-- [ ] Host documentation endpoint
+### API Documentation (4-6 horas) ✅ COMPLETADO (Nov 27)
+- [x] Setup Swagger/OpenAPI en backend
+- [x] Documentar todos los endpoints de auth (11 endpoints)
+- [x] Documentar todos los endpoints de pagos (4 endpoints)
+- [x] Documentar todos los endpoints de admin (9 endpoints)
+- [x] Generar OpenAPI specification (`/api-docs.json`)
+- [x] Host documentation endpoint (`/api-docs`)
 
 ### Monitoring & Error Tracking (2-4 horas)
 - [ ] Instalar Sentry: `npm install @sentry/node @sentry/tracing`

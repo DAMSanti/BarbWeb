@@ -47,6 +47,7 @@ All files                |  83.79 |  70.00 |  83.79 |  83.79 | ✅ EXCELENTE
 - ✅ Webhooks.ts: 95.06% coverage ⭐ EXCELENTE
 - ✅ Schemas: 95.23% coverage ⭐ EXCELENTE
 - ✅ Utils: 100% coverage ⭐ PERFECTO
+- ✅ **Swagger API Docs**: `/api-docs` con 29 endpoints documentados (Nov 27)
 ---
 
 ## 🧭 REVISIÓN PROFUNDA DE CÓDIGO - NOV 26, 2025

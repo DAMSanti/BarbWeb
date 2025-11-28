@@ -6,13 +6,22 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import type { Express } from 'express'
 
-// Mock Sentry before importing
-const mockSentryInit = vi.fn()
-const mockSetupExpressErrorHandler = vi.fn()
-const mockCaptureException = vi.fn()
-const mockCaptureMessage = vi.fn()
-const mockSetUser = vi.fn()
-const mockCaptureConsoleIntegration = vi.fn().mockReturnValue({ name: 'CaptureConsole' })
+// Use vi.hoisted to define mocks BEFORE module import
+const {
+  mockSentryInit,
+  mockSetupExpressErrorHandler,
+  mockCaptureException,
+  mockCaptureMessage,
+  mockSetUser,
+  mockCaptureConsoleIntegration,
+} = vi.hoisted(() => ({
+  mockSentryInit: vi.fn(),
+  mockSetupExpressErrorHandler: vi.fn(),
+  mockCaptureException: vi.fn(),
+  mockCaptureMessage: vi.fn(),
+  mockSetUser: vi.fn(),
+  mockCaptureConsoleIntegration: vi.fn().mockReturnValue({ name: 'CaptureConsole' }),
+}))
 
 vi.mock('@sentry/node', () => ({
   init: mockSentryInit,

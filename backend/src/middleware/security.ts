@@ -70,7 +70,13 @@ export const helmetConfig = helmet({
       return {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'", 'https://js.stripe.com', 'https://www.googletagmanager.com'],
+      scriptSrc: [
+        "'self'", 
+        'https://js.stripe.com', 
+        'https://www.googletagmanager.com',
+        // Hash for Google Analytics inline script
+        "'sha256-0T0TE7u3vy5Z7rw/UlsACfk8b26loBw5EsuBXoHvIFE='",
+      ],
       workerSrc: ["'self'", 'blob:'], // Sentry Session Replay uses blob workers
       imgSrc: ["'self'", 'data:', 'https:', 'https://www.googletagmanager.com'],
       connectSrc: [...allowedConnectSrc, 'https://www.google-analytics.com', 'https://analytics.google.com', 'https://www.googletagmanager.com'],

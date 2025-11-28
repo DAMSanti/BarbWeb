@@ -22,6 +22,7 @@ import { asyncHandler } from '../middleware/errorHandler.js'
 import { authLimiter } from '../middleware/security.js'
 import { getPrismaClient } from '../db/init.js'
 import { logger } from '../utils/logger.js'
+import { ValidationError } from '../utils/errors.js'
 import {
   RegisterSchema,
   LoginSchema,
@@ -172,8 +173,7 @@ router.post(
     const { token } = req.body
 
     if (!token) {
-      res.status(400).json({ error: 'Verification token required' })
-      return
+      throw new ValidationError('Verification token required')
     }
 
     // Complete registration using the new system
@@ -215,8 +215,7 @@ router.post(
     const { email } = req.body
 
     if (!email) {
-      res.status(400).json({ error: 'Email required' })
-      return
+      throw new ValidationError('Email required')
     }
 
     await resendVerificationEmail(email)
@@ -685,19 +684,11 @@ router.post(
 
     // Basic validation
     if (!email || !password || !name) {
-      res.status(400).json({
-        success: false,
-        error: 'email, password, and name are required',
-      })
-      return
+      throw new ValidationError('email, password, and name are required')
     }
 
     if (password.length < 8) {
-      res.status(400).json({
-        success: false,
-        error: 'Password must be at least 8 characters',
-      })
-      return
+      throw new ValidationError('Password must be at least 8 characters')
     }
 
     const result = await setupAdmin(email, password, name, setupToken)
@@ -744,8 +735,7 @@ router.post(
     const { email } = req.body
 
     if (!email) {
-      res.status(400).json({ error: 'Email is required' })
-      return
+      throw new ValidationError('Email is required')
     }
 
     await requestPasswordReset(email)
@@ -787,13 +777,11 @@ router.post(
     const { token, password } = req.body
 
     if (!token || !password) {
-      res.status(400).json({ error: 'Token and password are required' })
-      return
+      throw new ValidationError('Token and password are required')
     }
 
     if (password.length < 8) {
-      res.status(400).json({ error: 'Password must be at least 8 characters' })
-      return
+      throw new ValidationError('Password must be at least 8 characters')
     }
 
     await resetPassword(token, password)
@@ -839,13 +827,11 @@ router.post(
     const userId = req.user!.userId
 
     if (!currentPassword || !newPassword) {
-      res.status(400).json({ error: 'Current password and new password are required' })
-      return
+      throw new ValidationError('Current password and new password are required')
     }
 
     if (newPassword.length < 8) {
-      res.status(400).json({ error: 'New password must be at least 8 characters' })
-      return
+      throw new ValidationError('New password must be at least 8 characters')
     }
 
     await changePassword(userId, currentPassword, newPassword)

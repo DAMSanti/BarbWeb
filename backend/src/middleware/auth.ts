@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { verifyJWT } from '../services/authService.js'
+import { AuthenticationError, AuthorizationError } from '../utils/errors.js'
 
 // Extend Express Request to include user
 declare global {
@@ -20,14 +21,14 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
 
   if (!token) {
-    res.status(401).json({ error: 'No token provided' })
+    next(new AuthenticationError('No token provided'))
     return
   }
 
   const decoded = verifyJWT(token)
 
   if (!decoded) {
-    res.status(401).json({ error: 'Invalid or expired token' })
+    next(new AuthenticationError('Invalid or expired token'))
     return
   }
 
@@ -38,7 +39,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
 // Middleware to check if user is authenticated
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
-    res.status(401).json({ error: 'Unauthorized' })
+    next(new AuthenticationError('Unauthorized'))
     return
   }
   next()
@@ -48,7 +49,7 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
 export const hasRole = (roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user || !roles.includes(req.user.role)) {
-      res.status(403).json({ error: 'Forbidden: insufficient permissions' })
+      next(new AuthorizationError('Forbidden: insufficient permissions'))
       return
     }
     next()
@@ -58,7 +59,7 @@ export const hasRole = (roles: string[]) => {
 // Middleware to check if user is admin
 export const isAdmin = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user || req.user.role !== 'admin') {
-    res.status(403).json({ error: 'Admin access required' })
+    next(new AuthorizationError('Admin access required'))
     return
   }
   next()

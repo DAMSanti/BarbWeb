@@ -769,8 +769,7 @@ describe('E2E Auth Workflows', () => {
         .send({ currentPassword: 'Old123!', newPassword: 'New456!' })
         .expect(401)
 
-      // Auth middleware returns { error: ... } without success field
-      expect(res.body.error).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
   })
 
@@ -813,8 +812,7 @@ describe('E2E Auth Workflows', () => {
         })
         .expect(401)
 
-      // Auth middleware returns { error: ... } without success field
-      expect(res.body.error).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
 
     it('should reject linking with missing provider', async () => {
@@ -906,7 +904,7 @@ describe('E2E Auth Workflows', () => {
           .send({})
           .expect(401)
 
-        expect(res.body.error || res.body.message).toBeDefined()
+        expect(res.body.success).toBe(false)
       }
     })
 
@@ -916,7 +914,7 @@ describe('E2E Auth Workflows', () => {
         .set('Authorization', 'InvalidFormat')
         .expect(401)
 
-      expect(res.body.error || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
   })
 

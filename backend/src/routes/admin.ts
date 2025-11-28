@@ -25,6 +25,7 @@ import { requireAdmin } from '../middleware/authorization.js'
 import * as adminService from '../services/adminService.js'
 import * as adminSchemas from '../schemas/admin.schemas.js'
 import { logger } from '../utils/logger.js'
+import { ValidationError } from '../utils/errors.js'
 
 const router = Router()
 
@@ -223,10 +224,7 @@ router.delete(
 
     // Prevent admin from deleting themselves
     if (id === req.user?.userId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Cannot delete yourself',
-      })
+      throw new ValidationError('Cannot delete yourself')
     }
 
     const user = await adminService.deleteUser(id)

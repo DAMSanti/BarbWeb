@@ -8,6 +8,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
+import { AuthenticationError, AuthorizationError } from '../utils/errors.js'
 
 // Extender tipo Request para incluir usuario autenticado
 declare global {
@@ -32,22 +33,12 @@ declare global {
 export const requireRole = (...allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      res.status(401).json({
-        success: false,
-        error: 'Authentication required',
-        code: 'UNAUTHORIZED',
-      })
+      next(new AuthenticationError('Authentication required'))
       return
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({
-        success: false,
-        error: `Access denied. Required roles: ${allowedRoles.join(', ')}. Your role: ${req.user.role}`,
-        code: 'FORBIDDEN',
-        requiredRoles: allowedRoles,
-        userRole: req.user.role,
-      })
+      next(new AuthorizationError(`Access denied. Required roles: ${allowedRoles.join(', ')}. Your role: ${req.user.role}`))
       return
     }
 
@@ -62,21 +53,12 @@ export const requireRole = (...allowedRoles: string[]) => {
  */
 export const requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
-    res.status(401).json({
-      success: false,
-      error: 'Authentication required',
-      code: 'UNAUTHORIZED',
-    })
+    next(new AuthenticationError('Authentication required'))
     return
   }
 
   if (req.user.role !== 'admin') {
-    res.status(403).json({
-      success: false,
-      error: 'Admin access required',
-      code: 'ADMIN_REQUIRED',
-      userRole: req.user.role,
-    })
+    next(new AuthorizationError('Admin access required'))
     return
   }
 
@@ -90,21 +72,12 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction): v
  */
 export const requireAdminOrLawyer = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
-    res.status(401).json({
-      success: false,
-      error: 'Authentication required',
-      code: 'UNAUTHORIZED',
-    })
+    next(new AuthenticationError('Authentication required'))
     return
   }
 
   if (!['admin', 'lawyer'].includes(req.user.role)) {
-    res.status(403).json({
-      success: false,
-      error: 'Admin or Lawyer access required',
-      code: 'FORBIDDEN',
-      userRole: req.user.role,
-    })
+    next(new AuthorizationError('Admin or Lawyer access required'))
     return
   }
 
@@ -118,11 +91,7 @@ export const requireAdminOrLawyer = (req: Request, res: Response, next: NextFunc
  */
 export const requireOwnResourceOrAdmin = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
-    res.status(401).json({
-      success: false,
-      error: 'Authentication required',
-      code: 'UNAUTHORIZED',
-    })
+    next(new AuthenticationError('Authentication required'))
     return
   }
 
@@ -131,11 +100,7 @@ export const requireOwnResourceOrAdmin = (req: Request, res: Response, next: Nex
   const isAdmin = req.user.role === 'admin'
 
   if (!isOwnResource && !isAdmin) {
-    res.status(403).json({
-      success: false,
-      error: 'Access denied. You can only access your own data or be an admin',
-      code: 'FORBIDDEN',
-    })
+    next(new AuthorizationError('Access denied. You can only access your own data or be an admin'))
     return
   }
 

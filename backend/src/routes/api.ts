@@ -7,6 +7,7 @@ import { apiRateLimit } from '../middleware/rateLimit.js'
 import { FilterQuestionSchema, GenerateDetailedResponseSchema } from '../schemas/faq.schemas.js'
 import { logger } from '../utils/logger.js'
 import { sendPaymentConfirmationEmail } from '../services/emailService.js'
+import { ValidationError, AppError } from '../utils/errors.js'
 
 const router = Router()
 
@@ -255,49 +256,27 @@ router.post(
     })
 
     if (!to || !clientName) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: to, clientName',
-      })
+      throw new ValidationError('Missing required fields: to, clientName')
     }
 
     logger.info('Sending test email', { to, clientName })
 
-    try {
-      const result = await sendPaymentConfirmationEmail(to, {
-        clientName,
-        amount: 50.00,
-        currency: 'usd',
-        category: 'Derecho Laboral',
-        consultationSummary: 'Esta es una consulta de prueba para verificar que el servicio de emails funciona correctamente.',
-        paymentId: 'pi_test_' + Date.now(),
-      })
+    const result = await sendPaymentConfirmationEmail(to, {
+      clientName,
+      amount: 50.00,
+      currency: 'usd',
+      category: 'Derecho Laboral',
+      consultationSummary: 'Esta es una consulta de prueba para verificar que el servicio de emails funciona correctamente.',
+      paymentId: 'pi_test_' + Date.now(),
+    })
 
-      logger.info('Email sent successfully', { emailId: result?.id })
+    logger.info('Email sent successfully', { emailId: result?.id })
 
-      res.json({
-        success: true,
-        message: 'Test email sent successfully',
-        emailId: result?.id,
-      })
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      const errorStack = error instanceof Error ? error.stack : undefined
-      const errorDetails = JSON.stringify(error, Object.getOwnPropertyNames(error))
-      
-      logger.error('Error sending test email', {
-        error: errorMessage,
-        stack: errorStack,
-        details: errorDetails,
-      })
-      
-      res.status(500).json({
-        success: false,
-        error: errorMessage,
-        stack: errorStack,
-        details: errorDetails,
-      })
-    }
+    res.json({
+      success: true,
+      message: 'Test email sent successfully',
+      emailId: result?.id,
+    })
   }),
 )
 

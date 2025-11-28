@@ -1,15 +1,268 @@
 /**
  * Unit Tests - Auth Service Utilities (MOCKED VERSION)
  * Tests para funciones de hash, JWT, password, registro, login
- * NO database calls - all mocked
+ * NO database calls - all mocked with vi.hoisted
  */
 
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest'
-import * as authService from '../../src/services/authService'
-import { getPrismaClient } from '../../src/db/init.js'
-import * as emailService from '../../src/services/emailService'
 
-// Mock email service to prevent sending real emails
+// Hoist mock data store BEFORE any imports
+const { mockPrisma, dataStore, resetDataStore } = vi.hoisted(() => {
+  // In-memory data store
+  const dataStore = {
+    users: new Map<string, any>(),
+    emailVerificationTokens: new Map<string, any>(),
+    oAuthAccounts: new Map<string, any>(),
+    pendingRegistrations: new Map<string, any>(),
+    passwordResetTokens: new Map<string, any>(),
+  }
+
+  let userIdCounter = 1
+  let tokenIdCounter = 1
+  let oAuthIdCounter = 1
+
+  const resetDataStore = () => {
+    dataStore.users.clear()
+    dataStore.emailVerificationTokens.clear()
+    dataStore.oAuthAccounts.clear()
+    dataStore.pendingRegistrations.clear()
+    dataStore.passwordResetTokens.clear()
+    userIdCounter = 1
+    tokenIdCounter = 1
+    oAuthIdCounter = 1
+  }
+
+  const mockPrisma = {
+    user: {
+      create: vi.fn(async ({ data }: any) => {
+        const id = `user_${userIdCounter++}`
+        const user = {
+          id,
+          ...data,
+          role: data.role || 'user',
+          refreshTokens: data.refreshTokens || [],
+          emailVerified: data.emailVerified || false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+        dataStore.users.set(id, user)
+        return user
+      }),
+      findUnique: vi.fn(async ({ where }: any) => {
+        if (where.id) return dataStore.users.get(where.id) || null
+        if (where.email) {
+          for (const user of dataStore.users.values()) {
+            if (user.email === where.email) return user
+          }
+        }
+        return null
+      }),
+      findMany: vi.fn(async () => Array.from(dataStore.users.values())),
+      update: vi.fn(async ({ where, data }: any) => {
+        let user = null
+        if (where.id) {
+          user = dataStore.users.get(where.id)
+        }
+        if (!user && where.email) {
+          for (const u of dataStore.users.values()) {
+            if (u.email === where.email) {
+              user = u
+              break
+            }
+          }
+        }
+        if (!user) {
+          // Try to find by id in all users
+          for (const u of dataStore.users.values()) {
+            if (u.id === where.id) {
+              user = u
+              break
+            }
+          }
+        }
+        if (!user) throw new Error('User not found')
+        
+        let updateData = data
+        if (data.refreshTokens?.set) {
+          updateData = { ...data, refreshTokens: data.refreshTokens.set }
+        }
+        if (data.refreshTokens?.push) {
+          updateData = { ...data, refreshTokens: [...(user.refreshTokens || []), data.refreshTokens.push] }
+        }
+        
+        const updated = { ...user, ...updateData, updatedAt: new Date() }
+        dataStore.users.set(user.id, updated)
+        return updated
+      }),
+      upsert: vi.fn(async ({ where, create, update }: any) => {
+        let user = null
+        if (where.email) {
+          for (const u of dataStore.users.values()) {
+            if (u.email === where.email) {
+              user = u
+              break
+            }
+          }
+        }
+        if (user) {
+          const updated = { ...user, ...update, updatedAt: new Date() }
+          dataStore.users.set(user.id, updated)
+          return updated
+        } else {
+          const id = `user_${userIdCounter++}`
+          const newUser = { id, ...create, createdAt: new Date(), updatedAt: new Date() }
+          dataStore.users.set(id, newUser)
+          return newUser
+        }
+      }),
+      delete: vi.fn(async ({ where }: any) => {
+        const user = dataStore.users.get(where.id)
+        if (user) dataStore.users.delete(where.id)
+        return user
+      }),
+      deleteMany: vi.fn(async () => {
+        const count = dataStore.users.size
+        dataStore.users.clear()
+        return { count }
+      }),
+    },
+    emailVerificationToken: {
+      create: vi.fn(async ({ data }: any) => {
+        const id = `token_${tokenIdCounter++}`
+        const token = { id, ...data, createdAt: new Date() }
+        dataStore.emailVerificationTokens.set(id, token)
+        return token
+      }),
+      findUnique: vi.fn(async ({ where }: any) => {
+        if (where.token) {
+          for (const t of dataStore.emailVerificationTokens.values()) {
+            if (t.token === where.token) return t
+          }
+        }
+        return null
+      }),
+      findMany: vi.fn(async ({ where }: any) => {
+        if (where?.userId) {
+          return Array.from(dataStore.emailVerificationTokens.values()).filter(t => t.userId === where.userId)
+        }
+        return Array.from(dataStore.emailVerificationTokens.values())
+      }),
+      delete: vi.fn(async ({ where }: any) => {
+        const token = dataStore.emailVerificationTokens.get(where.id)
+        if (token) dataStore.emailVerificationTokens.delete(where.id)
+        return token
+      }),
+      deleteMany: vi.fn(async () => {
+        const count = dataStore.emailVerificationTokens.size
+        dataStore.emailVerificationTokens.clear()
+        return { count }
+      }),
+    },
+    oAuthAccount: {
+      create: vi.fn(async ({ data }: any) => {
+        const id = `oauth_${oAuthIdCounter++}`
+        const account = { id, ...data, createdAt: new Date() }
+        dataStore.oAuthAccounts.set(id, account)
+        return account
+      }),
+      findUnique: vi.fn(async ({ where, include }: any) => {
+        if (where.provider_providerAccountId) {
+          for (const acc of dataStore.oAuthAccounts.values()) {
+            if (acc.provider === where.provider_providerAccountId.provider &&
+                acc.providerAccountId === where.provider_providerAccountId.providerAccountId) {
+              if (include?.user) {
+                const user = dataStore.users.get(acc.userId)
+                return { ...acc, user: user || null }
+              }
+              return acc
+            }
+          }
+        }
+        return null
+      }),
+      findMany: vi.fn(async ({ where }: any) => {
+        let results = Array.from(dataStore.oAuthAccounts.values())
+        if (where?.userId) results = results.filter(a => a.userId === where.userId)
+        if (where?.provider) results = results.filter(a => a.provider === where.provider)
+        return results
+      }),
+      deleteMany: vi.fn(async () => {
+        const count = dataStore.oAuthAccounts.size
+        dataStore.oAuthAccounts.clear()
+        return { count }
+      }),
+    },
+    pendingRegistration: {
+      create: vi.fn(async ({ data }: any) => {
+        const registration = { id: data.email, ...data, createdAt: new Date() }
+        dataStore.pendingRegistrations.set(data.email, registration)
+        return registration
+      }),
+      findUnique: vi.fn(async ({ where }: any) => {
+        if (where.email) return dataStore.pendingRegistrations.get(where.email) || null
+        return null
+      }),
+      delete: vi.fn(async ({ where }: any) => {
+        const reg = dataStore.pendingRegistrations.get(where.email)
+        if (reg) dataStore.pendingRegistrations.delete(where.email)
+        return reg
+      }),
+      deleteMany: vi.fn(async () => {
+        const count = dataStore.pendingRegistrations.size
+        dataStore.pendingRegistrations.clear()
+        return { count }
+      }),
+    },
+    passwordResetToken: {
+      create: vi.fn(async ({ data }: any) => {
+        const id = `reset_${tokenIdCounter++}`
+        const token = { id, ...data, used: false, createdAt: new Date() }
+        dataStore.passwordResetTokens.set(id, token)
+        return token
+      }),
+      findFirst: vi.fn(async ({ where, include }: any) => {
+        for (const token of dataStore.passwordResetTokens.values()) {
+          if (where?.token && token.token !== where.token) continue
+          if (where?.used !== undefined && token.used !== where.used) continue
+          if (include?.user) {
+            const user = dataStore.users.get(token.userId)
+            return { ...token, user: user || null }
+          }
+          return token
+        }
+        return null
+      }),
+      update: vi.fn(async ({ where, data }: any) => {
+        const token = dataStore.passwordResetTokens.get(where.id)
+        if (!token) throw new Error('Token not found')
+        const updated = { ...token, ...data }
+        dataStore.passwordResetTokens.set(where.id, updated)
+        return updated
+      }),
+      deleteMany: vi.fn(async ({ where }: any) => {
+        if (where?.userId) {
+          for (const [key, token] of dataStore.passwordResetTokens.entries()) {
+            if (token.userId === where.userId) dataStore.passwordResetTokens.delete(key)
+          }
+        } else {
+          dataStore.passwordResetTokens.clear()
+        }
+        return { count: 0 }
+      }),
+    },
+    $connect: vi.fn(),
+    $disconnect: vi.fn(),
+  }
+
+  return { mockPrisma, dataStore, resetDataStore }
+})
+
+// Mock Prisma BEFORE importing authService
+vi.mock('../../src/db/init.js', () => ({
+  getPrismaClient: vi.fn(() => mockPrisma),
+}))
+
+// Mock email service
 vi.mock('../../src/services/emailService', () => ({
   sendWelcomeEmail: vi.fn().mockResolvedValue(true),
   sendEmailVerificationEmail: vi.fn().mockResolvedValue(true),
@@ -21,8 +274,12 @@ vi.mock('../../src/services/emailService', () => ({
   sendRefundConfirmationEmail: vi.fn().mockResolvedValue(true),
 }))
 
-// Get the mocked prisma client (already mocked in setup.ts)
-const prisma = getPrismaClient()
+// NOW import authService (after mocks are set up)
+import * as authService from '../../src/services/authService'
+import * as emailService from '../../src/services/emailService'
+
+// Use the hoisted mock
+const prisma = mockPrisma
 
 describe('Password Hashing', () => {
   beforeEach(() => {
@@ -309,10 +566,9 @@ describe('Token Expiration', () => {
 })
 
 describe('registerUser', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
-    await prisma.user.deleteMany({})
-    await prisma.emailVerificationToken.deleteMany({})
+    resetDataStore()
   })
 
   it('should register new user with email and password', async () => {
@@ -417,8 +673,7 @@ describe('registerUser', () => {
 describe('loginUser', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    await prisma.user.deleteMany({})
-    await prisma.emailVerificationToken.deleteMany({})
+    resetDataStore()
     await authService.registerUser('login@example.com', 'password123', 'Login User')
   })
 
@@ -468,10 +723,9 @@ describe('loginUser', () => {
 })
 
 describe('oauthLogin', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
-    await prisma.user.deleteMany({})
-    await prisma.oAuthAccount.deleteMany({})
+    resetDataStore()
   })
 
   it('should create new user on first OAuth login', async () => {
@@ -566,9 +820,9 @@ describe('oauthLogin', () => {
 })
 
 describe('logoutUser', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
-    await prisma.user.deleteMany({})
+    resetDataStore()
   })
 
   it('should invalidate all refresh tokens', async () => {
@@ -585,10 +839,9 @@ describe('logoutUser', () => {
 })
 
 describe('linkOAuthAccount', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
-    await prisma.user.deleteMany({})
-    await prisma.oAuthAccount.deleteMany({})
+    resetDataStore()
   })
 
   it('should link OAuth account to existing user', async () => {
@@ -663,9 +916,9 @@ describe('linkOAuthAccount', () => {
 })
 
 describe('setupAdmin', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
-    await prisma.user.deleteMany({})
+    resetDataStore()
   })
 
   it('should create initial admin user', async () => {
@@ -730,9 +983,9 @@ describe('setupAdmin', () => {
 })
 
 describe('refreshAccessToken', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     vi.clearAllMocks()
-    await prisma.user.deleteMany({})
+    resetDataStore()
   })
 
   it('should generate new access token from valid refresh token', async () => {

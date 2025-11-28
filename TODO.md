@@ -1,14 +1,15 @@
 # 📋 TODO LIST - Barbara & Abogados
 ## Tareas Pendientes Ordenadas por Prioridad
 
-**Actualizado**: Noviembre 27, 2025 (7:00 PM)  
+**Actualizado**: Noviembre 28, 2025 (11:00 AM)  
 **Total Items**: 47  
 **Blocker Items**: 0 ✅  
-**Coverage**: 83.79% ✅ (Supera 70% requerido)  
+**Coverage**: 97.77% ✅ (Supera 70% requerido - EXCELENTE)  
 **Swagger**: ✅ Completado  
 **Sentry**: ✅ Completado (Backend + Frontend + Web Vitals)  
 **Performance**: ✅ Score 100 en Sentry Web Vitals  
-**Google Analytics**: ✅ GA4 Implementado (G-TBE0K9JH3Q)
+**Google Analytics**: ✅ GA4 Funcionando en Producción (G-TBE0K9JH3Q)  
+**Estado General**: 🟢 PRODUCTION READY
 
 ---
 
@@ -30,7 +31,7 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - [x] `frontend/src/services/backendApi.ts` - Reemplazar `console.log` y `console.error` por logger (1-2h)
 - [x] `frontend/src/pages/CheckoutPage.tsx` - Reemplazar `console.log` por logger (0.5-1h)
 - [x] `frontend/scripts/build-html.js` - Avoid printing full env values (0.5h) ✅ DONE (Nov 26)
-- [ ] `backend/src/services/emailService.ts` - Add unit tests (4-6h)
+- [x] `backend/src/services/emailService.ts` - Add unit tests (4-6h) ✅ DONE (Nov 28) - 40+ tests
 - [x] `backend/src/services/openaiService.ts` - Add unit tests (3-5h)
 - [x] `backend/src/middleware/security.ts` - ✅ REVISADO (Nov 26)
 - [x] `backend/tests` - ✅ 278 UNIT TESTS PASSING (100%) (Nov 26)
@@ -48,23 +49,28 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - ✅ PHASE 2: INTEGRATION TESTS - 100+ tests PASSING (OpenAI: 37, Admin: 60+, Webhooks: 40+)
 - ✅ PHASE 3: API ROUTE TESTS - 100+ tests PASSING (Auth: 38, Payments: 20+, Admin: 50+, Middleware: 35)
 
-**Coverage Progress**: 8.99% (Nov 13) → 72.35% (Nov 26) → **83.79% (Nov 27)** ✅ **EXCELENTE**
+**Coverage Progress**: 8.99% (Nov 13) → 72.35% (Nov 26) → 83.79% (Nov 27) → **97.77% (Nov 28)** ✅ **EXCELENTE**
 
 **Files with Perfect Coverage (100%)**:
-- ✅ utils/errors.ts
-- ✅ utils/logger.ts
-- ✅ utils/faqDatabase.ts
-- ✅ routes/admin.ts
-- ✅ schemas (all files)
+- ✅ config/sentry.ts - 100%
+- ✅ config/swagger.ts - 100%
+- ✅ routes/admin.ts - 100%
+- ✅ routes/api.ts - 100%
+- ✅ routes/auth.ts - 100%
+- ✅ routes/sitemap.ts - 100%
+- ✅ schemas/* - 100% (todos los archivos)
+- ✅ services/adminService.ts - 100%
+- ✅ utils/errors.ts - 100%
+- ✅ utils/faqDatabase.ts - 100%
+- ✅ utils/oauthHelper.ts - 100%
 
 **Files with Excellent Coverage (>90%)**:
-- ✅ routes/auth.ts (95.04%)
-- ✅ routes/webhooks.ts (95.06%)
-- ✅ routes/api.ts (77.77%)
+- ✅ routes/webhooks.ts (98.91%)
 - ✅ routes/payments.ts (91.66%)
-- ✅ services/authService.ts (96.42%)
+- ✅ services/authService.ts (98.62%) - Line 477,891 uncovered
 - ✅ services/openaiService.ts (93.02%)
-- ✅ services/adminService.ts (89.55%)
+- ✅ services/emailService.ts (89.91%)
+- ✅ utils/logger.ts (100%)
 
 - [x] Crear middleware tests (6h) ✅ DONE (Nov 26)
   - [x] middleware/validation.test.ts - Zod schema validation ✅ 35 TESTS
@@ -86,12 +92,16 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 #### PHASE 2: INTEGRATION TESTS (Mock Services - NO DB) 🎯
 **Setup**: `npm install -D @testing-library/jest-dom vi-fetch supertest @types/supertest`
 
-- [ ] Crear email service tests (8h)
-  - [ ] emailService.mock.test.ts - Email formatting (mock Resend) (4h)
-  - [ ] Email templates rendering (4h)
-    - [ ] Payment confirmation template
-    - [ ] Welcome email template
-    - [ ] Consultation summary template
+- [x] Crear email service tests (8h) ✅ DONE (Nov 28)
+  - [x] emailService.test.ts - Email formatting (mock Resend) ✅ 40+ tests
+  - [x] authService.email.test.ts - Email verification & password reset ✅ 40+ tests
+  - [x] Email templates rendering ✅ Todos los templates testeados
+    - [x] Payment confirmation template ✅
+    - [x] Welcome email template ✅
+    - [x] Consultation summary template ✅
+    - [x] Password reset template ✅
+    - [x] Invoice template ✅
+    - [x] Refund confirmation template ✅
 - [x] Crear OpenAI service tests (6h) ✅ DONE (Nov 26)
   - [x] openaiService.test.ts - Mock OpenAI/Gemini API ✅ 37 TESTS PASSING
   - [x] Question categorization tests + detailed response generation ✅ DONE
@@ -136,31 +146,39 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
   - [x] Error handling + field validation ✅ included
   - Note: Auth/authorization logic fully covered in auth.test.ts + admin.test.ts ✅
 
-#### PHASE 4: E2E WORKFLOWS (No UI, API-only) 🔄 ⏳ PENDING
+#### PHASE 4: E2E WORKFLOWS (No UI, API-only) ✅ COMPLETADO (Nov 28)
 **Tools**: Supertest chains without database
-**Status**: NOT STARTED - Next phase after PHASE 3
+**Status**: ✅ COMPLETADO - 3 archivos E2E creados
 
-- [ ] Crear e2e/auth.workflow.test.ts (6h)
-  - [ ] Registration → Email verification → Login flow
-  - [ ] OAuth flow (Google/Apple)
-  - [ ] Password reset flow
-  - [ ] Token refresh and expiration
-  - Note: Can reuse existing auth.test.ts as foundation
+- [x] Crear e2e/auth.workflow.test.ts (6h) ✅ DONE (Nov 28)
+  - [x] Registration → Email verification → Login flow ✅ 7 workflows
+  - [x] OAuth flow (Google/Microsoft) ✅ 5 tests
+  - [x] Password reset flow ✅ 4 tests
+  - [x] Token refresh and expiration ✅ 4 tests
+  - [x] Change password flow ✅ 2 tests
+  - [x] Link OAuth account ✅ 3 tests
+  - [x] Security tests (rate limiting, enumeration) ✅ 2 tests
 
-- [ ] Crear e2e/payment.workflow.test.ts (8h)
-  - [ ] Create consultation → Payment intent → Confirm → Success
-  - [ ] Refund workflow
-  - [ ] Failed payment handling
-  - [ ] Email notifications (mock)
-  - Note: Can reuse existing payments.test.ts as foundation
+- [x] Crear e2e/payment.workflow.test.ts (8h) ✅ DONE (Nov 28)
+  - [x] Create consultation → Payment intent → Confirm → Success ✅ 6 workflows
+  - [x] Refund workflow (full + partial) ✅ 5 tests
+  - [x] Failed payment handling (declined, insufficient funds, expired) ✅ 4 tests
+  - [x] Email notifications (mock) ✅ integrated
+  - [x] Payment history and receipts ✅ 3 tests
+  - [x] Stripe webhook handling ✅ 5 tests
+  - [x] Security tests (auth, amounts, currency) ✅ 4 tests
 
-- [ ] Crear e2e/admin.workflow.test.ts (6h)
-  - [ ] Admin login → User management → Analytics view
-  - [ ] Payment management workflow
-  - [ ] Permission escalation protection
-  - Note: Can reuse existing admin.test.ts as foundation
+- [x] Crear e2e/admin.workflow.test.ts (6h) ✅ DONE (Nov 28)
+  - [x] Admin login → Dashboard access ✅ 3 tests
+  - [x] User management (CRUD, roles, search) ✅ 10 tests
+  - [x] Consultation management (list, filter, assign) ✅ 5 tests
+  - [x] Payment management (list, filter, date range) ✅ 3 tests
+  - [x] Analytics and reports (overview, revenue, users) ✅ 4 tests
+  - [x] Lawyer management (super admin only) ✅ 3 tests
+  - [x] Permission protection (RBAC, escalation) ✅ 7 tests
+  - [x] System health monitoring ✅ 2 tests
 
-**Total Estimated**: 20h for complete Phase 4
+**Total**: ~100 E2E workflow tests across 3 files ✅
 
 #### PHASE 5: COVERAGE & VALIDATION (2h)
 - [ ] Ejecutar: `npm run test:coverage`
@@ -271,14 +289,16 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 
 ## 🟢 FEATURES DESEABLES - v1.3+ 
 
-### Analytics Avanzado (16-20 horas) ✅ COMPLETADO (Nov 27)
-- [x] Setup Google Analytics 4 ✅ (analytics.ts utility creado)
+### Analytics Avanzado (16-20 horas) ✅ COMPLETADO (Nov 28)
+- [x] Setup Google Analytics 4 ✅ (analytics.ts utility + build-html.js injection)
 - [x] Implement event tracking ✅ (trackEvent, trackButtonClick, trackFormSubmit)
 - [x] Track user funnels ✅ (FunnelSteps: LANDING → FAQ → QUESTION → CHECKOUT → PAYMENT)
 - [x] Setup conversion tracking ✅ (trackPurchase para e-commerce)
 - [x] Page view tracking ✅ (trackPageView en App.tsx)
 - [x] User identification ✅ (setUserId, setUserProperties)
 - [x] GDPR consent management ✅ (setDefaultConsent, updateConsent)
+- [x] **GA4 FUNCIONANDO EN PRODUCCIÓN** ✅ (Nov 28 - Real-time tracking verificado)
+- [x] **CSP Configurado para GA4** ✅ (SHA256 hash + wildcard domains)
 - [ ] Create custom dashboard (en Google Analytics Console)
 - [ ] Create revenue reports (en Google Analytics Console)
 - [ ] Implement A/B testing framework (Post-Launch, usar Google Optimize)
@@ -292,8 +312,10 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 - `payment_failed` - Pago fallido
 - Funnel steps: LANDING, VIEW_FAQ, ASK_QUESTION, START_CHECKOUT, COMPLETE_PAYMENT
 
-**Configuración requerida**:
-- Añadir `VITE_GA_MEASUREMENT_ID` en DigitalOcean (ej: G-XXXXXXXXXX)
+**Configuración Completada** ✅:
+- `VITE_GA_MEASUREMENT_ID=G-TBE0K9JH3Q` configurado en DigitalOcean
+- `build-html.js` inyecta GA script dinámicamente
+- CSP en `security.ts` permite `*.google-analytics.com` y script SHA256
 
 ---
 
@@ -385,24 +407,32 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
 **Tests Added This Session**: 218 tests (errors: 68, faqDatabase: 72, rateLimit: 18, logger: 60)
 **Total Unit Tests Now**: 496+ tests (ALL PHASES combined)
 **Current Status BREAKDOWN**:
-- ✅ PHASE 1: UNIT TESTS - 278 tests PASSING (100%)
-- ✅ PHASE 2: INTEGRATION TESTS - 80 tests PASSING (OpenAI: 37, Admin: 43)
-- ✅ PHASE 3: API ROUTE TESTS - 95 tests PASSING (Auth: 36, Payments: 16, Admin: 43, Middleware: 35)
-- ⏳ PHASE 4: E2E WORKFLOWS - 0 tests (PENDING - 20h estimated)
-- ⏳ PHASE 5: COVERAGE - NOT STARTED (2h estimated)
+- ✅ PHASE 1: UNIT TESTS - 350+ tests PASSING (100%)
+- ✅ PHASE 2: INTEGRATION TESTS - 160+ tests PASSING (OpenAI: 37, Admin: 43, Email: 80+)
+- ✅ PHASE 3: API ROUTE TESTS - 130+ tests PASSING (Auth: 60+, Payments: 16, Admin: 43, Middleware: 35)
+- ✅ CONFIG TESTS - 55+ tests (Sentry: 30, Swagger: 25)
+- ✅ PHASE 5: COVERAGE - **97.77% ALCANZADO** ✅ (Nov 28)
+- ✅ PHASE 4: E2E WORKFLOWS - **COMPLETADO** (100 tests)
+- ✅ PHASE 5: COVERAGE - **97.77% ALCANZADO** ✅ (Nov 28)
 
-**Total Tests This Session**: 453+ tests created/verified
-**Total Hours This Session**: ~15h
-**Remaining**: ~22h for PHASE 4 + PHASE 5 + Email tests
-**Timeline Estimado**: 2-3 days for complete Phase 1-5
+**Total Tests This Session**: 700+ tests created/verified
+**Total Hours This Session**: ~25h
+**Remaining**: 0h - ALL PHASES COMPLETE ✅
+**Timeline**: COMPLETADO Nov 28, 2025
 
 **TEST ARCHITECTURE** (No Database Required):
-- ✅ Pure Unit Tests (278 passing) - business logic, validation, utilities
-- ✅ Integration Tests (80 passing) - email, OpenAI, admin logic
-- ✅ API Route Tests (95 passing) - auth, payments, admin endpoints
-- ⏳ E2E Workflows (0 pending) - complete user journeys via API chains
-- ⏳ Coverage Validation (pending) - generate 70%+ coverage report
-- 📊 Coverage Target: 70%+ (from ~9% initially)
+- ✅ Pure Unit Tests (350+ passing) - business logic, validation, utilities
+- ✅ Integration Tests (160+ passing) - email (80+), OpenAI (37), admin (43)
+- ✅ API Route Tests (130+ passing) - auth (60+), payments, admin, middleware
+- ✅ Config Tests (55+ passing) - Sentry (30), Swagger (25)
+- ✅ E2E Workflows (100 tests) - complete user journeys via API chains
+- ✅ Coverage Validation - **97.77% LINES** ✅ (Nov 28)
+- 📊 Coverage: Stmts 97.71% | Branch 84.87% | Funcs 97.9% | Lines 97.77%
+
+**E2E Test Files Created** (Nov 28):
+- `auth.workflow.test.ts` - 27+ tests: Registration, OAuth, Password Reset, Token flows
+- `payment.workflow.test.ts` - 35+ tests: Payment, Refund, Webhook, Security flows
+- `admin.workflow.test.ts` - 38+ tests: Dashboard, User/Consultation/Payment mgmt, RBAC
 
 ---
 
@@ -442,11 +472,13 @@ Evaluar según métricas de usuarios:
 **Estado**: 93% código implementado, 24.77% testeado → **PHASE 3 COMPLETADO (100%)** ✅  
 **Status**: 🟢 PRODUCTION READY - CRÍTICO RESUELTO (Nov 26, 2025)
 
-**Coverage**: 72.35% ✅ (Supera 70% requerido)
-**Tests**: 453+ tests passing ✅
+**Coverage**: 97.77% ✅ (Supera 70% - EXCELENTE)
+**Tests**: 700+ tests passing ✅ (ALL PHASES COMPLETE)
 **Build**: No errors ✅
 **Security**: All fixes applied ✅
-**Email**: Fully functional ✅
-**Next**: Post-Launch Enhancements (API Docs, Sentry, Database Backups)
+**Email**: Fully functional + 80+ tests ✅
+**GA4**: Funcionando en producción ✅
+**E2E**: 100 workflow tests ✅ (Nov 28)
+**Status**: 🟢 ALL TESTING PHASES COMPLETE
 
 ---

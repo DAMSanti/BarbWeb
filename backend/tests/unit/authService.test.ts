@@ -7,12 +7,14 @@
 import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest'
 import * as authService from '../../src/services/authService'
 import { getPrismaClient } from '../../src/db/init.js'
+import * as emailService from '../../src/services/emailService'
 
 // Mock email service to prevent sending real emails
 vi.mock('../../src/services/emailService', () => ({
   sendWelcomeEmail: vi.fn().mockResolvedValue(true),
   sendEmailVerificationEmail: vi.fn().mockResolvedValue(true),
   sendPasswordResetEmail: vi.fn().mockResolvedValue(true),
+  sendPasswordChangedEmail: vi.fn().mockResolvedValue(true),
   sendPaymentConfirmationEmail: vi.fn().mockResolvedValue(true),
   sendLawyerNotificationEmail: vi.fn().mockResolvedValue(true),
   sendPaymentFailedEmail: vi.fn().mockResolvedValue(true),
@@ -379,6 +381,36 @@ describe('registerUser', () => {
 
     expect(verificationTokens.length).toBeGreaterThan(0)
     expect(verificationTokens[0].token).toBeDefined()
+  })
+
+  it('should still register user when welcome email fails', async () => {
+    vi.mocked(emailService.sendWelcomeEmail).mockRejectedValueOnce(new Error('Email service down'))
+
+    const result = await authService.registerUser(
+      'failedwelcome@example.com',
+      'pass123',
+      'User'
+    )
+
+    // Registration should succeed despite email failure
+    expect(result.user).toBeDefined()
+    expect(result.user.email).toBe('failedwelcome@example.com')
+    expect(result.tokens).toBeDefined()
+  })
+
+  it('should still register user when verification email fails', async () => {
+    vi.mocked(emailService.sendEmailVerificationEmail).mockRejectedValueOnce(new Error('Email service down'))
+
+    const result = await authService.registerUser(
+      'failedverify@example.com',
+      'pass123',
+      'User'
+    )
+
+    // Registration should succeed despite email failure
+    expect(result.user).toBeDefined()
+    expect(result.user.email).toBe('failedverify@example.com')
+    expect(result.tokens).toBeDefined()
   })
 })
 

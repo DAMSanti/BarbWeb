@@ -275,7 +275,7 @@ describe('Admin Service - Payment Management', () => {
   })
 
   describe('getPayments', () => {
-    it('should return paginated payments', async () => {
+    it('should return paginated payments with summary', async () => {
       const mockPayments = [
         {
           id: '1',
@@ -296,8 +296,8 @@ describe('Admin Service - Payment Management', () => {
       mockPrisma.payment.count.mockResolvedValue(1)
       mockPrisma.payment.findMany.mockResolvedValue(mockPayments)
       mockPrisma.payment.aggregate
-        .mockResolvedValueOnce({ _count: 1, _sum: { amount: new MockDecimal(100) } })
-        .mockResolvedValueOnce({ _count: 0, _sum: { refundedAmount: new MockDecimal(0) } })
+        .mockResolvedValueOnce({ _count: 5, _sum: { amount: new MockDecimal(500) } })
+        .mockResolvedValueOnce({ _count: 2, _sum: { refundedAmount: new MockDecimal(100) } })
 
       const result = await adminService.getPayments({
         page: 1,
@@ -308,6 +308,33 @@ describe('Admin Service - Payment Management', () => {
 
       expect(result.data).toHaveLength(1)
       expect(result.data[0].status).toBe('succeeded')
+      // Verify summary is included and has correct structure
+      expect(result.summary).toBeDefined()
+      expect(result.summary.successedCount).toBe(5)
+      expect(result.summary.successedTotal).toBe(500)
+      expect(result.summary.refundedCount).toBe(2)
+      expect(result.summary.refundedTotal).toBe(100)
+    })
+
+    it('should return summary with fallback values when aggregate returns null', async () => {
+      mockPrisma.payment.count.mockResolvedValue(0)
+      mockPrisma.payment.findMany.mockResolvedValue([])
+      mockPrisma.payment.aggregate
+        .mockResolvedValueOnce({ _count: 0, _sum: { amount: null } })
+        .mockResolvedValueOnce({ _count: 0, _sum: { refundedAmount: null } })
+
+      const result = await adminService.getPayments({
+        page: 1,
+        limit: 10,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      })
+
+      expect(result.summary).toBeDefined()
+      expect(result.summary.successedCount).toBe(0)
+      expect(result.summary.successedTotal).toBe(0)
+      expect(result.summary.refundedCount).toBe(0)
+      expect(result.summary.refundedTotal).toBe(0)
     })
 
     it('should filter payments by status', async () => {
@@ -581,7 +608,40 @@ describe('Admin Service - Analytics', () => {
       expect(result.activeUsers).toBe(10)
     })
 
-    it('should handle date range filtering', async () => {
+    it('should filter by startDate only', async () => {
+      mockPrisma.user.count.mockResolvedValue(3)
+      mockPrisma.payment.count.mockResolvedValue(2)
+      mockPrisma.payment.aggregate
+        .mockResolvedValueOnce({ _sum: { amount: new MockDecimal(150) } })
+        .mockResolvedValueOnce({ _avg: { amount: new MockDecimal(75) } })
+        .mockResolvedValueOnce({ _sum: { amount: new MockDecimal(50) } })
+      mockPrisma.payment.findMany.mockResolvedValue([])
+
+      const result = await adminService.getAnalytics({
+        startDate: new Date('2025-11-01'),
+      })
+
+      expect(result.totalPayments).toBe(2)
+      expect(result.activeUsers).toBe(3)
+    })
+
+    it('should filter by endDate only', async () => {
+      mockPrisma.user.count.mockResolvedValue(8)
+      mockPrisma.payment.count.mockResolvedValue(4)
+      mockPrisma.payment.aggregate
+        .mockResolvedValueOnce({ _sum: { amount: new MockDecimal(400) } })
+        .mockResolvedValueOnce({ _avg: { amount: new MockDecimal(100) } })
+        .mockResolvedValueOnce({ _sum: { amount: new MockDecimal(0) } })
+      mockPrisma.payment.findMany.mockResolvedValue([])
+
+      const result = await adminService.getAnalytics({
+        endDate: new Date('2025-12-31'),
+      })
+
+      expect(result.totalPayments).toBe(4)
+    })
+
+    it('should handle date range filtering with both dates', async () => {
       mockPrisma.user.count.mockResolvedValue(5)
       mockPrisma.payment.count.mockResolvedValue(2)
       mockPrisma.payment.aggregate
@@ -670,6 +730,40 @@ describe('Admin Service - Analytics', () => {
       expect(result).toHaveProperty('trend')
       expect(result).toHaveProperty('summary')
       expect(Array.isArray(result.trend)).toBe(true)
+    })
+
+    it('should filter by startDate only', async () => {
+      mockPrisma.payment.findMany.mockResolvedValue([
+        { amount: new MockDecimal(100), createdAt: new Date('2025-11-26') },
+      ])
+      mockPrisma.user.findMany.mockResolvedValue([])
+      mockPrisma.user.count.mockResolvedValue(2)
+
+      const result = await adminService.getAnalyticsTrend(
+        'day',
+        new Date('2025-11-01'),
+        undefined,
+      )
+
+      expect(result).toBeDefined()
+      expect(result.trend).toBeDefined()
+    })
+
+    it('should filter by endDate only', async () => {
+      mockPrisma.payment.findMany.mockResolvedValue([
+        { amount: new MockDecimal(200), createdAt: new Date('2025-11-20') },
+      ])
+      mockPrisma.user.findMany.mockResolvedValue([])
+      mockPrisma.user.count.mockResolvedValue(3)
+
+      const result = await adminService.getAnalyticsTrend(
+        'day',
+        undefined,
+        new Date('2025-11-30'),
+      )
+
+      expect(result).toBeDefined()
+      expect(result.trend).toBeDefined()
     })
 
     it('should support weekly grouping', async () => {

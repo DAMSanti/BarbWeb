@@ -100,6 +100,14 @@ describe('Pending Registration Flow', () => {
       expect(emailService.sendEmailVerificationEmail).toHaveBeenCalledTimes(2)
     })
 
+    it('should throw error when email sending fails', async () => {
+      vi.mocked(emailService.sendEmailVerificationEmail).mockRejectedValueOnce(new Error('Email service down'))
+
+      await expect(
+        authService.createPendingRegistration('emailfail@example.com', 'pass', 'Email Fail User')
+      ).rejects.toThrow()
+    })
+
     it('should hash password before storing in pending registration', async () => {
       await authService.createPendingRegistration('hash@example.com', 'plaintext', 'User')
 
@@ -186,6 +194,37 @@ describe('Pending Registration Flow', () => {
       ).rejects.toThrow()
     })
 
+    it('should throw error for expired token', async () => {
+      // Create pending registration
+      await authService.createPendingRegistration('expired@example.com', 'pass', 'Expired User')
+      const token = capturedVerificationToken!
+      
+      // Manually expire the token in the database
+      const hashedToken = require('crypto').createHash('sha256').update(token).digest('hex')
+      await prisma.pendingRegistration.updateMany({
+        where: { token: hashedToken },
+        data: { expiresAt: new Date(Date.now() - 1000) }, // Set to past
+      })
+      
+      // Should fail because token is expired
+      await expect(
+        authService.completeRegistration(token)
+      ).rejects.toThrow()
+    })
+
+    it('should still complete registration when welcome email fails', async () => {
+      await authService.createPendingRegistration('welcomefail@example.com', 'pass', 'Welcome Fail User')
+      
+      vi.mocked(emailService.sendWelcomeEmail).mockRejectedValueOnce(new Error('Email service down'))
+      
+      // Should complete without throwing even if welcome email fails
+      const result = await authService.completeRegistration(capturedVerificationToken!)
+      
+      expect(result.user).toBeDefined()
+      expect(result.user.email).toBe('welcomefail@example.com')
+      expect(result.tokens).toBeDefined()
+    })
+
     it('should throw error for already used email (user exists)', async () => {
       // Create a pending registration
       await authService.createPendingRegistration('conflict@example.com', 'pass', 'User')
@@ -259,6 +298,18 @@ describe('Password Reset Flow', () => {
       expect(emailService.sendPasswordResetEmail).not.toHaveBeenCalled()
     })
 
+    it('should not throw when email sending fails (security)', async () => {
+      // Create user first
+      await authService.registerUser('emailfailreset@example.com', 'pass', 'Email Fail User')
+      
+      vi.mocked(emailService.sendPasswordResetEmail).mockRejectedValueOnce(new Error('Email service down'))
+
+      // Should NOT throw even if email fails (security - don't reveal email exists)
+      await expect(
+        authService.requestPasswordReset('emailfailreset@example.com')
+      ).resolves.not.toThrow()
+    })
+
     it('should delete old reset tokens and create new one', async () => {
       // Create a user
       await authService.registerUser('multitoken@example.com', 'pass', 'Multi User')
@@ -322,6 +373,25 @@ describe('Password Reset Flow', () => {
       expect(tokenInDb).toBeTruthy()
     })
 
+    it('should still reset password when email notification fails', async () => {
+      // Create user and request password reset
+      await authService.registerUser('notifyfail@example.com', 'oldpassword', 'Notify Fail User')
+      await authService.requestPasswordReset('notifyfail@example.com')
+      
+      const token = capturedResetToken!
+      
+      vi.mocked(emailService.sendPasswordChangedEmail).mockRejectedValueOnce(new Error('Email service down'))
+      
+      // Should succeed even if notification email fails
+      await expect(
+        authService.resetPassword(token, 'NewPassword456!')
+      ).resolves.not.toThrow()
+      
+      // Should be able to login with new password
+      const loginResult = await authService.loginUser('notifyfail@example.com', 'NewPassword456!')
+      expect(loginResult.user).toBeDefined()
+    })
+
     it('should allow login with new password after reset', async () => {
       // Create user and request password reset
       await authService.registerUser('loginafter@example.com', 'oldpassword', 'Login After User')
@@ -359,6 +429,26 @@ describe('Password Reset Flow', () => {
         authService.resetPassword(token, 'AnotherPassword456!')
       ).rejects.toThrow()
     })
+
+    it('should throw error for expired token', async () => {
+      // Create user
+      await authService.registerUser('expiredtoken@example.com', 'oldpassword', 'Expired Token User')
+      await authService.requestPasswordReset('expiredtoken@example.com')
+      
+      const token = capturedResetToken!
+      
+      // Manually expire the token in the database
+      const hashedToken = require('crypto').createHash('sha256').update(token).digest('hex')
+      await prisma.passwordResetToken.updateMany({
+        where: { token: hashedToken },
+        data: { expiresAt: new Date(Date.now() - 1000) }, // Set to past
+      })
+      
+      // Should fail because token is expired
+      await expect(
+        authService.resetPassword(token, 'NewPassword123!')
+      ).rejects.toThrow()
+    })
   })
 
   describe('changePassword', () => {
@@ -390,6 +480,29 @@ describe('Password Reset Flow', () => {
       await expect(
         authService.changePassword('nonexistent-user-id', 'pass', 'newpass')
       ).rejects.toThrow()
+    })
+
+    it('should throw error if new password is same as current', async () => {
+      const { user } = await authService.registerUser('samepass@example.com', 'samepassword123', 'Same User')
+
+      await expect(
+        authService.changePassword(user.id, 'samepassword123', 'samepassword123')
+      ).rejects.toThrow()
+    })
+
+    it('should still change password when email notification fails', async () => {
+      const { user } = await authService.registerUser('emailfail@example.com', 'oldpass123', 'Email Fail User')
+      
+      vi.mocked(emailService.sendPasswordChangedEmail).mockRejectedValueOnce(new Error('Email service down'))
+
+      // Should not throw even if email fails
+      await expect(
+        authService.changePassword(user.id, 'oldpass123', 'newpass456')
+      ).resolves.not.toThrow()
+
+      // Should be able to login with new password
+      const loginResult = await authService.loginUser('emailfail@example.com', 'newpass456')
+      expect(loginResult.user).toBeDefined()
     })
 
     it('should verify new password works after change', async () => {

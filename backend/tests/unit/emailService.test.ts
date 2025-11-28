@@ -281,4 +281,160 @@ describe('Error Handling', () => {
     // Mock always succeeds, in real scenario Resend would reject
     expect(result).toBeDefined()
   })
+
+  it('should throw error when sendWelcomeEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendWelcomeEmail('user@example.com', { clientName: 'User' })
+    ).rejects.toThrow()
+  })
+
+  it('should throw error when sendEmailVerificationEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendEmailVerificationEmail('user@example.com', {
+        clientName: 'User',
+        verificationLink: 'http://test.com/verify',
+        expiresInMinutes: 60,
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should throw error when sendPasswordResetEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendPasswordResetEmail('user@example.com', {
+        clientName: 'User',
+        resetLink: 'http://test.com/reset',
+        expiresInMinutes: 60,
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should throw error when sendPasswordChangedEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendPasswordChangedEmail('user@example.com', {
+        clientName: 'User',
+        changedAt: new Date(),
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should throw error when sendPaymentConfirmationEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendPaymentConfirmationEmail('user@example.com', {
+        clientName: 'User',
+        category: 'Test',
+        amount: 50,
+        currency: 'EUR',
+        paymentId: 'pay_123',
+        consultationSummary: 'Test',
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should throw error when sendLawyerNotificationEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendLawyerNotificationEmail({
+        clientName: 'Client',
+        clientEmail: 'client@example.com',
+        category: 'Test',
+        consultationSummary: 'Test question',
+        paymentId: 'pay_123',
+        amount: 50,
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should throw error when sendInvoiceEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendInvoiceEmail('user@example.com', {
+        clientName: 'User',
+        invoiceNumber: 'INV-001',
+        date: '2025-11-28',
+        category: 'Consulta',
+        description: 'Test',
+        amount: 50,
+        currency: 'EUR',
+        taxAmount: 10.5,
+        totalAmount: 60.5,
+        paymentIntentId: 'pi_123',
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should throw error when sendPaymentFailedEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendPaymentFailedEmail('user@example.com', {
+        clientName: 'User',
+        amount: 50,
+        errorMessage: 'Payment declined',
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should throw error when sendRefundConfirmationEmail fails', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'API Error' } })
+
+    await expect(
+      sendRefundConfirmationEmail('user@example.com', {
+        clientName: 'User',
+        amount: 50,
+        currency: 'EUR',
+        refundReason: 'Client request',
+      })
+    ).rejects.toThrow()
+  })
+
+  it('should handle exception thrown by sendWelcomeEmail', async () => {
+    mockSend.mockRejectedValueOnce(new Error('Network error'))
+
+    await expect(
+      sendWelcomeEmail('user@example.com', { clientName: 'User' })
+    ).rejects.toThrow('Network error')
+  })
+
+  it('should handle exception thrown by sendPasswordResetEmail', async () => {
+    mockSend.mockRejectedValueOnce(new Error('Timeout'))
+
+    await expect(
+      sendPasswordResetEmail('user@example.com', {
+        clientName: 'User',
+        resetLink: 'http://test.com/reset',
+        expiresInMinutes: 60,
+      })
+    ).rejects.toThrow('Timeout')
+  })
+
+  it('should handle exception thrown by sendInvoiceEmail', async () => {
+    mockSend.mockRejectedValueOnce(new Error('Service unavailable'))
+
+    await expect(
+      sendInvoiceEmail('user@example.com', {
+        clientName: 'User',
+        invoiceNumber: 'INV-001',
+        date: '2025-11-28',
+        category: 'Consulta',
+        description: 'Test',
+        amount: 50,
+        currency: 'EUR',
+        taxAmount: 10.5,
+        totalAmount: 60.5,
+        paymentIntentId: 'pi_123',
+      })
+    ).rejects.toThrow('Service unavailable')
+  })
 })

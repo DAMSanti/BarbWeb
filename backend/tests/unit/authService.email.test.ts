@@ -6,6 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import crypto from 'crypto'
 import * as authService from '../../src/services/authService'
 import { getPrismaClient } from '../../src/db/init.js'
 import * as emailService from '../../src/services/emailService'
@@ -26,12 +27,36 @@ vi.mock('../../src/services/emailService', () => ({
 // Get the mocked prisma client
 const prisma = getPrismaClient()
 
+// Helper to extract token from verification link
+const extractTokenFromLink = (link: string): string | null => {
+  const match = link.match(/token=([a-f0-9]+)/)
+  return match ? match[1] : null
+}
+
+// Store captured tokens for testing
+let capturedVerificationToken: string | null = null
+let capturedResetToken: string | null = null
+
 describe('Pending Registration Flow', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    capturedVerificationToken = null
+    capturedResetToken = null
+    
+    // Capture tokens from email calls
+    vi.mocked(emailService.sendEmailVerificationEmail).mockImplementation(async (_to: string, data: { verificationLink: string }) => {
+      capturedVerificationToken = extractTokenFromLink(data.verificationLink)
+      return true
+    })
+    vi.mocked(emailService.sendPasswordResetEmail).mockImplementation(async (_to: string, data: { resetLink: string }) => {
+      capturedResetToken = extractTokenFromLink(data.resetLink)
+      return true
+    })
+    
     await prisma.user.deleteMany({})
     await prisma.pendingRegistration.deleteMany({})
     await prisma.emailVerificationToken.deleteMany({})
+    await prisma.passwordResetToken.deleteMany({})
   })
 
   describe('createPendingRegistration', () => {
@@ -107,29 +132,52 @@ describe('Pending Registration Flow', () => {
   })
 
   describe('completeRegistration', () => {
-    it('should complete registration and return user with tokens', async () => {
+    it('should complete registration with valid token and return user with tokens', async () => {
       // Create pending registration first
       await authService.createPendingRegistration('complete@example.com', 'pass123', 'Complete User')
-
-      // Get the verification token from the mock
-      const pending = await prisma.pendingRegistration.findUnique({
-        where: { email: 'complete@example.com' },
-      })
       
-      // Note: In real scenario, we'd need to get the unhashed token from the email
-      // For this test, we mock the behavior by using the hashed token lookup
-      expect(pending).toBeDefined()
-      expect(pending?.token).toBeDefined()
+      // Use the captured token from the email mock
+      expect(capturedVerificationToken).not.toBeNull()
+      
+      // Complete registration with the captured token
+      const result = await authService.completeRegistration(capturedVerificationToken!)
+      
+      expect(result.user).toBeDefined()
+      expect(result.user.email).toBe('complete@example.com')
+      expect(result.user.name).toBe('Complete User')
+      expect(result.user.emailVerified).toBe(true)
+      expect(result.tokens).toBeDefined()
+      expect(result.tokens.accessToken).toBeDefined()
+      expect(result.tokens.refreshToken).toBeDefined()
     })
 
     it('should send welcome email after successful verification', async () => {
-      // This test verifies the welcome email is sent
-      // In real scenario, completeRegistration would be called with the token
       await authService.createPendingRegistration('welcome@example.com', 'pass', 'Welcome User')
       
-      // The welcome email should be sent after completeRegistration is called
-      // Since we can't easily get the unhashed token in tests, we verify the email service mock is set up
-      expect(emailService.sendWelcomeEmail).toBeDefined()
+      expect(capturedVerificationToken).not.toBeNull()
+      await authService.completeRegistration(capturedVerificationToken!)
+      
+      expect(emailService.sendWelcomeEmail).toHaveBeenCalledTimes(1)
+      expect(emailService.sendWelcomeEmail).toHaveBeenCalledWith(
+        'welcome@example.com',
+        expect.objectContaining({ clientName: 'Welcome User' })
+      )
+    })
+
+    it('should delete pending registration after completion', async () => {
+      await authService.createPendingRegistration('delete@example.com', 'pass', 'Delete User')
+      
+      const pendingBefore = await prisma.pendingRegistration.findUnique({
+        where: { email: 'delete@example.com' },
+      })
+      expect(pendingBefore).not.toBeNull()
+      
+      await authService.completeRegistration(capturedVerificationToken!)
+      
+      const pendingAfter = await prisma.pendingRegistration.findUnique({
+        where: { email: 'delete@example.com' },
+      })
+      expect(pendingAfter).toBeNull()
     })
 
     it('should throw error for invalid token', async () => {
@@ -138,11 +186,24 @@ describe('Pending Registration Flow', () => {
       ).rejects.toThrow()
     })
 
-    it('should throw error for expired token', async () => {
-      // This would require manipulating the expiration time
-      // The actual behavior is tested in integration tests
+    it('should throw error for already used email (user exists)', async () => {
+      // Create a pending registration
+      await authService.createPendingRegistration('conflict@example.com', 'pass', 'User')
+      const token = capturedVerificationToken!
+      
+      // Create a user with the same email directly (simulating race condition)
+      await prisma.user.create({
+        data: {
+          email: 'conflict@example.com',
+          name: 'Existing User',
+          passwordHash: 'hash',
+          emailVerified: true,
+        },
+      })
+      
+      // Should throw conflict error
       await expect(
-        authService.completeRegistration('expired-token')
+        authService.completeRegistration(token)
       ).rejects.toThrow()
     })
   })
@@ -151,8 +212,22 @@ describe('Pending Registration Flow', () => {
 describe('Password Reset Flow', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    capturedVerificationToken = null
+    capturedResetToken = null
+    
+    // Capture tokens from email calls
+    vi.mocked(emailService.sendEmailVerificationEmail).mockImplementation(async (_to: string, data: { verificationLink: string }) => {
+      capturedVerificationToken = extractTokenFromLink(data.verificationLink)
+      return true
+    })
+    vi.mocked(emailService.sendPasswordResetEmail).mockImplementation(async (_to: string, data: { resetLink: string }) => {
+      capturedResetToken = extractTokenFromLink(data.resetLink)
+      return true
+    })
+    
     await prisma.user.deleteMany({})
     await prisma.passwordResetToken.deleteMany({})
+    await prisma.refreshToken.deleteMany({})
   })
 
   describe('requestPasswordReset', () => {
@@ -170,6 +245,9 @@ describe('Password Reset Flow', () => {
           resetLink: expect.stringContaining('/reset-password?token='),
         })
       )
+      
+      // Token should be captured
+      expect(capturedResetToken).toBeTruthy()
     })
 
     it('should not throw for non-existent email (security)', async () => {
@@ -216,22 +294,70 @@ describe('Password Reset Flow', () => {
   })
 
   describe('resetPassword', () => {
+    it('should reset password with valid token', async () => {
+      // Create user and request password reset
+      await authService.registerUser('validreset@example.com', 'oldpassword123', 'Valid Reset User')
+      await authService.requestPasswordReset('validreset@example.com')
+      
+      const token = capturedResetToken!
+      expect(token).toBeTruthy()
+      
+      // Reset password with captured token - should not throw
+      await expect(
+        authService.resetPassword(token, 'NewPassword456!')
+      ).resolves.not.toThrow()
+      
+      // Should send password changed notification
+      expect(emailService.sendPasswordChangedEmail).toHaveBeenCalledTimes(1)
+      expect(emailService.sendPasswordChangedEmail).toHaveBeenCalledWith(
+        'validreset@example.com',
+        expect.objectContaining({
+          clientName: 'Valid Reset User',
+        })
+      )
+      
+      // Token should be marked as used (not deleted)
+      const tokenInDb = await prisma.passwordResetToken.findFirst({
+        where: { used: true },
+      })
+      expect(tokenInDb).toBeTruthy()
+    })
+
+    it('should allow login with new password after reset', async () => {
+      // Create user and request password reset
+      await authService.registerUser('loginafter@example.com', 'oldpassword', 'Login After User')
+      await authService.requestPasswordReset('loginafter@example.com')
+      
+      const token = capturedResetToken!
+      
+      // Reset to new password
+      await authService.resetPassword(token, 'BrandNewPassword789!')
+      
+      // Should be able to login with new password
+      const loginResult = await authService.loginUser('loginafter@example.com', 'BrandNewPassword789!')
+      expect(loginResult.user).toBeDefined()
+      expect(loginResult.tokens).toBeDefined()
+    })
+
     it('should throw error for invalid token', async () => {
       await expect(
-        authService.resetPassword('invalid-token', 'newpassword123')
+        authService.resetPassword('invalid-token-xyz123', 'newpassword123')
       ).rejects.toThrow()
     })
 
-    it('should throw error for used token', async () => {
-      // Create used token scenario
+    it('should throw error when token used twice', async () => {
+      // Create user and request password reset
+      await authService.registerUser('doubleuse@example.com', 'oldpassword', 'Double Use User')
+      await authService.requestPasswordReset('doubleuse@example.com')
+      
+      const token = capturedResetToken!
+      
+      // First use - should succeed
+      await authService.resetPassword(token, 'NewPassword123!')
+      
+      // Second use - should fail
       await expect(
-        authService.resetPassword('used-token', 'newpassword123')
-      ).rejects.toThrow()
-    })
-
-    it('should throw error for expired token', async () => {
-      await expect(
-        authService.resetPassword('expired-token', 'newpassword123')
+        authService.resetPassword(token, 'AnotherPassword456!')
       ).rejects.toThrow()
     })
   })

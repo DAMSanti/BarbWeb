@@ -686,6 +686,18 @@ function createPrismaMock() {
       },
       $connect: vi.fn(async () => {}),
       $disconnect: vi.fn(async () => {}),
+      $transaction: vi.fn(async (operations: any[]) => {
+        // Execute all operations in sequence and return results
+        const results = []
+        for (const op of operations) {
+          if (typeof op === 'function') {
+            results.push(await op(mockPrismaInstance))
+          } else {
+            results.push(await op)
+          }
+        }
+        return results
+      }),
     }
 }
 

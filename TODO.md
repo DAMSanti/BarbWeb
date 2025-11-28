@@ -159,24 +159,24 @@ Objetivo: abordar cada item y crear PRs pequeñas y reversibles para validar en 
   - [x] Link OAuth account ✅ 3 tests
   - [x] Security tests (rate limiting, enumeration) ✅ 2 tests
 
-- [x] Crear e2e/payment.workflow.test.ts (8h) ✅ DONE (Nov 28)
-  - [x] Create consultation → Payment intent → Confirm → Success ✅ 6 workflows
-  - [x] Refund workflow (full + partial) ✅ 5 tests
-  - [x] Failed payment handling (declined, insufficient funds, expired) ✅ 4 tests
-  - [x] Email notifications (mock) ✅ integrated
-  - [x] Payment history and receipts ✅ 3 tests
-  - [x] Stripe webhook handling ✅ 5 tests
-  - [x] Security tests (auth, amounts, currency) ✅ 4 tests
+- [ ] Crear e2e/payment.workflow.test.ts (8h) ✅ DONE (Nov 28)
+  - [ ] Create consultation → Payment intent → Confirm → Success ✅ 6 workflows
+  - [ ] Refund workflow (full + partial) ✅ 5 tests
+  - [ ] Failed payment handling (declined, insufficient funds, expired) ✅ 4 tests
+  - [ ] Email notifications (mock) ✅ integrated
+  - [ ] Payment history and receipts ✅ 3 tests
+  - [ ] Stripe webhook handling ✅ 5 tests
+  - [ ] Security tests (auth, amounts, currency) ✅ 4 tests
 
-- [x] Crear e2e/admin.workflow.test.ts (6h) ✅ DONE (Nov 28)
-  - [x] Admin login → Dashboard access ✅ 3 tests
-  - [x] User management (CRUD, roles, search) ✅ 10 tests
-  - [x] Consultation management (list, filter, assign) ✅ 5 tests
-  - [x] Payment management (list, filter, date range) ✅ 3 tests
-  - [x] Analytics and reports (overview, revenue, users) ✅ 4 tests
-  - [x] Lawyer management (super admin only) ✅ 3 tests
-  - [x] Permission protection (RBAC, escalation) ✅ 7 tests
-  - [x] System health monitoring ✅ 2 tests
+- [ ] Crear e2e/admin.workflow.test.ts (6h) ✅ DONE (Nov 28)
+  - [ ] Admin login → Dashboard access ✅ 3 tests
+  - [ ] User management (CRUD, roles, search) ✅ 10 tests
+  - [ ] Consultation management (list, filter, assign) ✅ 5 tests
+  - [ ] Payment management (list, filter, date range) ✅ 3 tests
+  - [ ] Analytics and reports (overview, revenue, users) ✅ 4 tests
+  - [ ] Lawyer management (super admin only) ✅ 3 tests
+  - [ ] Permission protection (RBAC, escalation) ✅ 7 tests
+  - [ ] System health monitoring ✅ 2 tests
 
 **Total**: ~100 E2E workflow tests across 3 files ✅
 

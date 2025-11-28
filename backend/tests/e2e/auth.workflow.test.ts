@@ -586,7 +586,7 @@ describe('E2E Auth Workflows', () => {
       // Set a password hash for the user
       const user = Array.from(dataStore.users.values())[0]
       const bcrypt = await import('bcryptjs')
-      user.password = await bcrypt.hash(oldPassword, 10)
+      user.passwordHash = await bcrypt.hash(oldPassword, 10)
 
       // Step 1: Request password reset
       const forgotRes = await request(app)
@@ -724,10 +724,10 @@ describe('E2E Auth Workflows', () => {
 
       const { accessToken } = loginRes.body.tokens
 
-      // Set password for the user
+      // Set password for the user (use passwordHash, not password)
       const user = Array.from(dataStore.users.values())[0]
       const bcrypt = await import('bcryptjs')
-      user.password = await bcrypt.hash(currentPassword, 10)
+      user.passwordHash = await bcrypt.hash(currentPassword, 10)
 
       // Change password
       const changeRes = await request(app)
@@ -751,7 +751,7 @@ describe('E2E Auth Workflows', () => {
       // Set password for the user
       const user = Array.from(dataStore.users.values())[0]
       const bcrypt = await import('bcryptjs')
-      user.password = await bcrypt.hash('RealPassword123!', 10)
+      user.passwordHash = await bcrypt.hash('RealPassword123!', 10)
 
       // Try to change with wrong current password
       const changeRes = await request(app)
@@ -848,7 +848,7 @@ describe('E2E Auth Workflows', () => {
       // Set password
       const user = Array.from(dataStore.users.values())[0]
       const bcrypt = await import('bcryptjs')
-      user.password = await bcrypt.hash('RealPassword123!', 10)
+      user.passwordHash = await bcrypt.hash('RealPassword123!', 10)
 
       // Try login with wrong password
       const wrongPassRes = await request(app)

@@ -49,11 +49,25 @@ const { mockPrisma, dataStore, resetDataStore } = vi.hoisted(() => {
         return user
       }),
       findUnique: vi.fn(async ({ where }: any) => {
-        if (where.id) return dataStore.users.get(where.id) || null
+        if (where.id) {
+          const direct = dataStore.users.get(where.id)
+          if (direct) return direct
+          for (const user of dataStore.users.values()) {
+            if (user.id === where.id) return user
+          }
+        }
         if (where.email) {
           for (const user of dataStore.users.values()) {
             if (user.email === where.email) return user
           }
+        }
+        return null
+      }),
+      findFirst: vi.fn(async ({ where }: any) => {
+        for (const user of dataStore.users.values()) {
+          if (where?.role && user.role !== where.role) continue
+          if (where?.email && user.email !== where.email) continue
+          return user
         }
         return null
       }),
@@ -62,19 +76,18 @@ const { mockPrisma, dataStore, resetDataStore } = vi.hoisted(() => {
         let user = null
         if (where.id) {
           user = dataStore.users.get(where.id)
+          if (!user) {
+            for (const u of dataStore.users.values()) {
+              if (u.id === where.id) {
+                user = u
+                break
+              }
+            }
+          }
         }
         if (!user && where.email) {
           for (const u of dataStore.users.values()) {
             if (u.email === where.email) {
-              user = u
-              break
-            }
-          }
-        }
-        if (!user) {
-          // Try to find by id in all users
-          for (const u of dataStore.users.values()) {
-            if (u.id === where.id) {
               user = u
               break
             }

@@ -64,6 +64,14 @@ const { mockPrisma, dataStore, resetDataStore } = vi.hoisted(() => {
         }
         return null
       }),
+      findFirst: vi.fn(async ({ where }: any) => {
+        for (const user of dataStore.users.values()) {
+          if (where?.role && user.role !== where.role) continue
+          if (where?.email && user.email !== where.email) continue
+          return user
+        }
+        return null
+      }),
       findMany: vi.fn(async () => Array.from(dataStore.users.values())),
       update: vi.fn(async ({ where, data }: any) => {
         let user = null
@@ -159,30 +167,68 @@ const { mockPrisma, dataStore, resetDataStore } = vi.hoisted(() => {
     },
     pendingRegistration: {
       create: vi.fn(async ({ data }: any) => {
-        const registration = { id: data.email, ...data, createdAt: new Date() }
-        dataStore.pendingRegistrations.set(data.email, registration)
+        const id = `pending_${tokenIdCounter++}`
+        const registration = { id, ...data, createdAt: new Date() }
+        dataStore.pendingRegistrations.set(id, registration)
         return registration
       }),
       findUnique: vi.fn(async ({ where }: any) => {
-        if (where.email) return dataStore.pendingRegistrations.get(where.email) || null
+        // Search by email
+        if (where.email) {
+          for (const reg of dataStore.pendingRegistrations.values()) {
+            if (reg.email === where.email) return reg
+          }
+        }
+        // Search by token (hashed)
         if (where.token) {
           for (const reg of dataStore.pendingRegistrations.values()) {
             if (reg.token === where.token) return reg
           }
         }
+        // Search by id
+        if (where.id) {
+          return dataStore.pendingRegistrations.get(where.id) || null
+        }
         return null
       }),
       update: vi.fn(async ({ where, data }: any) => {
-        const reg = dataStore.pendingRegistrations.get(where.email)
+        let reg = null
+        if (where.email) {
+          for (const r of dataStore.pendingRegistrations.values()) {
+            if (r.email === where.email) { reg = r; break }
+          }
+        }
         if (!reg) throw new Error('Pending registration not found')
         const updated = { ...reg, ...data }
-        dataStore.pendingRegistrations.set(where.email, updated)
+        dataStore.pendingRegistrations.set(reg.id, updated)
         return updated
       }),
       delete: vi.fn(async ({ where }: any) => {
-        const reg = dataStore.pendingRegistrations.get(where.email)
-        if (reg) dataStore.pendingRegistrations.delete(where.email)
-        return reg
+        // Search by id first
+        if (where.id) {
+          const reg = dataStore.pendingRegistrations.get(where.id)
+          if (reg) {
+            dataStore.pendingRegistrations.delete(where.id)
+            return reg
+          }
+          // Also search by id value
+          for (const [key, r] of dataStore.pendingRegistrations.entries()) {
+            if (r.id === where.id) {
+              dataStore.pendingRegistrations.delete(key)
+              return r
+            }
+          }
+        }
+        // Search by email
+        if (where.email) {
+          for (const [key, r] of dataStore.pendingRegistrations.entries()) {
+            if (r.email === where.email) {
+              dataStore.pendingRegistrations.delete(key)
+              return r
+            }
+          }
+        }
+        return null
       }),
       deleteMany: vi.fn(async () => {
         const count = dataStore.pendingRegistrations.size
@@ -196,6 +242,23 @@ const { mockPrisma, dataStore, resetDataStore } = vi.hoisted(() => {
         const token = { id, ...data, used: false, createdAt: new Date() }
         dataStore.passwordResetTokens.set(id, token)
         return token
+      }),
+      findUnique: vi.fn(async ({ where, include }: any) => {
+        for (const token of dataStore.passwordResetTokens.values()) {
+          if (where?.token && token.token !== where.token) continue
+          if (include?.user) {
+            let user = null
+            for (const u of dataStore.users.values()) {
+              if (u.id === token.userId) {
+                user = u
+                break
+              }
+            }
+            return { ...token, user: user || null }
+          }
+          return token
+        }
+        return null
       }),
       findFirst: vi.fn(async ({ where, include }: any) => {
         for (const token of dataStore.passwordResetTokens.values()) {

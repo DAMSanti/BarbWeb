@@ -142,7 +142,9 @@ describe('Auth Routes', () => {
 
   describe('POST /auth/register', () => {
     it('should create pending registration and require email verification', async () => {
-      mockAuthService.createPendingRegistration.mockResolvedValueOnce(undefined)
+      mockAuthService.createPendingRegistration.mockResolvedValueOnce({
+        message: 'Se ha enviado un email de verificación. Por favor, revisa tu bandeja de entrada.',
+      })
 
       const response = await request(app).post('/auth/register').send({
         email: 'newuser@example.com',
@@ -256,30 +258,27 @@ describe('Auth Routes', () => {
 
   describe('POST /auth/verify-email', () => {
     it('should verify email with valid token', async () => {
-      const token = 'verification_token_123'
-      const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
-
-      mockPrisma.emailVerificationToken.findUnique.mockResolvedValueOnce({
-        id: 'token_123',
-        token: hashedToken,
-        userId: 'user123',
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      mockAuthService.completeRegistration.mockResolvedValueOnce({
+        user: {
+          id: 'user123',
+          email: 'test@example.com',
+          name: 'Test User',
+          emailVerified: true,
+        },
+        tokens: {
+          accessToken: 'access_token_123',
+          refreshToken: 'refresh_token_123',
+        },
       })
-
-      mockPrisma.user.update.mockResolvedValueOnce({
-        id: 'user123',
-        email: 'test@example.com',
-        emailVerified: true,
-      })
-
-      mockPrisma.emailVerificationToken.delete.mockResolvedValueOnce({})
 
       const response = await request(app).post('/auth/verify-email').send({
-        token,
+        token: 'valid_token_123',
       })
 
       expect(response.status).toBe(200)
       expect(response.body.success).toBe(true)
+      expect(response.body.user).toBeDefined()
+      expect(response.body.tokens).toBeDefined()
     })
 
     it('should reject missing verification token', async () => {
@@ -290,7 +289,9 @@ describe('Auth Routes', () => {
     })
 
     it('should reject invalid verification token', async () => {
-      mockPrisma.emailVerificationToken.findUnique.mockResolvedValueOnce(null)
+      mockAuthService.completeRegistration.mockRejectedValueOnce(
+        new Error('Token de verificación inválido')
+      )
 
       const response = await request(app).post('/auth/verify-email').send({
         token: 'invalid_token',
@@ -301,22 +302,16 @@ describe('Auth Routes', () => {
     })
 
     it('should reject expired verification token', async () => {
-      const token = 'expired_token'
-      const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
-
-      mockPrisma.emailVerificationToken.findUnique.mockResolvedValueOnce({
-        id: 'token_123',
-        token: hashedToken,
-        userId: 'user123',
-        expiresAt: new Date(Date.now() - 1000), // Expired 1 second ago
-      })
+      mockAuthService.completeRegistration.mockRejectedValueOnce(
+        new Error('Token de verificación expirado')
+      )
 
       const response = await request(app).post('/auth/verify-email').send({
-        token,
+        token: 'expired_token',
       })
 
       expect(response.status).toBe(400)
-      expect(response.body.error).toContain('expired')
+      expect(response.body.error).toBeDefined()
     })
   })
 
@@ -974,8 +969,11 @@ describe('Auth Routes', () => {
 
   describe('POST /auth/change-password', () => {
     it('should change password for authenticated user', async () => {
+      mockVerifyToken.mockImplementation((req, _res, next) => {
+        req.user = { userId: 'user123', email: 'test@example.com', role: 'user' }
+        next()
+      })
       mockIsAuthenticated.mockImplementation((req, _res, next) => {
-        req.user = { id: 'user123', email: 'test@example.com', role: 'user' }
         next()
       })
       mockAuthService.changePassword.mockResolvedValueOnce(undefined)
@@ -994,8 +992,11 @@ describe('Auth Routes', () => {
     })
 
     it('should reject wrong current password', async () => {
+      mockVerifyToken.mockImplementation((req, _res, next) => {
+        req.user = { userId: 'user123', email: 'test@example.com', role: 'user' }
+        next()
+      })
       mockIsAuthenticated.mockImplementation((req, _res, next) => {
-        req.user = { id: 'user123', email: 'test@example.com', role: 'user' }
         next()
       })
       mockAuthService.changePassword.mockRejectedValueOnce(

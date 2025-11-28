@@ -253,13 +253,24 @@ const { mockPrisma, dataStore, resetDataStore, tokenIdCounter } = vi.hoisted(() 
         dataStore.oAuthAccounts.set(id, account)
         return account
       }),
-      findUnique: vi.fn(async ({ where }: any) => {
+      findUnique: vi.fn(async ({ where, include }: any) => {
         if (where?.provider_providerAccountId) {
           for (const account of dataStore.oAuthAccounts.values()) {
             if (
               account.provider === where.provider_providerAccountId.provider &&
               account.providerAccountId === where.provider_providerAccountId.providerAccountId
             ) {
+              // Include user if requested
+              if (include?.user) {
+                let user = null
+                for (const u of dataStore.users.values()) {
+                  if (u.id === account.userId) {
+                    user = u
+                    break
+                  }
+                }
+                return { ...account, user }
+              }
               return account
             }
           }
@@ -323,6 +334,7 @@ vi.mock('../../src/middleware/security.js', () => ({
 
 // Import after mocks
 import authRouter from '../../src/routes/auth.js'
+import { errorHandler } from '../../src/middleware/errorHandler.js'
 
 // ============================================================
 // TEST APP SETUP
@@ -332,6 +344,7 @@ function createTestApp(): Express {
   const app = express()
   app.use(express.json())
   app.use('/api/auth', authRouter)
+  app.use(errorHandler) // Add error handler for proper error responses
   return app
 }
 
@@ -412,8 +425,7 @@ describe('E2E Auth Workflows', () => {
         .send({ email: 'invalid-email', password: 'SecurePass123!', confirmPassword: 'SecurePass123!', name: 'Test' })
         .expect(400)
 
-      // Error can be in different fields depending on validation
-      expect(res.body.error || res.body.errors || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
 
     it('should reject registration with weak password', async () => {
@@ -422,8 +434,7 @@ describe('E2E Auth Workflows', () => {
         .send({ email: 'test@test.com', password: '123', confirmPassword: '123', name: 'Test' })
         .expect(400)
 
-      // Error can be in different fields depending on validation
-      expect(res.body.error || res.body.errors || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
 
     it('should reject verification with invalid token', async () => {
@@ -432,7 +443,7 @@ describe('E2E Auth Workflows', () => {
         .send({ token: 'invalid-token-that-does-not-exist' })
 
       expect([400, 401]).toContain(res.status)
-      expect(res.body.error || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
 
     it('should reject verification with missing token', async () => {
@@ -539,7 +550,7 @@ describe('E2E Auth Workflows', () => {
         .send({ email: 'test@test.com' }) // Missing sub
         .expect(400)
 
-      expect(res.body.error || res.body.errors || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
 
     it('should reject OAuth with invalid email', async () => {
@@ -548,7 +559,7 @@ describe('E2E Auth Workflows', () => {
         .send({ sub: '123', email: 'invalid-email' })
         .expect(400)
 
-      expect(res.body.error || res.body.errors || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
   })
 
@@ -617,7 +628,7 @@ describe('E2E Auth Workflows', () => {
 
       // Can be 400 or 401 depending on implementation
       expect([400, 401]).toContain(res.status)
-      expect(res.body.error || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
 
     it('should reject reset with weak password', async () => {
@@ -669,7 +680,7 @@ describe('E2E Auth Workflows', () => {
         .send({})
         .expect(400)
 
-      expect(res.body.error || res.body.errors || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
 
     it('should verify valid access token', async () => {
@@ -745,7 +756,7 @@ describe('E2E Auth Workflows', () => {
         .send({ currentPassword: 'WrongPassword123!', newPassword: 'NewPass456!' })
         .expect(401)
 
-      expect(changeRes.body.error || changeRes.body.message).toBeDefined()
+      expect(changeRes.body.success).toBe(false)
     })
 
     it('should reject password change without authentication', async () => {
@@ -754,7 +765,7 @@ describe('E2E Auth Workflows', () => {
         .send({ currentPassword: 'Old123!', newPassword: 'New456!' })
         .expect(401)
 
-      expect(res.body.error || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
   })
 
@@ -797,7 +808,7 @@ describe('E2E Auth Workflows', () => {
         })
         .expect(401)
 
-      expect(res.body.error || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
 
     it('should reject linking with missing provider', async () => {
@@ -814,7 +825,7 @@ describe('E2E Auth Workflows', () => {
         .send({ providerAccountId: 'account-123' })
         .expect(400)
 
-      expect(res.body.error || res.body.message).toBeDefined()
+      expect(res.body.success).toBe(false)
     })
   })
 

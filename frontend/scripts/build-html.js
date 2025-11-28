@@ -109,13 +109,25 @@ try {
   console.log('📄 Generating HTML...');
   const cssContent = fs.readFileSync(path.join(distDir, 'index.css'), 'utf8');
   
+  // Google Analytics script (only if measurement ID is configured)
+  const gaScript = envVars.VITE_GA_MEASUREMENT_ID ? `
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=${envVars.VITE_GA_MEASUREMENT_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${envVars.VITE_GA_MEASUREMENT_ID}');
+    </script>` : '';
+  
   const htmlContent = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bufete Jurídico - Consultas Legales</title>
+  <title>Bufete Jurídico - Consultas Legales Rápidas y Seguras</title>
+  <meta name="description" content="Obtén respuestas legales inmediatas o solicita consultas profesionales con nuestra plataforma segura y confiable." />${gaScript}
   <style>
 ${cssContent}
   </style>

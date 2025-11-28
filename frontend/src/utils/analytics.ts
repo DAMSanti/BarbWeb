@@ -34,6 +34,8 @@ const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || ''
  * Should be called once at app startup
  */
 export function initializeAnalytics(): void {
+  // GA4 is already loaded in index.html
+  // This function just ensures gtag is available for the rest of the app
   if (!GA_MEASUREMENT_ID) {
     return
   }
@@ -43,31 +45,15 @@ export function initializeAnalytics(): void {
     return
   }
 
-  // Initialize dataLayer FIRST
-  window.dataLayer = window.dataLayer || []
-
-  // Define gtag function
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer.push(args)
+  // gtag should already be defined from index.html
+  // Just verify it exists
+  if (typeof window.gtag !== 'function') {
+    // Fallback: define gtag if somehow not loaded
+    window.dataLayer = window.dataLayer || []
+    window.gtag = function gtag(...args: unknown[]) {
+      window.dataLayer.push(args)
+    }
   }
-
-  // Load GA4 script FIRST, then configure
-  const script = document.createElement('script')
-  script.async = true
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
-  
-  script.onload = () => {
-    // Initialize GA4 AFTER script loads
-    window.gtag('js', new Date())
-    window.gtag('config', GA_MEASUREMENT_ID, {
-      send_page_view: true, // Let GA4 handle page views
-      cookie_flags: 'SameSite=None;Secure',
-      anonymize_ip: true, // GDPR compliance
-    })
-  }
-  
-  // Add script to head - this triggers the load
-  document.head.appendChild(script)
 }
 
 /**

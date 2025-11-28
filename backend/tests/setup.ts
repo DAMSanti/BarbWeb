@@ -632,13 +632,20 @@ function createPrismaMock() {
           }
           return null
         }),
-        findFirst: vi.fn(async ({ where }: any) => {
+        findFirst: vi.fn(async ({ where, include }: any) => {
           for (const token of dataStore.passwordResetTokens.values()) {
             let matches = true
             if (where?.token && token.token !== where.token) matches = false
             if (where?.used !== undefined && token.used !== where.used) matches = false
             if (where?.expiresAt?.gt && !(new Date(token.expiresAt) > where.expiresAt.gt)) matches = false
-            if (matches) return token
+            if (matches) {
+              // Include user relation if requested
+              if (include?.user) {
+                const user = dataStore.users.get(token.userId)
+                return { ...token, user: user || null }
+              }
+              return token
+            }
           }
           return null
         }),

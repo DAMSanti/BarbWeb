@@ -34,18 +34,25 @@ const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || ''
  * Should be called once at app startup
  */
 export function initializeAnalytics(): void {
+  // Debug: Log initialization attempt
+  console.log('[Analytics] Initializing...', { 
+    GA_MEASUREMENT_ID, 
+    isDev: import.meta.env.DEV,
+    enabledInDev: import.meta.env.VITE_ENABLE_ANALYTICS_DEV 
+  })
+
   if (!GA_MEASUREMENT_ID) {
-    // Analytics disabled - no measurement ID configured
+    console.warn('[Analytics] Disabled - No VITE_GA_MEASUREMENT_ID configured')
     return
   }
 
   // Skip in development unless explicitly enabled
   if (import.meta.env.DEV && !import.meta.env.VITE_ENABLE_ANALYTICS_DEV) {
-    // Analytics disabled in development mode
+    console.log('[Analytics] Disabled in development mode')
     return
   }
 
-  // Initialize dataLayer
+  // Initialize dataLayer FIRST
   window.dataLayer = window.dataLayer || []
 
   // Define gtag function
@@ -53,21 +60,31 @@ export function initializeAnalytics(): void {
     window.dataLayer.push(args)
   }
 
-  // Initialize GA4
-  window.gtag('js', new Date())
-  window.gtag('config', GA_MEASUREMENT_ID, {
-    send_page_view: false, // We'll track page views manually for SPAs
-    cookie_flags: 'SameSite=None;Secure',
-    anonymize_ip: true, // GDPR compliance
-  })
-
-  // Load GA4 script dynamically
+  // Load GA4 script FIRST, then configure
   const script = document.createElement('script')
   script.async = true
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
+  
+  script.onload = () => {
+    console.log('[Analytics] GA4 script loaded successfully')
+    
+    // Initialize GA4 AFTER script loads
+    window.gtag('js', new Date())
+    window.gtag('config', GA_MEASUREMENT_ID, {
+      send_page_view: true, // Let GA4 handle page views
+      cookie_flags: 'SameSite=None;Secure',
+      anonymize_ip: true, // GDPR compliance
+    })
+    
+    console.log('[Analytics] GA4 configured with ID:', GA_MEASUREMENT_ID)
+  }
+  
+  script.onerror = () => console.error('[Analytics] Failed to load GA4 script')
+  
+  // Add script to head - this triggers the load
   document.head.appendChild(script)
 
-  // GA4 initialized successfully
+  console.log('[Analytics] Loading GA4 script...')
 }
 
 /**

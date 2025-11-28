@@ -17,11 +17,19 @@ export const LoginSchema = z.object({
   }),
 })
 
+// Schema for OAuth callback from frontend (after code exchange)
 export const OAuthCallbackSchema = z.object({
   body: z.object({
-    token: z.string().min(1, 'Token requerido'),
-    provider: z.enum(['google', 'microsoft']),
-  }),
+    // Google uses 'sub', Microsoft uses 'oid' - both accepted
+    sub: z.string().min(1).optional(),
+    oid: z.string().min(1).optional(),
+    email: z.string().email('Email inválido'),
+    name: z.string().optional(),
+    picture: z.string().url().optional(),
+  }).refine(
+    (data) => data.sub || data.oid,
+    { message: 'Se requiere sub (Google) o oid (Microsoft)' }
+  ),
 })
 
 export const RefreshTokenSchema = z.object({

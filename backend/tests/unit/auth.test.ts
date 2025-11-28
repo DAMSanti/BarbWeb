@@ -1079,7 +1079,5 @@ describe('Auth Routes', () => {
       expect(response.status).toBe(400)
       expect(response.body.error).toBe('New password must be at least 8 characters')
     })
-      expect(response.body.error).toBeDefined()
-    })
   })
 })

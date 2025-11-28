@@ -24,6 +24,12 @@ const {
     logoutUser: vi.fn(),
     linkOAuthAccount: vi.fn(),
     setupAdmin: vi.fn(),
+    createPendingRegistration: vi.fn(),
+    completeRegistration: vi.fn(),
+    resendVerificationEmail: vi.fn(),
+    requestPasswordReset: vi.fn(),
+    resetPassword: vi.fn(),
+    changePassword: vi.fn(),
   }
 
   const mockOauthHelper = {
@@ -123,19 +129,8 @@ describe('Auth Routes', () => {
   })
 
   describe('POST /auth/register', () => {
-    it('should register a new user successfully', async () => {
-      mockAuthService.registerUser.mockResolvedValueOnce({
-        user: {
-          id: 'user123',
-          email: 'newuser@example.com',
-          name: 'John Doe',
-          role: 'user',
-        },
-        tokens: {
-          accessToken: 'access_token_123',
-          refreshToken: 'refresh_token_123',
-        },
-      })
+    it('should create pending registration and require email verification', async () => {
+      mockAuthService.createPendingRegistration.mockResolvedValueOnce(undefined)
 
       const response = await request(app).post('/auth/register').send({
         email: 'newuser@example.com',
@@ -144,15 +139,19 @@ describe('Auth Routes', () => {
         name: 'John Doe',
       })
 
-      expect(response.status).toBe(201)
+      expect(response.status).toBe(200)
       expect(response.body.success).toBe(true)
-      expect(response.body.user.email).toBe('newuser@example.com')
-      expect(response.body.tokens.accessToken).toBeDefined()
-      expect(response.body.tokens.refreshToken).toBeDefined()
+      expect(response.body.requiresVerification).toBe(true)
+      expect(response.body.message).toContain('verificación')
+      expect(mockAuthService.createPendingRegistration).toHaveBeenCalledWith(
+        'newuser@example.com',
+        'SecurePassword123!',
+        'John Doe'
+      )
     })
 
     it('should reject duplicate email registration', async () => {
-      mockAuthService.registerUser.mockRejectedValueOnce(new Error('El email ya está registrado'))
+      mockAuthService.createPendingRegistration.mockRejectedValueOnce(new Error('El email ya está registrado'))
 
       const response = await request(app).post('/auth/register').send({
         email: 'existing@example.com',
@@ -837,6 +836,160 @@ describe('Auth Routes', () => {
 
       expect(response.status).toBe(302)
       expect(response.headers.location).toContain('/login?error=')
+    })
+  })
+
+  describe('GET /auth/verify-email', () => {
+    it('should complete registration with valid token', async () => {
+      mockAuthService.completeRegistration.mockResolvedValueOnce({
+        user: { id: 'user123', email: 'test@example.com', name: 'Test User', role: 'user' },
+        tokens: { accessToken: 'access_123', refreshToken: 'refresh_123' },
+      })
+
+      const response = await request(app).get('/auth/verify-email?token=valid_token_123')
+
+      expect(response.status).toBe(200)
+      expect(response.body.success).toBe(true)
+      expect(response.body.user).toBeDefined()
+      expect(response.body.tokens).toBeDefined()
+      expect(mockAuthService.completeRegistration).toHaveBeenCalledWith('valid_token_123')
+    })
+
+    it('should reject invalid or expired token', async () => {
+      mockAuthService.completeRegistration.mockRejectedValueOnce(
+        new Error('Token inválido o expirado')
+      )
+
+      const response = await request(app).get('/auth/verify-email?token=invalid_token')
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBeDefined()
+    })
+
+    it('should require token parameter', async () => {
+      const response = await request(app).get('/auth/verify-email')
+
+      expect(response.status).toBe(400)
+    })
+  })
+
+  describe('POST /auth/resend-verification', () => {
+    it('should resend verification email', async () => {
+      mockAuthService.resendVerificationEmail.mockResolvedValueOnce(undefined)
+
+      const response = await request(app)
+        .post('/auth/resend-verification')
+        .send({ email: 'test@example.com' })
+
+      expect(response.status).toBe(200)
+      expect(response.body.success).toBe(true)
+      expect(mockAuthService.resendVerificationEmail).toHaveBeenCalledWith('test@example.com')
+    })
+
+    it('should always return success for security', async () => {
+      // resendVerificationEmail no lanza error aunque el email no exista
+      mockAuthService.resendVerificationEmail.mockResolvedValueOnce(undefined)
+
+      const response = await request(app)
+        .post('/auth/resend-verification')
+        .send({ email: 'nonexistent@example.com' })
+
+      expect(response.status).toBe(200)
+      expect(response.body.success).toBe(true)
+    })
+  })
+
+  describe('POST /auth/forgot-password', () => {
+    it('should request password reset', async () => {
+      mockAuthService.requestPasswordReset.mockResolvedValueOnce(undefined)
+
+      const response = await request(app)
+        .post('/auth/forgot-password')
+        .send({ email: 'test@example.com' })
+
+      expect(response.status).toBe(200)
+      expect(response.body.success).toBe(true)
+      expect(mockAuthService.requestPasswordReset).toHaveBeenCalledWith('test@example.com')
+    })
+
+    it('should always return success for security', async () => {
+      mockAuthService.requestPasswordReset.mockResolvedValueOnce(undefined)
+
+      const response = await request(app)
+        .post('/auth/forgot-password')
+        .send({ email: 'nonexistent@example.com' })
+
+      expect(response.status).toBe(200)
+      expect(response.body.success).toBe(true)
+    })
+  })
+
+  describe('POST /auth/reset-password', () => {
+    it('should reset password with valid token', async () => {
+      mockAuthService.resetPassword.mockResolvedValueOnce(undefined)
+
+      const response = await request(app)
+        .post('/auth/reset-password')
+        .send({ token: 'valid_reset_token', password: 'NewSecurePass123!' })
+
+      expect(response.status).toBe(200)
+      expect(response.body.success).toBe(true)
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith(
+        'valid_reset_token',
+        'NewSecurePass123!'
+      )
+    })
+
+    it('should reject invalid token', async () => {
+      mockAuthService.resetPassword.mockRejectedValueOnce(
+        new Error('Token inválido o expirado')
+      )
+
+      const response = await request(app)
+        .post('/auth/reset-password')
+        .send({ token: 'invalid_token', password: 'NewSecurePass123!' })
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBeDefined()
+    })
+  })
+
+  describe('POST /auth/change-password', () => {
+    it('should change password for authenticated user', async () => {
+      mockIsAuthenticated.mockImplementation((req, _res, next) => {
+        req.user = { id: 'user123', email: 'test@example.com', role: 'user' }
+        next()
+      })
+      mockAuthService.changePassword.mockResolvedValueOnce(undefined)
+
+      const response = await request(app)
+        .post('/auth/change-password')
+        .send({ currentPassword: 'OldPass123!', newPassword: 'NewSecurePass123!' })
+
+      expect(response.status).toBe(200)
+      expect(response.body.success).toBe(true)
+      expect(mockAuthService.changePassword).toHaveBeenCalledWith(
+        'user123',
+        'OldPass123!',
+        'NewSecurePass123!'
+      )
+    })
+
+    it('should reject wrong current password', async () => {
+      mockIsAuthenticated.mockImplementation((req, _res, next) => {
+        req.user = { id: 'user123', email: 'test@example.com', role: 'user' }
+        next()
+      })
+      mockAuthService.changePassword.mockRejectedValueOnce(
+        new Error('Contraseña actual incorrecta')
+      )
+
+      const response = await request(app)
+        .post('/auth/change-password')
+        .send({ currentPassword: 'WrongPass123!', newPassword: 'NewSecurePass123!' })
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBeDefined()
     })
   })
 })

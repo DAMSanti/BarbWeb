@@ -34,21 +34,12 @@ const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || ''
  * Should be called once at app startup
  */
 export function initializeAnalytics(): void {
-  // Debug: Log initialization attempt
-  console.log('[Analytics] Initializing...', { 
-    GA_MEASUREMENT_ID, 
-    isDev: import.meta.env.DEV,
-    enabledInDev: import.meta.env.VITE_ENABLE_ANALYTICS_DEV 
-  })
-
   if (!GA_MEASUREMENT_ID) {
-    console.warn('[Analytics] Disabled - No VITE_GA_MEASUREMENT_ID configured')
     return
   }
 
   // Skip in development unless explicitly enabled
   if (import.meta.env.DEV && !import.meta.env.VITE_ENABLE_ANALYTICS_DEV) {
-    console.log('[Analytics] Disabled in development mode')
     return
   }
 
@@ -66,8 +57,6 @@ export function initializeAnalytics(): void {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`
   
   script.onload = () => {
-    console.log('[Analytics] GA4 script loaded successfully')
-    
     // Initialize GA4 AFTER script loads
     window.gtag('js', new Date())
     window.gtag('config', GA_MEASUREMENT_ID, {
@@ -75,16 +64,10 @@ export function initializeAnalytics(): void {
       cookie_flags: 'SameSite=None;Secure',
       anonymize_ip: true, // GDPR compliance
     })
-    
-    console.log('[Analytics] GA4 configured with ID:', GA_MEASUREMENT_ID)
   }
-  
-  script.onerror = () => console.error('[Analytics] Failed to load GA4 script')
   
   // Add script to head - this triggers the load
   document.head.appendChild(script)
-
-  console.log('[Analytics] Loading GA4 script...')
 }
 
 /**

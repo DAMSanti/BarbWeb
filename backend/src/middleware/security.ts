@@ -79,7 +79,7 @@ export const helmetConfig = helmet({
       ],
       workerSrc: ["'self'", 'blob:'], // Sentry Session Replay uses blob workers
       imgSrc: ["'self'", 'data:', 'https:', 'https://www.googletagmanager.com'],
-      connectSrc: [...allowedConnectSrc, 'https://www.google-analytics.com', 'https://analytics.google.com', 'https://www.googletagmanager.com'],
+      connectSrc: [...allowedConnectSrc, 'https://*.google-analytics.com', 'https://analytics.google.com', 'https://www.googletagmanager.com'],
       frameSrc: ["'self'", 'https://js.stripe.com', 'https://hooks.stripe.com'],
       objectSrc: ["'none'"],
       }

@@ -90,6 +90,12 @@ vi.mock('../../src/services/authService', () => ({
   logoutUser: mockAuthService.logoutUser,
   linkOAuthAccount: mockAuthService.linkOAuthAccount,
   setupAdmin: mockAuthService.setupAdmin,
+  createPendingRegistration: mockAuthService.createPendingRegistration,
+  completeRegistration: mockAuthService.completeRegistration,
+  resendVerificationEmail: mockAuthService.resendVerificationEmail,
+  requestPasswordReset: mockAuthService.requestPasswordReset,
+  resetPassword: mockAuthService.resetPassword,
+  changePassword: mockAuthService.changePassword,
 }))
 
 vi.mock('../../src/utils/oauthHelper', () => ({
@@ -126,6 +132,12 @@ describe('Auth Routes', () => {
     app = express()
     app.use(express.json())
     app.use('/auth', authRouter)
+    
+    // Error handler for tests
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || err.status || 400
+      res.status(status).json({ error: err.message || 'Error' })
+    })
   })
 
   describe('POST /auth/register', () => {
@@ -839,14 +851,16 @@ describe('Auth Routes', () => {
     })
   })
 
-  describe('GET /auth/verify-email', () => {
+  describe('POST /auth/verify-email', () => {
     it('should complete registration with valid token', async () => {
       mockAuthService.completeRegistration.mockResolvedValueOnce({
         user: { id: 'user123', email: 'test@example.com', name: 'Test User', role: 'user' },
         tokens: { accessToken: 'access_123', refreshToken: 'refresh_123' },
       })
 
-      const response = await request(app).get('/auth/verify-email?token=valid_token_123')
+      const response = await request(app)
+        .post('/auth/verify-email')
+        .send({ token: 'valid_token_123' })
 
       expect(response.status).toBe(200)
       expect(response.body.success).toBe(true)
@@ -860,14 +874,18 @@ describe('Auth Routes', () => {
         new Error('Token inválido o expirado')
       )
 
-      const response = await request(app).get('/auth/verify-email?token=invalid_token')
+      const response = await request(app)
+        .post('/auth/verify-email')
+        .send({ token: 'invalid_token' })
 
       expect(response.status).toBe(400)
       expect(response.body.error).toBeDefined()
     })
 
     it('should require token parameter', async () => {
-      const response = await request(app).get('/auth/verify-email')
+      const response = await request(app)
+        .post('/auth/verify-email')
+        .send({})
 
       expect(response.status).toBe(400)
     })

@@ -227,7 +227,6 @@ describe('Password Reset Flow', () => {
     
     await prisma.user.deleteMany({})
     await prisma.passwordResetToken.deleteMany({})
-    await prisma.refreshToken.deleteMany({})
   })
 
   describe('requestPasswordReset', () => {

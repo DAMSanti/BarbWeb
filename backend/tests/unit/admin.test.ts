@@ -103,6 +103,12 @@ describe('Admin Routes', () => {
     app = express()
     app.use(express.json())
     app.use('/api/admin', adminRouter)
+    
+    // Error handler for tests
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || err.status || 500
+      res.status(status).json({ success: false, error: err.message || 'Internal server error' })
+    })
   })
 
   describe('Authorization', () => {

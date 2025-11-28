@@ -136,7 +136,7 @@ describe('Auth Routes', () => {
     // Error handler for tests
     app.use((err: any, _req: any, res: any, _next: any) => {
       const status = err.statusCode || err.status || 400
-      res.status(status).json({ error: err.message || 'Error' })
+      res.status(status).json({ success: false, error: err.message || 'Error' })
     })
   })
 

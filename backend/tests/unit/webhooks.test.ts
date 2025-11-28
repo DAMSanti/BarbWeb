@@ -82,6 +82,12 @@ describe('Webhooks Routes', () => {
     app.use(express.raw({ type: 'application/json' }))
     app.use('/webhooks', webhookRouter)
     
+    // Error handler for tests
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      const status = err.statusCode || err.status || 500
+      res.status(status).json({ success: false, error: err.message || 'Internal server error' })
+    })
+    
     process.env.STRIPE_SECRET_KEY = 'sk_test_123456789'
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_123456789'
   })

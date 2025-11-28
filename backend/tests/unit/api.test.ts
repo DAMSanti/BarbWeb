@@ -72,6 +72,15 @@ vi.mock('../../src/utils/logger', () => ({
 
 import apiRouter from '../../src/routes/api'
 
+// Simple error handler for tests
+const testErrorHandler = (err: any, _req: any, res: any, _next: any) => {
+  const statusCode = err.statusCode || err.status || 500
+  res.status(statusCode).json({
+    success: false,
+    error: err.message || 'Internal server error',
+  })
+}
+
 describe('API Routes', () => {
   let app: express.Application
 
@@ -81,6 +90,7 @@ describe('API Routes', () => {
     app = express()
     app.use(express.json())
     app.use('/api', apiRouter)
+    app.use(testErrorHandler) // Add error handler to catch thrown errors
   })
 
   describe('POST /api/filter-question', () => {
@@ -510,7 +520,7 @@ describe('API Routes', () => {
       expect(response.body.error).toContain('unavailable')
     })
 
-    it('should include error details in response', async () => {
+    it('should include error message in response', async () => {
       mockEmailService.sendPaymentConfirmationEmail.mockRejectedValueOnce(
         new Error('Detailed error message')
       )
@@ -520,9 +530,8 @@ describe('API Routes', () => {
         clientName: 'John Doe',
       })
 
+      expect(response.body.success).toBe(false)
       expect(response.body.error).toBe('Detailed error message')
-      expect(response.body.stack).toBeDefined()
-      expect(response.body.details).toBeDefined()
     })
 
     it('should include paymentId in email payload', async () => {

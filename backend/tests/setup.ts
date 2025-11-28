@@ -623,14 +623,24 @@ function createPrismaMock() {
           dataStore.passwordResetTokens.set(id, token)
           return token
         }),
-        findUnique: vi.fn(async ({ where }: any) => {
-          if (where.id) return dataStore.passwordResetTokens.get(where.id) || null
+        findUnique: vi.fn(async ({ where, include }: any) => {
+          let foundToken = null
+          if (where.id) foundToken = dataStore.passwordResetTokens.get(where.id) || null
           if (where.token) {
             for (const token of dataStore.passwordResetTokens.values()) {
-              if (token.token === where.token) return token
+              if (token.token === where.token) {
+                foundToken = token
+                break
+              }
             }
           }
-          return null
+          if (!foundToken) return null
+          // Include user relation if requested
+          if (include?.user) {
+            const user = dataStore.users.get(foundToken.userId)
+            return { ...foundToken, user: user || null }
+          }
+          return foundToken
         }),
         findFirst: vi.fn(async ({ where, include }: any) => {
           for (const token of dataStore.passwordResetTokens.values()) {

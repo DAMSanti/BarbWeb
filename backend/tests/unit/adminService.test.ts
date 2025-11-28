@@ -311,9 +311,10 @@ describe('Admin Service - Payment Management', () => {
       // Verify summary is included and has correct structure
       expect(result.summary).toBeDefined()
       expect(result.summary.successedCount).toBe(5)
-      expect(result.summary.successedTotal).toBe(500)
+      // successedTotal is a MockDecimal, need to check the value property or use toNumber()
+      expect(result.summary.successedTotal.toNumber ? result.summary.successedTotal.toNumber() : result.summary.successedTotal).toBe(500)
       expect(result.summary.refundedCount).toBe(2)
-      expect(result.summary.refundedTotal).toBe(100)
+      expect(result.summary.refundedTotal.toNumber ? result.summary.refundedTotal.toNumber() : result.summary.refundedTotal).toBe(100)
     })
 
     it('should return summary with fallback values when aggregate returns null', async () => {

@@ -195,20 +195,24 @@ describe('Pending Registration Flow', () => {
     })
 
     it('should throw error for expired token', async () => {
-      // Create pending registration
-      await authService.createPendingRegistration('expired@example.com', 'pass', 'Expired User')
-      const token = capturedVerificationToken!
+      // Create an expired pending registration directly
+      const crypto = require('crypto')
+      const expiredToken = crypto.randomBytes(32).toString('hex')
+      const hashedToken = crypto.createHash('sha256').update(expiredToken).digest('hex')
       
-      // Manually expire the token in the database
-      const hashedToken = require('crypto').createHash('sha256').update(token).digest('hex')
-      await prisma.pendingRegistration.updateMany({
-        where: { token: hashedToken },
-        data: { expiresAt: new Date(Date.now() - 1000) }, // Set to past
+      await prisma.pendingRegistration.create({
+        data: {
+          email: 'expired@example.com',
+          name: 'Expired User',
+          passwordHash: 'somehash',
+          token: hashedToken,
+          expiresAt: new Date(Date.now() - 1000), // Already expired
+        },
       })
       
       // Should fail because token is expired
       await expect(
-        authService.completeRegistration(token)
+        authService.completeRegistration(expiredToken)
       ).rejects.toThrow()
     })
 
@@ -431,22 +435,26 @@ describe('Password Reset Flow', () => {
     })
 
     it('should throw error for expired token', async () => {
-      // Create user
-      await authService.registerUser('expiredtoken@example.com', 'oldpassword', 'Expired Token User')
-      await authService.requestPasswordReset('expiredtoken@example.com')
+      // Create user first
+      const { user } = await authService.registerUser('expiredtoken@example.com', 'oldpassword', 'Expired Token User')
       
-      const token = capturedResetToken!
+      // Create an expired reset token directly
+      const crypto = require('crypto')
+      const expiredToken = crypto.randomBytes(32).toString('hex')
+      const hashedToken = crypto.createHash('sha256').update(expiredToken).digest('hex')
       
-      // Manually expire the token in the database
-      const hashedToken = require('crypto').createHash('sha256').update(token).digest('hex')
-      await prisma.passwordResetToken.updateMany({
-        where: { token: hashedToken },
-        data: { expiresAt: new Date(Date.now() - 1000) }, // Set to past
+      await prisma.passwordResetToken.create({
+        data: {
+          userId: user.id,
+          token: hashedToken,
+          expiresAt: new Date(Date.now() - 1000), // Already expired
+          used: false,
+        },
       })
       
       // Should fail because token is expired
       await expect(
-        authService.resetPassword(token, 'NewPassword123!')
+        authService.resetPassword(expiredToken, 'NewPassword123!')
       ).rejects.toThrow()
     })
   })

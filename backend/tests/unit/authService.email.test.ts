@@ -300,6 +300,17 @@ const { mockPrisma, dataStore, resetDataStore } = vi.hoisted(() => {
     },
     $connect: vi.fn(),
     $disconnect: vi.fn(),
+    $transaction: vi.fn(async (callback: any) => {
+      // Execute the callback with the mock prisma client
+      if (typeof callback === 'function') {
+        return await callback(mockPrisma)
+      }
+      // If it's an array of promises, execute them all
+      if (Array.isArray(callback)) {
+        return await Promise.all(callback)
+      }
+      return callback
+    }),
   }
 
   return { mockPrisma, dataStore, resetDataStore }

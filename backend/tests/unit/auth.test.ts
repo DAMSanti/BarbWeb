@@ -910,6 +910,15 @@ describe('Auth Routes', () => {
       expect(response.status).toBe(200)
       expect(response.body.success).toBe(true)
     })
+
+    it('should return 400 if email is missing', async () => {
+      const response = await request(app)
+        .post('/auth/resend-verification')
+        .send({})
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('Email required')
+    })
   })
 
   describe('POST /auth/forgot-password', () => {
@@ -934,6 +943,15 @@ describe('Auth Routes', () => {
 
       expect(response.status).toBe(200)
       expect(response.body.success).toBe(true)
+    })
+
+    it('should return 400 if email is missing', async () => {
+      const response = await request(app)
+        .post('/auth/forgot-password')
+        .send({})
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('Email is required')
     })
   })
 
@@ -964,6 +982,24 @@ describe('Auth Routes', () => {
 
       expect(response.status).toBe(400)
       expect(response.body.error).toBeDefined()
+    })
+
+    it('should return 400 if token or password is missing', async () => {
+      const response = await request(app)
+        .post('/auth/reset-password')
+        .send({ token: 'valid_token' }) // missing password
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('Token and password are required')
+    })
+
+    it('should return 400 if password is too short', async () => {
+      const response = await request(app)
+        .post('/auth/reset-password')
+        .send({ token: 'valid_token', password: 'short' })
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('Password must be at least 8 characters')
     })
   })
 
@@ -1008,6 +1044,41 @@ describe('Auth Routes', () => {
         .send({ currentPassword: 'WrongPass123!', newPassword: 'NewSecurePass123!' })
 
       expect(response.status).toBe(400)
+    })
+
+    it('should return 400 if passwords are missing', async () => {
+      mockVerifyToken.mockImplementation((req, _res, next) => {
+        req.user = { userId: 'user123', email: 'test@example.com', role: 'user' }
+        next()
+      })
+      mockIsAuthenticated.mockImplementation((_req, _res, next) => {
+        next()
+      })
+
+      const response = await request(app)
+        .post('/auth/change-password')
+        .send({ currentPassword: 'OldPass123!' }) // missing newPassword
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('Current password and new password are required')
+    })
+
+    it('should return 400 if new password is too short', async () => {
+      mockVerifyToken.mockImplementation((req, _res, next) => {
+        req.user = { userId: 'user123', email: 'test@example.com', role: 'user' }
+        next()
+      })
+      mockIsAuthenticated.mockImplementation((_req, _res, next) => {
+        next()
+      })
+
+      const response = await request(app)
+        .post('/auth/change-password')
+        .send({ currentPassword: 'OldPass123!', newPassword: 'short' })
+
+      expect(response.status).toBe(400)
+      expect(response.body.error).toBe('New password must be at least 8 characters')
+    })
       expect(response.body.error).toBeDefined()
     })
   })

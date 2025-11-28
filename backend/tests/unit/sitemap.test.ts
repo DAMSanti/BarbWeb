@@ -213,4 +213,36 @@ describe('Sitemap Routes', () => {
       expect(response.headers['content-type']).toContain('application/xml')
     })
   })
+
+  describe('GET /robots.txt', () => {
+    it('should return valid robots.txt', async () => {
+      const response = await request(app).get('/robots.txt')
+
+      expect(response.status).toBe(200)
+      expect(response.type).toBe('text/plain')
+      expect(response.text).toContain('User-agent: *')
+      expect(response.text).toContain('Allow: /')
+    })
+
+    it('should include sitemap reference', async () => {
+      const response = await request(app).get('/robots.txt')
+
+      expect(response.status).toBe(200)
+      expect(response.text).toContain('Sitemap: https://www.damsanti.app/sitemap.xml')
+    })
+
+    it('should set proper cache headers', async () => {
+      const response = await request(app).get('/robots.txt')
+
+      expect(response.status).toBe(200)
+      expect(response.headers['cache-control']).toBe('public, max-age=86400')
+    })
+
+    it('should have correct content-type header', async () => {
+      const response = await request(app).get('/robots.txt')
+
+      expect(response.status).toBe(200)
+      expect(response.headers['content-type']).toContain('text/plain')
+    })
+  })
 })

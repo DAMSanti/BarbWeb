@@ -8,10 +8,9 @@ interface ChessboardBackgroundProps {
   cleanMode?: boolean // Sin overlays adicionales
 }
 
-// Optimized WebP version of the chess image (hosted locally or CDN)
-// Falls back to local JPG if WebP is not available, then to external URL
-const OPTIMIZED_IMAGE_WEBP = '/images/chess-bg.webp'
-const LOCAL_FALLBACK_IMAGE = '/images/chess-bg-original.jpg'
+// Use local image first (served from same domain = faster)
+// Falls back to external URL only if local fails
+const LOCAL_IMAGE = '/images/chess-bg-original.jpg'
 const EXTERNAL_FALLBACK = 'https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg'
 
 export default function ChessboardBackground({
@@ -23,7 +22,7 @@ export default function ChessboardBackground({
 }: ChessboardBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [scrollY, setScrollY] = useState(0)
-  const [imageSrc, setImageSrc] = useState<string>(OPTIMIZED_IMAGE_WEBP)
+  const [imageSrc, setImageSrc] = useState<string>(LOCAL_IMAGE)
   const [imageLoaded, setImageLoaded] = useState(false)
   const rafRef = useRef<number>()
 
@@ -47,16 +46,13 @@ export default function ChessboardBackground({
     }
   }, [handleScroll])
 
-  // Handle image loading with fallback chain: WebP -> Local JPG -> External JPG
+  // Handle image loading with fallback to external URL
   const handleImageError = () => {
-    if (imageSrc === OPTIMIZED_IMAGE_WEBP) {
-      // Try local JPG fallback
-      setImageSrc(LOCAL_FALLBACK_IMAGE)
-    } else if (imageSrc === LOCAL_FALLBACK_IMAGE) {
+    if (imageSrc === LOCAL_IMAGE) {
       // Try external fallback
       setImageSrc(imageUrl || EXTERNAL_FALLBACK)
     }
-    // If all fail, the image will be invisible (opacity: 0)
+    // If external also fails, image stays invisible (opacity: 0)
   }
 
   const handleImageLoad = () => {

@@ -74,8 +74,8 @@ export const helmetConfig = helmet({
         "'self'", 
         'https://js.stripe.com', 
         'https://www.googletagmanager.com',
-        // Hash for Google Analytics inline script
-        "'sha256-0T0TE7u3vy5Z7rw/UlsACfk8b26loBw5EsuBXoHvIFE='",
+        // Hash for deferred GTM loading script in index.html
+        "'sha256-GaynY4UKupewtwrEC3cz1V6cbgcGDK4dOQ0m5BDF5JQ='",
       ],
       workerSrc: ["'self'", 'blob:'], // Sentry Session Replay uses blob workers
       imgSrc: ["'self'", 'data:', 'https:', 'https://www.googletagmanager.com'],

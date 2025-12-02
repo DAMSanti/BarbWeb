@@ -10,21 +10,33 @@
     <!-- Preconnect to critical third-party origins for faster loading -->
     <link rel="preconnect" href="https://t3.ftcdn.net" crossorigin />
     <link rel="preconnect" href="https://js.stripe.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
     <link rel="dns-prefetch" href="https://t3.ftcdn.net" />
     <link rel="dns-prefetch" href="https://js.stripe.com" />
     <link rel="dns-prefetch" href="https://m.stripe.network" />
-    
-    <!-- Google Analytics 4 - loaded async for non-blocking -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TBE0K9JH3Q"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-TBE0K9JH3Q', { 'send_page_view': false });
-    </script>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Google Analytics 4 - deferred loading after page render -->
+    <script>
+      // Defer GTM loading until after first paint to improve LCP
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var script = document.createElement('script');
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-TBE0K9JH3Q';
+          script.async = true;
+          document.head.appendChild(script);
+          
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', 'G-TBE0K9JH3Q', { 'send_page_view': false });
+        }, 0);
+      });
+    </script>
   </body>
 </html>

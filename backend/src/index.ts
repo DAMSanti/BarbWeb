@@ -182,7 +182,9 @@ app.use('/', express.static(frontendPath, {
 // debe redirigir al index.html para que React Router funcione
 app.get('*', (req, res) => {
   const indexPath = path.join(frontendPath, 'index.html')
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+  // Use no-cache instead of no-store to allow bfcache (back/forward cache)
+  // no-cache still revalidates but allows bfcache restoration
+  res.setHeader('Cache-Control', 'no-cache, must-revalidate')
   res.sendFile(indexPath, (err) => {
     if (err) {
       logger.error('Error serving index.html:', err)

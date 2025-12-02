@@ -16,23 +16,53 @@ export default defineConfig({
     // Enable better code splitting for smaller chunks
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Split vendor chunks for better caching
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-stripe': ['@stripe/stripe-js', '@stripe/react-stripe-js'],
-          'vendor-zustand': ['zustand'],
+        manualChunks(id) {
+          // Split vendor chunks for better caching and smaller main bundle
+          if (id.includes('node_modules')) {
+            // React ecosystem in one chunk
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-react'
+            }
+            // Stripe in separate chunk (lazy loaded)
+            if (id.includes('@stripe')) {
+              return 'vendor-stripe'
+            }
+            // Sentry in separate chunk (lazy loaded)
+            if (id.includes('@sentry')) {
+              return 'vendor-sentry'
+            }
+            // Lucide icons in separate chunk
+            if (id.includes('lucide')) {
+              return 'vendor-icons'
+            }
+            // Other smaller vendors
+            if (id.includes('zustand')) {
+              return 'vendor-state'
+            }
+          }
         },
       },
     },
-    // Target modern browsers for smaller bundle
-    target: 'es2020',
+    // Target modern browsers only - removes legacy polyfills
+    // Supports: Chrome 87+, Firefox 78+, Safari 14+, Edge 88+
+    target: 'esnext',
+    // Minification settings
+    minify: 'esbuild',
     // Increase chunk size warning limit
     chunkSizeWarningLimit: 500,
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+    // Source maps only in development
+    sourcemap: false,
   },
   // Optimize dependencies
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'zustand'],
-    // Exclude Stripe from pre-bundling to allow dynamic import
-    exclude: ['@stripe/stripe-js', '@stripe/react-stripe-js'],
+    // Exclude heavy libraries from pre-bundling to allow dynamic import
+    exclude: ['@stripe/stripe-js', '@stripe/react-stripe-js', '@sentry/react'],
+  },
+  // CSS optimization
+  css: {
+    devSourcemap: false,
   },
 })

@@ -296,8 +296,8 @@ test.describe('Production Smoke Tests', () => {
       const title = await page.title()
       expect(title.length).toBeGreaterThan(5)
       
-      // Viewport meta
-      const viewport = await page.locator('meta[name="viewport"]').getAttribute('content')
+      // Viewport meta (usar .first() porque puede haber duplicados)
+      const viewport = await page.locator('meta[name="viewport"]').first().getAttribute('content')
       expect(viewport).toBeTruthy()
     })
 

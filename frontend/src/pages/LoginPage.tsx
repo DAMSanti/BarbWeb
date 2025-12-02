@@ -70,10 +70,14 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = () => {
-    // Redirect to Google OAuth flow
-    // In production, this would use the actual OAuth flow
+    // Redirect to Google OAuth flow via backend
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
-    const redirectUri = `${window.location.origin}/auth/google/callback`
+    
+    // El callback debe ir al BACKEND, no al frontend
+    const apiUrl = window.location.origin.includes('damsanti.app') 
+      ? 'https://api.damsanti.app' 
+      : 'http://localhost:3000'
+    const redirectUri = `${apiUrl}/auth/google/callback`
     
     if (!clientId) {
       handleError(new Error('Google OAuth no está configurado'), 'LoginPage.handleGoogleLogin')
@@ -85,9 +89,14 @@ export default function LoginPage() {
   }
 
   const handleMicrosoftLogin = () => {
-    // Redirect to Microsoft OAuth flow
+    // Redirect to Microsoft OAuth flow via backend
     const clientId = import.meta.env.VITE_MICROSOFT_CLIENT_ID
-    const redirectUri = `${window.location.origin}/auth/microsoft/callback`
+    
+    // El callback debe ir al BACKEND, no al frontend
+    const apiUrl = window.location.origin.includes('damsanti.app') 
+      ? 'https://api.damsanti.app' 
+      : 'http://localhost:3000'
+    const redirectUri = `${apiUrl}/auth/microsoft/callback`
     
     if (!clientId) {
       handleError(new Error('Microsoft OAuth no está configurado'), 'LoginPage.handleMicrosoftLogin')

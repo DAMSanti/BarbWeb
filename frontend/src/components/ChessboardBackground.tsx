@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
 interface ChessboardBackgroundProps {
   imageUrl: string
@@ -7,6 +7,12 @@ interface ChessboardBackgroundProps {
   parallaxIntensity?: number
   cleanMode?: boolean // Sin overlays adicionales
 }
+
+// Optimized WebP version of the chess image (hosted locally or CDN)
+// Falls back to local JPG if WebP is not available, then to external URL
+const OPTIMIZED_IMAGE_WEBP = '/images/chess-bg.webp'
+const LOCAL_FALLBACK_IMAGE = '/images/chess-bg-original.jpg'
+const EXTERNAL_FALLBACK = 'https://t3.ftcdn.net/jpg/04/29/98/02/360_F_429980259_3jA8o7Zw4UVIRrWQxRKf3sZrnQTIX4ZR.jpg'
 
 export default function ChessboardBackground({
   imageUrl,
@@ -17,15 +23,45 @@ export default function ChessboardBackground({
 }: ChessboardBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [scrollY, setScrollY] = useState(0)
+  const [imageSrc, setImageSrc] = useState<string>(OPTIMIZED_IMAGE_WEBP)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const rafRef = useRef<number>()
+
+  // Throttled scroll handler using requestAnimationFrame
+  const handleScroll = useCallback(() => {
+    if (rafRef.current) return
+    
+    rafRef.current = requestAnimationFrame(() => {
+      setScrollY(window.scrollY)
+      rafRef.current = undefined
+    })
+  }, [])
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
     }
+  }, [handleScroll])
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  // Handle image loading with fallback chain: WebP -> Local JPG -> External JPG
+  const handleImageError = () => {
+    if (imageSrc === OPTIMIZED_IMAGE_WEBP) {
+      // Try local JPG fallback
+      setImageSrc(LOCAL_FALLBACK_IMAGE)
+    } else if (imageSrc === LOCAL_FALLBACK_IMAGE) {
+      // Try external fallback
+      setImageSrc(imageUrl || EXTERNAL_FALLBACK)
+    }
+    // If all fail, the image will be invisible (opacity: 0)
+  }
+
+  const handleImageLoad = () => {
+    setImageLoaded(true)
+  }
 
   return (
     <div
@@ -40,17 +76,23 @@ export default function ChessboardBackground({
         className="absolute inset-0"
         style={{
           transform: `translateY(${scrollY * parallaxIntensity}px) scale(1.05)`,
-          transition: 'transform 0.1s ease-out',
+          // Use will-change for GPU acceleration, removed transition to avoid forced reflow
+          willChange: 'transform',
         }}
       >
         <img
-          src={imageUrl}
+          src={imageSrc}
           alt="Tablero de ajedrez"
           className="w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+          onError={handleImageError}
+          onLoad={handleImageLoad}
           style={{
             filter: `blur(${blurAmount}px)`,
-            opacity: opacity,
+            opacity: imageLoaded ? opacity : 0,
             pointerEvents: 'none',
+            transition: 'opacity 0.3s ease-in-out',
           }}
         />
 

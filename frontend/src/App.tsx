@@ -1,11 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import HomePage from './pages/HomePage'
 import FAQPage from './pages/FAQPage'
 import ConsultationPage from './pages/ConsultationPage'
-import CheckoutPage from './pages/CheckoutPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
@@ -23,6 +22,17 @@ import { applyThemeVariables } from './theme/themeVariables'
 import { useAppStore } from './store/appStore'
 import { getApiUrl } from './services/backendApi'
 import { trackPageView, trackFunnelStep, setUserId, setUserProperties } from './utils/analytics'
+
+// Lazy load CheckoutPage to defer Stripe SDK loading until checkout is accessed
+// This significantly improves mobile performance by reducing initial bundle size
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
+
+// Loading fallback for lazy-loaded components
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[50vh]">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+  </div>
+)
 
 function AppContent() {
   const [searchParams] = useSearchParams()
@@ -159,7 +169,9 @@ function AppContent() {
             path="/checkout/:consultationId"
             element={
               <PrivateRoute>
-                <CheckoutPage />
+                <Suspense fallback={<PageLoader />}>
+                  <CheckoutPage />
+                </Suspense>
               </PrivateRoute>
             }
           />

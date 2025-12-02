@@ -152,10 +152,29 @@ const frontendPath = process.env.NODE_ENV === 'production'
   : path.join(__dirname, '../../../frontend/dist')
 
 // Servir archivos estáticos (CSS, JS, imágenes)
+// Use long cache for hashed assets (immutable), short cache for HTML
 app.use('/', express.static(frontendPath, {
   index: false, // No servir index.html automáticamente
-  setHeaders: (res) => {
-    res.set('Cache-Control', 'public, max-age=3600')
+  setHeaders: (res, filePath) => {
+    // Get file extension
+    const ext = path.extname(filePath).toLowerCase()
+    
+    // Vite adds content hashes to JS/CSS files, so they can be cached aggressively
+    // These files are immutable - when content changes, the filename changes
+    if (ext === '.js' || ext === '.css') {
+      // Cache for 1 year with immutable flag for hashed assets
+      res.set('Cache-Control', 'public, max-age=31536000, immutable')
+    } 
+    // Images, fonts, and other static assets
+    else if (['.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.avif', '.ico', '.woff', '.woff2', '.ttf', '.eot'].includes(ext)) {
+      // Cache for 1 week
+      res.set('Cache-Control', 'public, max-age=604800')
+    }
+    // Other files (json, txt, etc.)
+    else {
+      // Cache for 1 hour
+      res.set('Cache-Control', 'public, max-age=3600')
+    }
   }
 }))
 

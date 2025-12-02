@@ -11,7 +11,8 @@
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "lint:console": "node scripts/check-console.js || exit 1",
     "preview": "vite preview",
-    "start": "vite preview --host 0.0.0.0 --port 5173"
+    "start": "vite preview --host 0.0.0.0 --port 5173",
+    "optimize:images": "node scripts/optimize-images.js"
   },
   "dependencies": {
     "@sentry/react": "^8.38.0",

@@ -53,7 +53,7 @@ export default function AdminLayout() {
         {/* Logo */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h1 className={`font-bold text-xl ${sidebarOpen ? 'block' : 'hidden'}`} style={{ color: 'var(--accent-color)' }}>
+            <h1 className={`font-bold text-xl text-gray-800 ${sidebarOpen ? 'block' : 'hidden'}`}>
               ADMIN
             </h1>
             <button
@@ -75,7 +75,7 @@ export default function AdminLayout() {
                 to={item.path}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? 'text-white'
+                    ? 'text-gray-900 font-semibold'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 style={

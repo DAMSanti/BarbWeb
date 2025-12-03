@@ -824,6 +824,8 @@
     background: var(--footer-bg);
     color: var(--footer-text);
     border-top: 1px solid var(--footer-divider);
+    min-height: 320px; /* Reserve space to prevent CLS */
+    contain: layout style;
   }
 
   .footer-heading {

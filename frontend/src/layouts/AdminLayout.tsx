@@ -58,7 +58,9 @@ export default function AdminLayout() {
             </h1>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1 hover:bg-gray-100 rounded"
+              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label={sidebarOpen ? 'Cerrar menú lateral' : 'Abrir menú lateral'}
+              title={sidebarOpen ? 'Cerrar menú' : 'Abrir menú'}
             >
               {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>

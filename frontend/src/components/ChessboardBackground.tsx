@@ -80,8 +80,9 @@ export default function ChessboardBackground({
           src={imageSrc}
           alt="Tablero de ajedrez"
           className="w-full h-full object-cover"
-          loading="lazy"
-          decoding="async"
+          loading="eager"
+          decoding="sync"
+          fetchPriority="high"
           onError={handleImageError}
           onLoad={handleImageLoad}
           style={{

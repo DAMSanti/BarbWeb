@@ -82,7 +82,8 @@ export default function ChessboardBackground({
           className="w-full h-full object-cover"
           loading="eager"
           decoding="sync"
-          fetchPriority="high"
+          // @ts-expect-error - fetchpriority is a valid HTML attribute but React types don't include it yet
+          fetchpriority="high"
           onError={handleImageError}
           onLoad={handleImageLoad}
           style={{
